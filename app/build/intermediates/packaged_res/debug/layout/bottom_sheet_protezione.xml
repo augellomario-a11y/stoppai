@@ -1,0 +1,126 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    android:padding="20dp"
+    android:background="#FFFFFF">
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Per quanto tempo?"
+        android:textSize="20sp"
+        android:textStyle="bold"
+        android:textColor="#333333"
+        android:layout_marginBottom="16dp" />
+
+    <RadioGroup
+        android:id="@+id/ID_BS_RADIO"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+
+        <RadioButton
+            android:id="@+id/ID_BS_001"
+            android:layout_width="match_parent"
+            android:layout_height="48dp"
+            android:text="30 minuti"
+            android:textSize="16sp"
+            android:checked="true" />
+
+        <RadioButton
+            android:id="@+id/ID_BS_002"
+            android:layout_width="match_parent"
+            android:layout_height="48dp"
+            android:text="1 ora"
+            android:textSize="16sp" />
+
+        <RadioButton
+            android:id="@+id/ID_BS_003"
+            android:layout_width="match_parent"
+            android:layout_height="48dp"
+            android:text="2 ore"
+            android:textSize="16sp" />
+
+        <RadioButton
+            android:id="@+id/ID_BS_004"
+            android:layout_width="match_parent"
+            android:layout_height="48dp"
+            android:text="Fino a stasera (20:00)"
+            android:textSize="16sp" />
+
+        <RadioButton
+            android:id="@+id/ID_BS_005"
+            android:layout_width="match_parent"
+            android:layout_height="48dp"
+            android:text="Fino a domani (08:00)"
+            android:textSize="16sp" />
+
+        <RadioButton
+            android:id="@+id/ID_BS_006"
+            android:layout_width="match_parent"
+            android:layout_height="48dp"
+            android:text="Personalizzato"
+            android:textSize="16sp" />
+    </RadioGroup>
+
+    <TimePicker
+        android:id="@+id/ID_BS_TIMEPICKER"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:timePickerMode="spinner"
+        android:visibility="gone"
+        android:layout_marginTop="8dp"
+        android:layout_marginBottom="8dp" />
+
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:background="#EEEEEE"
+        android:layout_marginTop="12dp"
+        android:layout_marginBottom="12dp" />
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:gravity="center_vertical"
+        android:layout_marginBottom="8dp">
+
+        <Switch
+            android:id="@+id/ID_BS_007"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="Includi preferiti"
+            android:textSize="16sp" />
+    </LinearLayout>
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Anche i tuoi contatti preferiti verranno silenziati"
+        android:textSize="13sp"
+        android:textColor="#888888"
+        android:layout_marginBottom="16dp" />
+
+    <Button
+        android:id="@+id/ID_BS_008"
+        android:layout_width="match_parent"
+        android:layout_height="52dp"
+        android:text="ATTIVA"
+        android:textSize="16sp"
+        android:textColor="#FFFFFF"
+        android:backgroundTint="#B71C1C"
+        android:layout_marginBottom="8dp" />
+
+    <Button
+        android:id="@+id/ID_BS_009"
+        android:layout_width="match_parent"
+        android:layout_height="48dp"
+        android:text="ANNULLA"
+        android:textSize="14sp"
+        android:textColor="#666666"
+        android:backgroundTint="#EEEEEE" />
+
+</LinearLayout>

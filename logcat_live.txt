@@ -1,0 +1,318 @@
+--------- beginning of main
+03-21 23:56:01.482 30589 30589 E STOPPAI_VOL: Protezione Totale ON — scadenza: 1774133820479
+03-21 23:56:13.270 30589 30589 E STOPPAI_VOL: Protezione Totale ON — scadenza: 1774133940263
+03-21 23:56:20.379 30589 30589 D AndroidRuntime: Shutting down VM
+--------- beginning of crash
+03-21 23:56:20.380 30589 30589 E AndroidRuntime: FATAL EXCEPTION: main
+03-21 23:56:20.380 30589 30589 E AndroidRuntime: Process: com.ifs.stoppai, PID: 30589
+03-21 23:56:20.380 30589 30589 E AndroidRuntime: java.lang.IllegalStateException: Invalid response state for allowed call.
+03-21 23:56:20.380 30589 30589 E AndroidRuntime: 	at android.telecom.CallScreeningService$CallResponse.<init>(CallScreeningService.java:346)
+03-21 23:56:20.380 30589 30589 E AndroidRuntime: 	at android.telecom.CallScreeningService$CallResponse.<init>(Unknown Source:0)
+03-21 23:56:20.380 30589 30589 E AndroidRuntime: 	at android.telecom.CallScreeningService$CallResponse$Builder.build(CallScreeningService.java:579)
+03-21 23:56:20.380 30589 30589 E AndroidRuntime: 	at com.ifs.stoppai.core.CallScreeningServiceImpl.onScreenCall(CallScreeningServiceImpl.kt:71)
+03-21 23:56:20.380 30589 30589 E AndroidRuntime: 	at android.telecom.CallScreeningService$1.handleMessage(CallScreeningService.java:140)
+03-21 23:56:20.380 30589 30589 E AndroidRuntime: 	at android.os.Handler.dispatchMessage(Handler.java:110)
+03-21 23:56:20.380 30589 30589 E AndroidRuntime: 	at android.os.Looper.loopOnce(Looper.java:273)
+03-21 23:56:20.380 30589 30589 E AndroidRuntime: 	at android.os.Looper.loop(Looper.java:363)
+03-21 23:56:20.380 30589 30589 E AndroidRuntime: 	at android.app.ActivityThread.main(ActivityThread.java:10060)
+03-21 23:56:20.380 30589 30589 E AndroidRuntime: 	at java.lang.reflect.Method.invoke(Native Method)
+03-21 23:56:20.380 30589 30589 E AndroidRuntime: 	at com.android.internal.os.RuntimeInit$MethodAndArgsCaller.run(RuntimeInit.java:632)
+03-21 23:56:20.380 30589 30589 E AndroidRuntime: 	at com.android.internal.os.ZygoteInit.main(ZygoteInit.java:975)
+03-21 23:56:31.813 31585 31585 E STOPPAI_CACHE: Caricati 3146 contatti (sincrono)
+03-21 23:56:31.846 31585 31585 E STOPPAI_CACHE: Caricati 16 preferiti
+03-21 23:56:31.869 31585 31585 D AndroidRuntime: Shutting down VM
+03-21 23:56:31.869 31585 31585 E AndroidRuntime: FATAL EXCEPTION: main
+03-21 23:56:31.869 31585 31585 E AndroidRuntime: Process: com.ifs.stoppai, PID: 31585
+03-21 23:56:31.869 31585 31585 E AndroidRuntime: java.lang.IllegalStateException: Invalid response state for allowed call.
+03-21 23:56:31.869 31585 31585 E AndroidRuntime: 	at android.telecom.CallScreeningService$CallResponse.<init>(CallScreeningService.java:346)
+03-21 23:56:31.869 31585 31585 E AndroidRuntime: 	at android.telecom.CallScreeningService$CallResponse.<init>(Unknown Source:0)
+03-21 23:56:31.869 31585 31585 E AndroidRuntime: 	at android.telecom.CallScreeningService$CallResponse$Builder.build(CallScreeningService.java:579)
+03-21 23:56:31.869 31585 31585 E AndroidRuntime: 	at com.ifs.stoppai.core.CallScreeningServiceImpl.onScreenCall(CallScreeningServiceImpl.kt:71)
+03-21 23:56:31.869 31585 31585 E AndroidRuntime: 	at android.telecom.CallScreeningService$1.handleMessage(CallScreeningService.java:140)
+03-21 23:56:31.869 31585 31585 E AndroidRuntime: 	at android.os.Handler.dispatchMessage(Handler.java:110)
+03-21 23:56:31.869 31585 31585 E AndroidRuntime: 	at android.os.Looper.loopOnce(Looper.java:273)
+03-21 23:56:31.869 31585 31585 E AndroidRuntime: 	at android.os.Looper.loop(Looper.java:363)
+03-21 23:56:31.869 31585 31585 E AndroidRuntime: 	at android.app.ActivityThread.main(ActivityThread.java:10060)
+03-21 23:56:31.869 31585 31585 E AndroidRuntime: 	at java.lang.reflect.Method.invoke(Native Method)
+03-21 23:56:31.869 31585 31585 E AndroidRuntime: 	at com.android.internal.os.RuntimeInit$MethodAndArgsCaller.run(RuntimeInit.java:632)
+03-21 23:56:31.869 31585 31585 E AndroidRuntime: 	at com.android.internal.os.ZygoteInit.main(ZygoteInit.java:975)
+03-21 23:57:32.432 31768 31768 E STOPPAI_CACHE: Caricati 3146 contatti (sincrono)
+03-21 23:57:32.472 31768 31768 E STOPPAI_CACHE: Caricati 16 preferiti
+03-21 23:57:32.729 31768 31768 E STOPPAI_CACHE: Caricati 3146 contatti (sincrono)
+03-21 23:57:32.765 31768 31768 E STOPPAI_CACHE: Caricati 16 preferiti
+03-21 23:59:06.467 31768 31883 E STOPPAI_SCREEN: Numero chiamante: +393517771664
+03-21 23:59:06.468 31768 31883 E STOPPAI_SCREEN: Cache size: 3146
+03-21 23:59:06.468 31768 31883 E STOPPAI_SCREEN: È contatto: true
+03-21 23:59:08.955 31768 31768 E STOPPAI_VOL: Chiamata terminata → volume 0
+03-21 23:59:12.043 31768 32021 E STOPPAI_SCREEN: Numero chiamante: +393791221022
+03-21 23:59:12.043 31768 32021 E STOPPAI_SCREEN: Cache size: 3146
+03-21 23:59:12.043 31768 32021 E STOPPAI_SCREEN: È contatto: false
+03-21 23:59:16.766 31768 31768 E STOPPAI_VOL: Chiamata terminata → volume 0
+03-21 23:59:16.770 31768 31768 E STOPPAI_VOL: Chiamata terminata → volume 0
+03-22 00:07:11.088  1694  1694 E STOPPAI_CACHE: Caricati 3146 contatti (sincrono)
+03-22 00:07:11.172  1694  1694 E STOPPAI_CACHE: Caricati 16 preferiti
+03-22 00:07:11.505  1694  1694 E STOPPAI_CACHE: Caricati 3146 contatti (sincrono)
+03-22 00:07:11.552  1694  1694 E STOPPAI_CACHE: Caricati 16 preferiti
+03-22 00:07:28.276  1694  2088 E STOPPAI_SCREEN: Numero chiamante: +393496441798
+03-22 00:07:28.276  1694  2088 E STOPPAI_SCREEN: Cache size: 3146
+03-22 00:07:28.276  1694  2088 E STOPPAI_SCREEN: È contatto: true
+03-22 00:09:15.732  1694  1694 E STOPPAI_VOL: Protezione Totale ON — scadenza: 1774134720646
+03-22 00:09:31.026  1694  1694 D AndroidRuntime: Shutting down VM
+03-22 00:09:31.029  1694  1694 E AndroidRuntime: FATAL EXCEPTION: main
+03-22 00:09:31.029  1694  1694 E AndroidRuntime: Process: com.ifs.stoppai, PID: 1694
+03-22 00:09:31.029  1694  1694 E AndroidRuntime: java.lang.IllegalStateException: Invalid response state for allowed call.
+03-22 00:09:31.029  1694  1694 E AndroidRuntime: 	at android.telecom.CallScreeningService$CallResponse.<init>(CallScreeningService.java:346)
+03-22 00:09:31.029  1694  1694 E AndroidRuntime: 	at android.telecom.CallScreeningService$CallResponse.<init>(Unknown Source:0)
+03-22 00:09:31.029  1694  1694 E AndroidRuntime: 	at android.telecom.CallScreeningService$CallResponse$Builder.build(CallScreeningService.java:579)
+03-22 00:09:31.029  1694  1694 E AndroidRuntime: 	at com.ifs.stoppai.core.CallScreeningServiceImpl.onScreenCall(CallScreeningServiceImpl.kt:70)
+03-22 00:09:31.029  1694  1694 E AndroidRuntime: 	at android.telecom.CallScreeningService$1.handleMessage(CallScreeningService.java:140)
+03-22 00:09:31.029  1694  1694 E AndroidRuntime: 	at android.os.Handler.dispatchMessage(Handler.java:110)
+03-22 00:09:31.029  1694  1694 E AndroidRuntime: 	at android.os.Looper.loopOnce(Looper.java:273)
+03-22 00:09:31.029  1694  1694 E AndroidRuntime: 	at android.os.Looper.loop(Looper.java:363)
+03-22 00:09:31.029  1694  1694 E AndroidRuntime: 	at android.app.ActivityThread.main(ActivityThread.java:10060)
+03-22 00:09:31.029  1694  1694 E AndroidRuntime: 	at java.lang.reflect.Method.invoke(Native Method)
+03-22 00:09:31.029  1694  1694 E AndroidRuntime: 	at com.android.internal.os.RuntimeInit$MethodAndArgsCaller.run(RuntimeInit.java:632)
+03-22 00:09:31.029  1694  1694 E AndroidRuntime: 	at com.android.internal.os.ZygoteInit.main(ZygoteInit.java:975)
+03-22 00:09:37.576  3582  3582 E STOPPAI_CACHE: Caricati 3146 contatti (sincrono)
+03-22 00:09:37.626  3582  3582 E STOPPAI_CACHE: Caricati 16 preferiti
+03-22 00:09:37.890  3582  3582 E STOPPAI_CACHE: Caricati 3146 contatti (sincrono)
+03-22 00:09:37.929  3582  3582 E STOPPAI_CACHE: Caricati 16 preferiti
+03-22 00:11:24.065  3582  3582 E STOPPAI_VOL: Chiamata terminata → volume 0
+03-22 00:11:24.069  3582  4211 E STOPPAI_SCREEN: Numero chiamante: +393496441798
+03-22 00:11:24.069  3582  4211 E STOPPAI_SCREEN: Cache size: 3146
+03-22 00:11:24.069  3582  4211 E STOPPAI_SCREEN: È contatto: true
+03-22 00:12:16.559  3582  3582 E STOPPAI_VOL: Chiamata terminata → volume 0
+03-22 00:12:17.509  3582  3582 E STOPPAI_CACHE: Caricati 3146 contatti (sincrono)
+03-22 00:12:17.690  3582  3582 E STOPPAI_CACHE: Caricati 16 preferiti
+03-22 00:12:19.523  3582  3582 E STOPPAI_CACHE: Caricati 3146 contatti (sincrono)
+03-22 00:12:19.570  3582  3582 E STOPPAI_CACHE: Caricati 16 preferiti
+03-22 00:12:27.509  3582  3582 E STOPPAI_VOL: Protezione Totale ON — scadenza: 1774134840499
+03-22 00:13:38.839  3582  3582 D AndroidRuntime: Shutting down VM
+03-22 00:13:38.840  3582  3582 E AndroidRuntime: FATAL EXCEPTION: main
+03-22 00:13:38.840  3582  3582 E AndroidRuntime: Process: com.ifs.stoppai, PID: 3582
+03-22 00:13:38.840  3582  3582 E AndroidRuntime: java.lang.IllegalStateException: Invalid response state for allowed call.
+03-22 00:13:38.840  3582  3582 E AndroidRuntime: 	at android.telecom.CallScreeningService$CallResponse.<init>(CallScreeningService.java:346)
+03-22 00:13:38.840  3582  3582 E AndroidRuntime: 	at android.telecom.CallScreeningService$CallResponse.<init>(Unknown Source:0)
+03-22 00:13:38.840  3582  3582 E AndroidRuntime: 	at android.telecom.CallScreeningService$CallResponse$Builder.build(CallScreeningService.java:579)
+03-22 00:13:38.840  3582  3582 E AndroidRuntime: 	at com.ifs.stoppai.core.CallScreeningServiceImpl.onScreenCall(CallScreeningServiceImpl.kt:70)
+03-22 00:13:38.840  3582  3582 E AndroidRuntime: 	at android.telecom.CallScreeningService$1.handleMessage(CallScreeningService.java:140)
+03-22 00:13:38.840  3582  3582 E AndroidRuntime: 	at android.os.Handler.dispatchMessage(Handler.java:110)
+03-22 00:13:38.840  3582  3582 E AndroidRuntime: 	at android.os.Looper.loopOnce(Looper.java:273)
+03-22 00:13:38.840  3582  3582 E AndroidRuntime: 	at android.os.Looper.loop(Looper.java:363)
+03-22 00:13:38.840  3582  3582 E AndroidRuntime: 	at android.app.ActivityThread.main(ActivityThread.java:10060)
+03-22 00:13:38.840  3582  3582 E AndroidRuntime: 	at java.lang.reflect.Method.invoke(Native Method)
+03-22 00:13:38.840  3582  3582 E AndroidRuntime: 	at com.android.internal.os.RuntimeInit$MethodAndArgsCaller.run(RuntimeInit.java:632)
+03-22 00:13:38.840  3582  3582 E AndroidRuntime: 	at com.android.internal.os.ZygoteInit.main(ZygoteInit.java:975)
+03-22 00:13:58.171  5689  5689 E STOPPAI_CACHE: Caricati 3146 contatti (sincrono)
+03-22 00:13:58.228  5689  5689 E STOPPAI_CACHE: Caricati 16 preferiti
+03-22 00:13:58.499  5689  5689 E STOPPAI_CACHE: Caricati 3146 contatti (sincrono)
+03-22 00:13:58.537  5689  5689 E STOPPAI_CACHE: Caricati 16 preferiti
+03-22 00:14:10.115  5689  5689 E STOPPAI_CACHE: Caricati 3146 contatti (sincrono)
+03-22 00:14:10.168  5689  5689 E STOPPAI_CACHE: Caricati 16 preferiti
+03-22 00:14:11.885  5689  5873 E STOPPAI_SCREEN: Numero chiamante: +393496441798
+03-22 00:14:11.885  5689  5873 E STOPPAI_SCREEN: Cache size: 3146
+03-22 00:14:11.885  5689  5873 E STOPPAI_SCREEN: È contatto: true
+03-22 00:14:38.401  5689  5689 E STOPPAI_VOL: Chiamata terminata → volume 0
+03-22 00:23:43.226  5689  5689 E STOPPAI_VOL: Protezione Totale ON — scadenza: 1774135500221
+03-22 00:23:58.443  5689  5689 D AndroidRuntime: Shutting down VM
+03-22 00:23:58.447  5689  5689 E AndroidRuntime: FATAL EXCEPTION: main
+03-22 00:23:58.447  5689  5689 E AndroidRuntime: Process: com.ifs.stoppai, PID: 5689
+03-22 00:23:58.447  5689  5689 E AndroidRuntime: java.lang.IllegalStateException: Invalid response state for allowed call.
+03-22 00:23:58.447  5689  5689 E AndroidRuntime: 	at android.telecom.CallScreeningService$CallResponse.<init>(CallScreeningService.java:346)
+03-22 00:23:58.447  5689  5689 E AndroidRuntime: 	at android.telecom.CallScreeningService$CallResponse.<init>(Unknown Source:0)
+03-22 00:23:58.447  5689  5689 E AndroidRuntime: 	at android.telecom.CallScreeningService$CallResponse$Builder.build(CallScreeningService.java:579)
+03-22 00:23:58.447  5689  5689 E AndroidRuntime: 	at com.ifs.stoppai.core.CallScreeningServiceImpl.onScreenCall(CallScreeningServiceImpl.kt:70)
+03-22 00:23:58.447  5689  5689 E AndroidRuntime: 	at android.telecom.CallScreeningService$1.handleMessage(CallScreeningService.java:140)
+03-22 00:23:58.447  5689  5689 E AndroidRuntime: 	at android.os.Handler.dispatchMessage(Handler.java:110)
+03-22 00:23:58.447  5689  5689 E AndroidRuntime: 	at android.os.Looper.loopOnce(Looper.java:273)
+03-22 00:23:58.447  5689  5689 E AndroidRuntime: 	at android.os.Looper.loop(Looper.java:363)
+03-22 00:23:58.447  5689  5689 E AndroidRuntime: 	at android.app.ActivityThread.main(ActivityThread.java:10060)
+03-22 00:23:58.447  5689  5689 E AndroidRuntime: 	at java.lang.reflect.Method.invoke(Native Method)
+03-22 00:23:58.447  5689  5689 E AndroidRuntime: 	at com.android.internal.os.RuntimeInit$MethodAndArgsCaller.run(RuntimeInit.java:632)
+03-22 00:23:58.447  5689  5689 E AndroidRuntime: 	at com.android.internal.os.ZygoteInit.main(ZygoteInit.java:975)
+03-22 00:24:07.471  6846  6846 E STOPPAI_CACHE: Caricati 3146 contatti (sincrono)
+03-22 00:24:07.506  6846  6846 E STOPPAI_CACHE: Caricati 16 preferiti
+03-22 00:24:07.528  6846  6846 D AndroidRuntime: Shutting down VM
+03-22 00:24:07.528  6846  6846 E AndroidRuntime: FATAL EXCEPTION: main
+03-22 00:24:07.528  6846  6846 E AndroidRuntime: Process: com.ifs.stoppai, PID: 6846
+03-22 00:24:07.528  6846  6846 E AndroidRuntime: java.lang.IllegalStateException: Invalid response state for allowed call.
+03-22 00:24:07.528  6846  6846 E AndroidRuntime: 	at android.telecom.CallScreeningService$CallResponse.<init>(CallScreeningService.java:346)
+03-22 00:24:07.528  6846  6846 E AndroidRuntime: 	at android.telecom.CallScreeningService$CallResponse.<init>(Unknown Source:0)
+03-22 00:24:07.528  6846  6846 E AndroidRuntime: 	at android.telecom.CallScreeningService$CallResponse$Builder.build(CallScreeningService.java:579)
+03-22 00:24:07.528  6846  6846 E AndroidRuntime: 	at com.ifs.stoppai.core.CallScreeningServiceImpl.onScreenCall(CallScreeningServiceImpl.kt:70)
+03-22 00:24:07.528  6846  6846 E AndroidRuntime: 	at android.telecom.CallScreeningService$1.handleMessage(CallScreeningService.java:140)
+03-22 00:24:07.528  6846  6846 E AndroidRuntime: 	at android.os.Handler.dispatchMessage(Handler.java:110)
+03-22 00:24:07.528  6846  6846 E AndroidRuntime: 	at android.os.Looper.loopOnce(Looper.java:273)
+03-22 00:24:07.528  6846  6846 E AndroidRuntime: 	at android.os.Looper.loop(Looper.java:363)
+03-22 00:24:07.528  6846  6846 E AndroidRuntime: 	at android.app.ActivityThread.main(ActivityThread.java:10060)
+03-22 00:24:07.528  6846  6846 E AndroidRuntime: 	at java.lang.reflect.Method.invoke(Native Method)
+03-22 00:24:07.528  6846  6846 E AndroidRuntime: 	at com.android.internal.os.RuntimeInit$MethodAndArgsCaller.run(RuntimeInit.java:632)
+03-22 00:24:07.528  6846  6846 E AndroidRuntime: 	at com.android.internal.os.ZygoteInit.main(ZygoteInit.java:975)
+03-22 00:27:36.254  7172  7172 E STOPPAI_CACHE: Caricati 3146 contatti (sincrono)
+03-22 00:27:36.303  7172  7172 E STOPPAI_CACHE: Caricati 16 preferiti
+03-22 00:27:36.552  7172  7172 E STOPPAI_CACHE: Caricati 3146 contatti (sincrono)
+03-22 00:27:36.590  7172  7172 E STOPPAI_CACHE: Caricati 16 preferiti
+03-22 00:27:50.168  7172  7267 E STOPPAI_SCREEN: Numero chiamante: +393517771664
+03-22 00:27:50.169  7172  7267 E STOPPAI_SCREEN: Cache size: 3146
+03-22 00:27:50.169  7172  7267 E STOPPAI_SCREEN: È contatto: true
+03-22 00:28:00.167  7172  7476 E STOPPAI_SCREEN: Numero chiamante: +393791221022
+03-22 00:28:00.167  7172  7476 E STOPPAI_SCREEN: Cache size: 3146
+03-22 00:28:00.167  7172  7476 E STOPPAI_SCREEN: È contatto: false
+03-22 00:28:08.287  7172  7172 E STOPPAI_VOL: Chiamata terminata → volume 0
+03-22 00:28:51.257  7172  7172 E STOPPAI_VOL: Protezione Totale ON — scadenza: 1774135860248
+03-22 00:28:59.383  7172  7172 D AndroidRuntime: Shutting down VM
+03-22 00:28:59.383  7172  7172 E AndroidRuntime: FATAL EXCEPTION: main
+03-22 00:28:59.383  7172  7172 E AndroidRuntime: Process: com.ifs.stoppai, PID: 7172
+03-22 00:28:59.383  7172  7172 E AndroidRuntime: java.lang.IllegalStateException: Invalid response state for allowed call.
+03-22 00:28:59.383  7172  7172 E AndroidRuntime: 	at android.telecom.CallScreeningService$CallResponse.<init>(CallScreeningService.java:346)
+03-22 00:28:59.383  7172  7172 E AndroidRuntime: 	at android.telecom.CallScreeningService$CallResponse.<init>(Unknown Source:0)
+03-22 00:28:59.383  7172  7172 E AndroidRuntime: 	at android.telecom.CallScreeningService$CallResponse$Builder.build(CallScreeningService.java:579)
+03-22 00:28:59.383  7172  7172 E AndroidRuntime: 	at com.ifs.stoppai.core.CallScreeningServiceImpl.onScreenCall(CallScreeningServiceImpl.kt:70)
+03-22 00:28:59.383  7172  7172 E AndroidRuntime: 	at android.telecom.CallScreeningService$1.handleMessage(CallScreeningService.java:140)
+03-22 00:28:59.383  7172  7172 E AndroidRuntime: 	at android.os.Handler.dispatchMessage(Handler.java:110)
+03-22 00:28:59.383  7172  7172 E AndroidRuntime: 	at android.os.Looper.loopOnce(Looper.java:273)
+03-22 00:28:59.383  7172  7172 E AndroidRuntime: 	at android.os.Looper.loop(Looper.java:363)
+03-22 00:28:59.383  7172  7172 E AndroidRuntime: 	at android.app.ActivityThread.main(ActivityThread.java:10060)
+03-22 00:28:59.383  7172  7172 E AndroidRuntime: 	at java.lang.reflect.Method.invoke(Native Method)
+03-22 00:28:59.383  7172  7172 E AndroidRuntime: 	at com.android.internal.os.RuntimeInit$MethodAndArgsCaller.run(RuntimeInit.java:632)
+03-22 00:28:59.383  7172  7172 E AndroidRuntime: 	at com.android.internal.os.ZygoteInit.main(ZygoteInit.java:975)
+03-22 00:29:06.706  7912  7912 E STOPPAI_CACHE: Caricati 3146 contatti (sincrono)
+03-22 00:29:06.751  7912  7912 E STOPPAI_CACHE: Caricati 16 preferiti
+03-22 00:29:07.004  7912  7912 E STOPPAI_CACHE: Caricati 3146 contatti (sincrono)
+03-22 00:29:07.036  7912  7912 E STOPPAI_CACHE: Caricati 16 preferiti
+03-22 00:29:25.629  7912  7912 D AndroidRuntime: Shutting down VM
+03-22 00:29:25.630  7912  7912 E AndroidRuntime: FATAL EXCEPTION: main
+03-22 00:29:25.630  7912  7912 E AndroidRuntime: Process: com.ifs.stoppai, PID: 7912
+03-22 00:29:25.630  7912  7912 E AndroidRuntime: java.lang.IllegalStateException: Invalid response state for allowed call.
+03-22 00:29:25.630  7912  7912 E AndroidRuntime: 	at android.telecom.CallScreeningService$CallResponse.<init>(CallScreeningService.java:346)
+03-22 00:29:25.630  7912  7912 E AndroidRuntime: 	at android.telecom.CallScreeningService$CallResponse.<init>(Unknown Source:0)
+03-22 00:29:25.630  7912  7912 E AndroidRuntime: 	at android.telecom.CallScreeningService$CallResponse$Builder.build(CallScreeningService.java:579)
+03-22 00:29:25.630  7912  7912 E AndroidRuntime: 	at com.ifs.stoppai.core.CallScreeningServiceImpl.onScreenCall(CallScreeningServiceImpl.kt:70)
+03-22 00:29:25.630  7912  7912 E AndroidRuntime: 	at android.telecom.CallScreeningService$1.handleMessage(CallScreeningService.java:140)
+03-22 00:29:25.630  7912  7912 E AndroidRuntime: 	at android.os.Handler.dispatchMessage(Handler.java:110)
+03-22 00:29:25.630  7912  7912 E AndroidRuntime: 	at android.os.Looper.loopOnce(Looper.java:273)
+03-22 00:29:25.630  7912  7912 E AndroidRuntime: 	at android.os.Looper.loop(Looper.java:363)
+03-22 00:29:25.630  7912  7912 E AndroidRuntime: 	at android.app.ActivityThread.main(ActivityThread.java:10060)
+03-22 00:29:25.630  7912  7912 E AndroidRuntime: 	at java.lang.reflect.Method.invoke(Native Method)
+03-22 00:29:25.630  7912  7912 E AndroidRuntime: 	at com.android.internal.os.RuntimeInit$MethodAndArgsCaller.run(RuntimeInit.java:632)
+03-22 00:29:25.630  7912  7912 E AndroidRuntime: 	at com.android.internal.os.ZygoteInit.main(ZygoteInit.java:975)
+03-22 00:29:54.933  8097  8097 E STOPPAI_CACHE: Caricati 3146 contatti (sincrono)
+03-22 00:29:54.975  8097  8097 E STOPPAI_CACHE: Caricati 16 preferiti
+03-22 00:29:55.238  8097  8097 E STOPPAI_CACHE: Caricati 3146 contatti (sincrono)
+03-22 00:29:55.273  8097  8097 E STOPPAI_CACHE: Caricati 16 preferiti
+03-22 00:33:15.853  8395  8395 E STOPPAI_CACHE: Caricati 3146 contatti (sincrono)
+03-22 00:33:15.888  8395  8395 E STOPPAI_CACHE: Caricati 16 preferiti
+03-22 00:33:16.136  8395  8395 E STOPPAI_CACHE: Caricati 3146 contatti (sincrono)
+03-22 00:33:16.173  8395  8395 E STOPPAI_CACHE: Caricati 16 preferiti
+03-22 00:34:05.196  8395  8395 E STOPPAI_VOL: Protezione Totale ON — scadenza: 1774136160181
+03-22 00:34:12.857  8395  8395 D AndroidRuntime: Shutting down VM
+03-22 00:34:12.858  8395  8395 E AndroidRuntime: FATAL EXCEPTION: main
+03-22 00:34:12.858  8395  8395 E AndroidRuntime: Process: com.ifs.stoppai, PID: 8395
+03-22 00:34:12.858  8395  8395 E AndroidRuntime: java.lang.IllegalStateException: Invalid response state for allowed call.
+03-22 00:34:12.858  8395  8395 E AndroidRuntime: 	at android.telecom.CallScreeningService$CallResponse.<init>(CallScreeningService.java:346)
+03-22 00:34:12.858  8395  8395 E AndroidRuntime: 	at android.telecom.CallScreeningService$CallResponse.<init>(Unknown Source:0)
+03-22 00:34:12.858  8395  8395 E AndroidRuntime: 	at android.telecom.CallScreeningService$CallResponse$Builder.build(CallScreeningService.java:579)
+03-22 00:34:12.858  8395  8395 E AndroidRuntime: 	at com.ifs.stoppai.core.CallScreeningServiceImpl.onScreenCall(CallScreeningServiceImpl.kt:70)
+03-22 00:34:12.858  8395  8395 E AndroidRuntime: 	at android.telecom.CallScreeningService$1.handleMessage(CallScreeningService.java:140)
+03-22 00:34:12.858  8395  8395 E AndroidRuntime: 	at android.os.Handler.dispatchMessage(Handler.java:110)
+03-22 00:34:12.858  8395  8395 E AndroidRuntime: 	at android.os.Looper.loopOnce(Looper.java:273)
+03-22 00:34:12.858  8395  8395 E AndroidRuntime: 	at android.os.Looper.loop(Looper.java:363)
+03-22 00:34:12.858  8395  8395 E AndroidRuntime: 	at android.app.ActivityThread.main(ActivityThread.java:10060)
+03-22 00:34:12.858  8395  8395 E AndroidRuntime: 	at java.lang.reflect.Method.invoke(Native Method)
+03-22 00:34:12.858  8395  8395 E AndroidRuntime: 	at com.android.internal.os.RuntimeInit$MethodAndArgsCaller.run(RuntimeInit.java:632)
+03-22 00:34:12.858  8395  8395 E AndroidRuntime: 	at com.android.internal.os.ZygoteInit.main(ZygoteInit.java:975)
+03-22 00:34:28.190  8802  8802 E STOPPAI_CACHE: Caricati 3146 contatti (sincrono)
+03-22 00:34:28.232  8802  8802 E STOPPAI_CACHE: Caricati 16 preferiti
+03-22 00:34:28.256  8802  8802 D AndroidRuntime: Shutting down VM
+03-22 00:34:28.256  8802  8802 E AndroidRuntime: FATAL EXCEPTION: main
+03-22 00:34:28.256  8802  8802 E AndroidRuntime: Process: com.ifs.stoppai, PID: 8802
+03-22 00:34:28.256  8802  8802 E AndroidRuntime: java.lang.IllegalStateException: Invalid response state for allowed call.
+03-22 00:34:28.256  8802  8802 E AndroidRuntime: 	at android.telecom.CallScreeningService$CallResponse.<init>(CallScreeningService.java:346)
+03-22 00:34:28.256  8802  8802 E AndroidRuntime: 	at android.telecom.CallScreeningService$CallResponse.<init>(Unknown Source:0)
+03-22 00:34:28.256  8802  8802 E AndroidRuntime: 	at android.telecom.CallScreeningService$CallResponse$Builder.build(CallScreeningService.java:579)
+03-22 00:34:28.256  8802  8802 E AndroidRuntime: 	at com.ifs.stoppai.core.CallScreeningServiceImpl.onScreenCall(CallScreeningServiceImpl.kt:70)
+03-22 00:34:28.256  8802  8802 E AndroidRuntime: 	at android.telecom.CallScreeningService$1.handleMessage(CallScreeningService.java:140)
+03-22 00:34:28.256  8802  8802 E AndroidRuntime: 	at android.os.Handler.dispatchMessage(Handler.java:110)
+03-22 00:34:28.256  8802  8802 E AndroidRuntime: 	at android.os.Looper.loopOnce(Looper.java:273)
+03-22 00:34:28.256  8802  8802 E AndroidRuntime: 	at android.os.Looper.loop(Looper.java:363)
+03-22 00:34:28.256  8802  8802 E AndroidRuntime: 	at android.app.ActivityThread.main(ActivityThread.java:10060)
+03-22 00:34:28.256  8802  8802 E AndroidRuntime: 	at java.lang.reflect.Method.invoke(Native Method)
+03-22 00:34:28.256  8802  8802 E AndroidRuntime: 	at com.android.internal.os.RuntimeInit$MethodAndArgsCaller.run(RuntimeInit.java:632)
+03-22 00:34:28.256  8802  8802 E AndroidRuntime: 	at com.android.internal.os.ZygoteInit.main(ZygoteInit.java:975)
+03-22 00:36:54.523  8998  8998 E STOPPAI_CACHE: Caricati 3146 contatti (sincrono)
+03-22 00:36:54.571  8998  8998 E STOPPAI_CACHE: Caricati 16 preferiti
+03-22 00:36:54.823  8998  8998 E STOPPAI_CACHE: Caricati 3146 contatti (sincrono)
+03-22 00:36:54.856  8998  8998 E STOPPAI_CACHE: Caricati 16 preferiti
+03-22 00:37:04.164  8998  8998 E STOPPAI_VOL: Protezione Totale ON — scadenza: 1774138024161
+03-22 00:37:11.749  8998  8998 D AndroidRuntime: Shutting down VM
+03-22 00:37:11.750  8998  8998 E AndroidRuntime: FATAL EXCEPTION: main
+03-22 00:37:11.750  8998  8998 E AndroidRuntime: Process: com.ifs.stoppai, PID: 8998
+03-22 00:37:11.750  8998  8998 E AndroidRuntime: java.lang.IllegalStateException: Invalid response state for allowed call.
+03-22 00:37:11.750  8998  8998 E AndroidRuntime: 	at android.telecom.CallScreeningService$CallResponse.<init>(CallScreeningService.java:346)
+03-22 00:37:11.750  8998  8998 E AndroidRuntime: 	at android.telecom.CallScreeningService$CallResponse.<init>(Unknown Source:0)
+03-22 00:37:11.750  8998  8998 E AndroidRuntime: 	at android.telecom.CallScreeningService$CallResponse$Builder.build(CallScreeningService.java:579)
+03-22 00:37:11.750  8998  8998 E AndroidRuntime: 	at com.ifs.stoppai.core.CallScreeningServiceImpl.onScreenCall(CallScreeningServiceImpl.kt:70)
+03-22 00:37:11.750  8998  8998 E AndroidRuntime: 	at android.telecom.CallScreeningService$1.handleMessage(CallScreeningService.java:140)
+03-22 00:37:11.750  8998  8998 E AndroidRuntime: 	at android.os.Handler.dispatchMessage(Handler.java:110)
+03-22 00:37:11.750  8998  8998 E AndroidRuntime: 	at android.os.Looper.loopOnce(Looper.java:273)
+03-22 00:37:11.750  8998  8998 E AndroidRuntime: 	at android.os.Looper.loop(Looper.java:363)
+03-22 00:37:11.750  8998  8998 E AndroidRuntime: 	at android.app.ActivityThread.main(ActivityThread.java:10060)
+03-22 00:37:11.750  8998  8998 E AndroidRuntime: 	at java.lang.reflect.Method.invoke(Native Method)
+03-22 00:37:11.750  8998  8998 E AndroidRuntime: 	at com.android.internal.os.RuntimeInit$MethodAndArgsCaller.run(RuntimeInit.java:632)
+03-22 00:37:11.750  8998  8998 E AndroidRuntime: 	at com.android.internal.os.ZygoteInit.main(ZygoteInit.java:975)
+03-22 00:37:23.647  9344  9344 E STOPPAI_CACHE: Caricati 3146 contatti (sincrono)
+03-22 00:37:23.686  9344  9344 E STOPPAI_CACHE: Caricati 16 preferiti
+03-22 00:37:23.710  9344  9344 D AndroidRuntime: Shutting down VM
+03-22 00:37:23.710  9344  9344 E AndroidRuntime: FATAL EXCEPTION: main
+03-22 00:37:23.710  9344  9344 E AndroidRuntime: Process: com.ifs.stoppai, PID: 9344
+03-22 00:37:23.710  9344  9344 E AndroidRuntime: java.lang.IllegalStateException: Invalid response state for allowed call.
+03-22 00:37:23.710  9344  9344 E AndroidRuntime: 	at android.telecom.CallScreeningService$CallResponse.<init>(CallScreeningService.java:346)
+03-22 00:37:23.710  9344  9344 E AndroidRuntime: 	at android.telecom.CallScreeningService$CallResponse.<init>(Unknown Source:0)
+03-22 00:37:23.710  9344  9344 E AndroidRuntime: 	at android.telecom.CallScreeningService$CallResponse$Builder.build(CallScreeningService.java:579)
+03-22 00:37:23.710  9344  9344 E AndroidRuntime: 	at com.ifs.stoppai.core.CallScreeningServiceImpl.onScreenCall(CallScreeningServiceImpl.kt:70)
+03-22 00:37:23.710  9344  9344 E AndroidRuntime: 	at android.telecom.CallScreeningService$1.handleMessage(CallScreeningService.java:140)
+03-22 00:37:23.710  9344  9344 E AndroidRuntime: 	at android.os.Handler.dispatchMessage(Handler.java:110)
+03-22 00:37:23.710  9344  9344 E AndroidRuntime: 	at android.os.Looper.loopOnce(Looper.java:273)
+03-22 00:37:23.710  9344  9344 E AndroidRuntime: 	at android.os.Looper.loop(Looper.java:363)
+03-22 00:37:23.710  9344  9344 E AndroidRuntime: 	at android.app.ActivityThread.main(ActivityThread.java:10060)
+03-22 00:37:23.710  9344  9344 E AndroidRuntime: 	at java.lang.reflect.Method.invoke(Native Method)
+03-22 00:37:23.710  9344  9344 E AndroidRuntime: 	at com.android.internal.os.RuntimeInit$MethodAndArgsCaller.run(RuntimeInit.java:632)
+03-22 00:37:23.710  9344  9344 E AndroidRuntime: 	at com.android.internal.os.ZygoteInit.main(ZygoteInit.java:975)
+03-22 00:41:32.592  9782  9782 E STOPPAI_CACHE: Caricati 3146 contatti (sincrono)
+03-22 00:41:32.647  9782  9782 E STOPPAI_CACHE: Caricati 16 preferiti
+03-22 00:41:32.942  9782  9782 E STOPPAI_CACHE: Caricati 3146 contatti (sincrono)
+03-22 00:41:33.002  9782  9782 E STOPPAI_CACHE: Caricati 16 preferiti
+03-22 00:42:07.888  9782  9782 E STOPPAI_VOL: Chiamata terminata → volume 0
+03-22 00:42:21.628  9782  9782 E STOPPAI_VOL: Chiamata terminata → volume 0
+03-22 00:42:21.631  9782  9782 E STOPPAI_VOL: Chiamata terminata → volume 0
+03-22 00:42:36.772  9782 10097 E STOPPAI_SCREEN: Numero chiamante: +393517771664
+03-22 00:42:36.772  9782 10097 E STOPPAI_SCREEN: Cache size: 3146
+03-22 00:42:36.772  9782 10097 E STOPPAI_SCREEN: È contatto: true
+03-22 00:42:42.322  9782  9782 E STOPPAI_VOL: Chiamata terminata → volume 0
+03-22 00:42:42.329  9782  9782 E STOPPAI_VOL: Chiamata terminata → volume 0
+03-22 00:42:42.331  9782  9782 E STOPPAI_VOL: Chiamata terminata → volume 0
+03-22 00:42:44.637  9782 10286 E STOPPAI_SCREEN: Numero chiamante: +393791221022
+03-22 00:42:44.637  9782 10286 E STOPPAI_SCREEN: Cache size: 3146
+03-22 00:42:44.637  9782 10286 E STOPPAI_SCREEN: È contatto: false
+03-22 00:42:49.699  9782  9782 E STOPPAI_VOL: Chiamata terminata → volume 0
+03-22 00:42:49.700  9782  9782 E STOPPAI_VOL: Chiamata terminata → volume 0
+03-22 00:42:49.701  9782  9782 E STOPPAI_VOL: Chiamata terminata → volume 0
+03-22 00:42:49.703  9782  9782 E STOPPAI_VOL: Chiamata terminata → volume 0
+03-22 00:43:19.340  9782  9782 E STOPPAI_CACHE: Caricati 3146 contatti (sincrono)
+03-22 00:43:19.497  9782  9782 E STOPPAI_CACHE: Caricati 17 preferiti
+03-22 00:43:25.468  9782  9782 E STOPPAI_CACHE: Caricati 3146 contatti (sincrono)
+03-22 00:43:25.528  9782  9782 E STOPPAI_CACHE: Caricati 17 preferiti
+03-22 00:43:30.140  9782  9782 E STOPPAI_VOL: Protezione Totale ON — scadenza: 1774138410136
+03-22 00:46:08.218  9782  9782 E STOPPAI_CACHE: Caricati 3146 contatti (sincrono)
+03-22 00:46:08.283  9782  9782 E STOPPAI_CACHE: Caricati 17 preferiti
+03-22 00:46:12.778  9782  9782 E STOPPAI_VOL: Chiamata terminata → volume 0
+03-22 00:46:12.779  9782  9782 E STOPPAI_VOL: Chiamata terminata → volume 0
+03-22 00:46:12.783  9782  9782 E STOPPAI_VOL: Chiamata terminata → volume 0
+03-22 00:46:12.784  9782  9782 E STOPPAI_VOL: Chiamata terminata → volume 0
+03-22 00:46:12.786  9782  9782 E STOPPAI_VOL: Chiamata terminata → volume 0
+03-22 00:46:20.549  9782  9782 E STOPPAI_VOL: Protezione Totale ON — scadenza: 1774138580546
+03-22 00:46:29.334  9782  9782 E STOPPAI_CACHE: Caricati 3146 contatti (sincrono)
+03-22 00:46:29.403  9782  9782 E STOPPAI_CACHE: Caricati 17 preferiti
+03-22 00:46:32.820  9782  9782 E STOPPAI_VOL: Chiamata terminata → volume 0
+03-22 00:46:39.531  9782  9782 E STOPPAI_CACHE: Caricati 3146 contatti (sincrono)
+03-22 00:46:39.573  9782  9782 E STOPPAI_CACHE: Caricati 17 preferiti

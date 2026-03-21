@@ -1,0 +1,5 @@
+--------- beginning of main
+03-21 23:40:15.530 29739 29739 E STOPPAI_CACHE: Caricati 3146 contatti (sincrono)
+03-21 23:40:15.570 29739 29739 E STOPPAI_CACHE: Caricati 16 preferiti
+03-21 23:40:15.822 29739 29739 E STOPPAI_CACHE: Caricati 3146 contatti (sincrono)
+03-21 23:40:15.856 29739 29739 E STOPPAI_CACHE: Caricati 16 preferiti

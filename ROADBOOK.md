@@ -1,5 +1,28 @@
 # 📔 ROADBOOK: StoppAI
 ---
+### 📅 2026-03-22 00:50 | Agente: Ambrogio (Antigravity)
+- **TASK**: [TASK-SA-034] v2.9 — MILESTONE: Timing Protezione + Crash Fix
+- **STATUS**: ✅ COMPLETATO (Milestone Raggiunta e Pushato su `feature/gestione-timing-protezione`)
+- **AZIONI**:
+  - **TIMING PROTEZIONE [SA-028]**: Implementato BottomSheet per scelta durata Protezione Totale (30m, 1h, 2h, Stasera, Domani, Personalizzato).
+  - **COUNTDOWN [SA-029]**: Aggiunto timer dinamico in HomeFragment aggiornato ogni secondo con auto-disattivazione e ripristino volume.
+  - **PREFERITI [SA-028]**: Nuova cache preferiti in `ContactCacheManager`. Protezione Totale ora permette di escludere i preferiti (squillano anche in modalità totale).
+  - **CRASH FIX [SA-031/034]**: Risolto crash `IllegalStateException` su Samsung Android 14. Rimosso ogni riferimento a `setSkipNotification` quando la chiamata è permessa (`disallowCall(false)`).
+  - **VERSIONE**: 2.9 (Build 29).
+
+---
+### 📅 2026-03-21 23:04 | Agente: Ambrogio (Antigravity)
+- **TASK**: [TASK-SA-025] v2.4 — Call End Volume + RECAP sessione serale v2.1→v2.4
+- **STATUS**: ✅ COMPLETATO (Milestone + Commit Pushato `8be0ff4`)
+- **AZIONI SESSIONE SERALE**:
+  - **v2.1 [SA-021] Notification Fix**: Modificato `setSkipNotification(true)` per sconosciuti nel tentativo di silenziare il ring di sistema Android. Risolta icona Home con vector drawable dedicato `ic_home.xml`.
+  - **v2.2 [SA-022] Volume Definitivo**: Aggiunto fallback `run { if (saved > 0) saved else 7 }` in `CallScreeningServiceImpl` e guardia anti-zero in `StoppAiApp.onCreate()`. Fix `vol_originale=0` nelle SharedPreferences tramite ADB.
+  - **v2.3 [SA-024] Rollback v1.7**: Ripristinato `setSkipNotification(false)` e lettura volume con default 5 come nella v1.7 funzionante. Diagnosi confermata: la modifica a `true` non era la causa del problema.
+  - **v2.4 [SA-025] Call End Volume**: Rimosso timer fisso 35 secondi. Implementato `TelephonyCallback` (SDK≥31) con fallback `PhoneStateListener` per rilevare `CALL_STATE_IDLE`. Metodo `silenceRing()` riporta volume a 0 solo se `protezione_base` è attiva. Volume ora gestito da evento reale fine chiamata.
+  - **NAVIGAZIONE UI [SA-018/019]**: Creati Fragment (Home, Settings, Calls, Help) con BottomNavigationView a 4 icone. MainActivity ridotta a container + nav. Logica switch spostata in HomeFragment.
+  - **GIT**: Commit pushato su origin/main.
+
+---
 ### 📅 2026-03-21 17:29 | Agente: ARIA (Antigravity)
 - **TASK**: [TASK-SA-017] v1.7 Total Shield — RECAP GIORNATA DA v1.3 A v1.7
 - **STATUS**: ✅ COMPLETATO (Milestone Conclusa e Commit Pushato)

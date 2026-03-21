@@ -37,9 +37,20 @@
         android:id="@+id/ID_HOME_007"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="Protezione Totale (60 min)"
+        android:text="Protezione Totale"
         android:textSize="18sp"
-        android:layout_marginBottom="24dp" />
+        android:layout_marginBottom="4dp" />
+
+    <TextView
+        android:id="@+id/ID_HOME_008"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text=""
+        android:textSize="14sp"
+        android:textColor="#B71C1C"
+        android:visibility="gone"
+        android:layout_marginBottom="24dp"
+        android:paddingStart="4dp" />
 
     <Button
         android:id="@+id/ID_HOME_004"
@@ -59,7 +70,7 @@
         android:id="@+id/ID_HOME_099"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="StoppAI v2.4 —\n[TASK-SA-025] — Call End Volume"
+        android:text="StoppAI v2.9 —\n[TASK-SA-034] — Final Fix"
         android:textSize="12sp"
         android:textColor="#AAAAAA"
         android:gravity="center"

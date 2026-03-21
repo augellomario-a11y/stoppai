@@ -20,6 +20,10 @@
         "source": "com.ifs.stoppai.app-app-39:/menu/bottom_nav_menu.xml"
     },
     {
+        "merged": "com.ifs.stoppai.app-merged_res-38:/layout_bottom_sheet_protezione.xml.flat",
+        "source": "com.ifs.stoppai.app-app-39:/layout/bottom_sheet_protezione.xml"
+    },
+    {
         "merged": "com.ifs.stoppai.app-merged_res-38:/layout_fragment_home.xml.flat",
         "source": "com.ifs.stoppai.app-app-39:/layout/fragment_home.xml"
     },
