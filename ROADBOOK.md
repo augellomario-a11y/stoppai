@@ -1,5 +1,16 @@
 # 📔 ROADBOOK: StoppAI
 ---
+### 📅 2026-03-21 16:55 | Agente: ARIA (Antigravity)
+- **TASK**: MILESTONE CORE SCREENING completata!
+- **STATUS**: ✅ COMPLETATO
+- **AZIONI**: Giornata di ingegnerizzazione per il core silenzioso, con repository ufficialmente pushato. Raggiunta **v1.6 — Switch Volume**.
+  - **Crash Zero**: Risolto in modo chirurgico e a doppio-livello un crash letale in accensione scovolato dall'accesso avventato a `READ_CONTACTS`. L'app non si schianta più se l'utente ritarda nel concederli grazie all'`checkSelfPermission()` atomico in testa ai provider, e un callback in `onResume()`.
+  - **Sincronizzazione della Cache**: Neutralizzata la fastidiosa asincronia originaria del Thread `IO` di Kotlin che causava `0 contatti scaricati` nel primo fatale istante d'accensione. Utilizzando `loadContactsSync()` abbiamo un pool contatti pre-farcito all'attivazione dell'Activity.
+  - **Protezione Ringer Unificata**: L'azione invasiva di "abbassare" ed "alzare" la suoneria è migrata allo Switch `ID_HOME_001` che protegge costantemente la cornetta al livello di `STREAM_RING = 0` finché sei in Protezione Base, pur ricordando in background il tuo `vol_originale` (es. 5) da ricaricare la notte.
+  - **Identificazione Distinta**: Lo screening di `CallScreeningServiceImpl.kt` incrocia precisamente i prefissi rubrica e permette che lo "sconosciuto" suoni a Volume Zero (non disturbando minimamente l'utente), ed il volto amico suoni normalmente a Volume 5 e poi ristacca per i futuri squilli.
+  - **Commit Git Eseguito**: `git push origin main` andato a buon fine.
+
+---
 ### 📅 2026-03-21 16:45 | Agente: ARIA (Antigravity)
 - **TASK**: TASK-SA-016 — SWITCH-VOLUME
 - **STATUS**: ✅ COMPLETATO
