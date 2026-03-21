@@ -12,8 +12,8 @@ android {
         applicationId "com.ifs.stoppai"
         minSdk 29
         targetSdk 34
-        versionCode 16
-        versionName "1.6 — Switch Volume"
+        versionCode 17
+        versionName "1.7 — Total Shield"
     }
 
     compileOptions {

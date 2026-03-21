@@ -68,15 +68,35 @@ class MainActivity : AppCompatActivity() {
 
         val switchTotale = findViewById<Switch>(R.id.ID_HOME_007)
         switchTotale.isChecked = prefs.getBoolean("protezione_totale", false)
+        if (switchTotale.isChecked) {
+            switchBase.isEnabled = false
+        }
+        
         switchTotale.setOnCheckedChangeListener { _, isChecked ->
             val edit = prefs.edit()
             edit.putBoolean("protezione_totale", isChecked)
             if (isChecked) {
+                // Abbassa volume a 0 e salva scadenza
+                val volAdesso = audioManager.getStreamVolume(android.media.AudioManager.STREAM_RING)
+                if (volAdesso > 0) {
+                    edit.putInt("vol_originale", volAdesso)
+                }
                 edit.putLong("protezione_totale_scadenza", System.currentTimeMillis() + 60 * 60 * 1000)
                 try { audioManager.setStreamVolume(android.media.AudioManager.STREAM_RING, 0, 0) } catch(e:Exception){}
+                
+                // Disabilita visivamente Switch Protezione Base
+                switchBase.isEnabled = false
             } else {
-                val volOr = prefs.getInt("vol_originale", 5)
-                try { audioManager.setStreamVolume(android.media.AudioManager.STREAM_RING, volOr, 0) } catch(e:Exception){}
+                // Riabilita Switch Protezione Base
+                switchBase.isEnabled = true
+                
+                // Torna a logica Protezione Base
+                if (switchBase.isChecked) {
+                    try { audioManager.setStreamVolume(android.media.AudioManager.STREAM_RING, 0, 0) } catch(e:Exception){}
+                } else {
+                    val volOr = prefs.getInt("vol_originale", 5)
+                    try { audioManager.setStreamVolume(android.media.AudioManager.STREAM_RING, volOr, 0) } catch(e:Exception){}
+                }
             }
             edit.apply()
         }
@@ -124,7 +144,7 @@ class MainActivity : AppCompatActivity() {
         }
         
         val labelFooter = findViewById<TextView>(R.id.ID_HOME_099)
-        labelFooter.text = "StoppAI v1.6 — Switch Volume"
+        labelFooter.text = "StoppAI v1.7 — Total Shield"
         
         setupPermissionClickListeners()
     }

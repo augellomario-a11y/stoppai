@@ -21,6 +21,31 @@ class CallScreeningServiceImpl : CallScreeningService() {
         val phoneNumber = callDetails.handle?.schemeSpecificPart ?: ""
         val normalizedNumber = PhoneNumberUtils.normalizeNumber(phoneNumber)
 
+        val prefs = applicationContext.getSharedPreferences("stoppai_prefs", Context.MODE_PRIVATE)
+        var isTotaleActive = prefs.getBoolean("protezione_totale", false)
+        val scadenza = prefs.getLong("protezione_totale_scadenza", 0L)
+
+        // Controlla se è scaduta
+        if (isTotaleActive && System.currentTimeMillis() > scadenza) {
+            prefs.edit().putBoolean("protezione_totale", false).apply()
+            isTotaleActive = false
+        }
+
+        if (isTotaleActive) {
+            // Protezione totale — silenzio per tutti
+            // Non alzare il volume per nessuno
+            respondToCall(callDetails,
+                CallResponse.Builder()
+                .setDisallowCall(false)
+                .setSkipNotification(true)
+                .build())
+            // Salva nel DB
+            java.util.concurrent.Executors.newSingleThreadExecutor().execute {
+                saveCallLog(normalizedNumber)
+            }
+            return
+        }
+
         // Risposta sempre permessa
         // Non blocchiamo mai nessuno
         respondToCall(callDetails,

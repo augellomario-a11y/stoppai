@@ -1,5 +1,11 @@
 # 📔 ROADBOOK: StoppAI
 ---
+### 📅 2026-03-21 17:16 | Agente: ARIA (Antigravity)
+- **TASK**: TASK-SA-016 (Appendice) — AGGIORNAMENTO DIARIO PROGETTO
+- **STATUS**: ✅ COMPLETATO
+- **AZIONI**: Aggiunta formalmente al Repository Git la nuova documentazione testuale `docs/storia-progetto.md` introdotta da Mario, riguardante il "Diario completo di progetto v2.0 - da NO_SPAM a StoppAI". Nessun task logico alterato.
+
+---
 ### 📅 2026-03-21 16:55 | Agente: ARIA (Antigravity)
 - **TASK**: MILESTONE CORE SCREENING completata!
 - **STATUS**: ✅ COMPLETATO
