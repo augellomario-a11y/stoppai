@@ -1,5 +1,213 @@
 # 📔 ROADBOOK: StoppAI
 ---
+### 📅 2026-03-21 16:45 | Agente: ARIA (Antigravity)
+- **TASK**: TASK-SA-016 — SWITCH-VOLUME
+- **STATUS**: ✅ COMPLETATO
+- **AZIONI**: La gestione del volume è stata decentralizzata alla UI (livello Switch Base).
+  1. All'avvio in `onCreate()` l'app aggancia in millisecondi il volume di suoneria del device e, se superiore a 0, lo congela in salvataggio SharedPreferences come `vol_originale` (altrimenti spara un 5 default).
+  2. Spostamento Switch ad ON: rileva il livello attuale, lo cristallizza in RAM se maggiore di zero e azzera il Master Ringer, loggando `STOPPAI_VOL: Protezione ON - volume -> 0`.
+  3. Spostamento Switch ad OFF: disinnesca e riflasha in hardware il `vol_originale` salvato.
+  4. La logica invertita è spezzata: chi chiama da ignoto entra a Master 0 naturale. I contatti continuano con la restoration dinamica su Service. Compilata la **v1.6 — Switch Volume**.
+
+---
+### 📅 2026-03-21 02:45 | Agente: ARIA (Antigravity)
+- **TASK**: TASK-SA-015B — SYNC-CACHE
+- **STATUS**: ✅ COMPLETATO
+- **AZIONI**: Eliminata l'asincronia che rendeva cieca la prima iterazione dello Screening sui contatti.
+  1. `ContactCacheManager`: Introdotto `loadContactsSync()` che estrae e satura le struct `tempSet` localmente bloccando il flow fino al caricamento integrale di tutta la base. Aggiunto modulo d'uscita per `getSize()`.
+  2. `StoppAiApp` & `MainActivity`: Il layer di caricamento migra integralmente alle invoke in versione *Sync* durante il boot e sull'onResume.
+  3. `activity_main.xml` e UI: Integrato il marker visivo `ID_PERM_006`. Se il pool ha grandezza utile (>0) l'App rassicura con "🟢 Rubrica caricata (N)", altrimenti sventola semaforo rosso di transizione.
+  4. Tagliata e compresso il Release `1.5 - Sync Cache`.
+
+---
+### 📅 2026-03-21 02:40 | Agente: ARIA (Antigravity)
+- **TASK**: TASK-SA-014 — STABLE-LAUNCH (Crash fix)
+- **STATUS**: ✅ COMPLETATO
+- **AZIONI**: Eradicato il blocco fatale in avvio scatenato dalla negazione esplicita del `READ_CONTACTS` nativo Android/Samsung.
+  1. File `ContactCacheManager.kt` protetto a doppio strato: `startSync` e `loadContacts` invocano un check atomico sui permessi usando `ContextCompat.checkSelfPermission` prima ancora di accendere l'IO o interagire coi Content Provider, silurandosi da soli se il check fallisce.
+  2. Implementato in `StoppAiApp.kt` un `try-catch` robusto che previene qualsiasi Exception scagliata dal Context Application alla richiesta di permessi su boot e lo logga elegantemente senza abortire l'esecuzione dell'Activity principale.
+  3. Cablata `MainActivity.kt`: quando il lifecycle dell'Activity si rianima (`onResume`), valuta asincronamente se il permesso è stato appena accordato dall'utente; se sì, innesta il trigger e avvia il Sync dei contatti alla perfezione.
+  4. App compilata e pushata via ADB sul Samsung S22, signature *"1.4 — Stable Launch"*.
+
+---
+### 📅 2026-03-21 02:18 | Agente: ARIA (Antigravity)
+- **TASK**: TASK-SA-014 — LOGICA-FINALE
+- **STATUS**: ✅ COMPLETATO
+- **AZIONI**: Demolizione e sostituzione radicale dello strato API `CallScreeningService`. Da adesso Android e StoppAI gestiscono tutto il carrier pass-through senza il benché minimo blocco hardware/software.
+  1. `CallScreeningServiceImpl.kt`: riscritto interamente `onScreenCall` rimpiazzando lo statement originario. Costruita una via preferenziale spoglia in cui OGNI chiamata in entrata ottiene uno score `setDisallowCall(false)` incondizionato e restituito istantaneamente nel main thread per massima compliance coi driver Samsung. Eliminato ogni `setRejectCall(true)`.
+  2. Implementazione Post-Risposta: un `SingleThreadExecutor` valuta a cascata se il numero sia in rubrica usando l'HashSet asincrono in `CacheManager`.
+  3. Bypass Muting: Se riscontra un Amico, sguinzaglia un `Handler(Looper.getMainLooper())` per spezzare il Silenzio di `StoppAiApp` risvegliando momentaneamente il volume di `STREAM_RING`, abbassandolo nuovamente dopo 35 sec.
+  4. Se rileva numero Sconosciuto/Spam, il background thread salva passivamente il logging a DB disinteressandosi del volume, mantenendolo blindato sullo Zero assoluto del Boot (`StoppAiApp`). La telefonata resta muta.
+  5. Sfornata V1.4 - "Pure Silence". Compilata su ADB per S22.
+
+---
+### 📅 2026-03-21 02:11 | Agente: ARIA (Antigravity)
+- **TASK**: TASK-SA-013 — VOLUME-LOGIC
+- **STATUS**: ✅ COMPLETATO
+- **AZIONI**: Modello Volume Inverso ricostruito con isolamento thread per scongiurare fatal crashes.
+  1. Reinserito l'assorbimento primario del volume in `StoppAiApp.kt` (Boot) ma protetto integralmente in un layer Try-Catch anti-crush, incatenato logicamente alla `protezione_base` attiva. Il ring va a 0 solo se confermato.
+  2. Implementato in `CallScreeningServiceImpl.kt` il rimbalzo volume per chiamate Whitelistate/Rubrica. Rigorosamente su `Looper.getMainLooper().post` per garantire l'accesso al framework `AudioManager` nativo di Android. Il volume risale temporaneamente e viene poi riazzerato 35 s dopo tramite `postDelayed`. 
+  3. Numeri sconosciuti subiscono uno hard-block spietato, non sfiorando mai `AudioManager` ed ereditando lo Zero assoluto di avvio.
+  4. Intercettato il volume toggle in `MainActivity.kt` su accensione/spegnimento e persino in `onDestroy()` per rilasciare l'hardware alla chiusura dell'App.
+  5. Progetto taggato a *"1.3 — Volume Logic"*, compilato. Deployato su Samsung S22 fisico.
+
+---
+### 📅 2026-03-21 02:03 | Agente: ARIA (Antigravity)
+- **TASK**: TASK-SA-012 — RITORNO-V04
+- **STATUS**: ✅ COMPLETATO
+- **AZIONI**: Purga e rollback drastico dell'esperimento sul volume-guard per ripristinare il bloccaggio perfetto hard-coded (v0.4 architecture).
+  1. Spazzata via ogni invocazione nativa o indiretta dello stack e Context dell'`AudioManager`. Cancellata del tutto la logica del muting selettivo per affidarsi ai puri comandi Call Screening IPC di base.
+  2. In `CallScreeningServiceImpl.kt`, impostata `CallResponse.Builder` a tagliare ogni connessione con numero sconosciuto usando l'accoppiamento spietato `.setDisallowCall(true)` e `.setRejectCall(true)`.
+  3. Il set di contatti validi transita vergine tramite un response di puro `.setDisallowCall(false)`. Nessun handler, nessun thread posticipato se non i task Database puri.
+  4. Cancellati reazioni di Switch e controlli residui dal file `MainActivity.kt`.
+  5. Etichetta `v1.2 — Back to Basics` cucita sul Gradle e sul UI footer. Deploy eseguito.
+
+---
+### 📅 2026-03-21 02:00 | Agente: ARIA (Antigravity)
+- **TASK**: TASK-SA-011 — FIX-CRASH-VOLUME
+- **STATUS**: ✅ COMPLETATO
+- **AZIONI**: Ottimizzazione asincrona e migrazione `AudioManager` al MainThread nativo per scongiurare crash di servizio legati ai proxy context e lock di sistema.
+  1. Estirpata completamente la logica cruda e "troppo precoce" all'interno di `StoppAiApp.kt` al bootstrap. Questo decongestiona la start-chain e protegge da Fatal loop Android.
+  2. Spostata integralmente la governance `audio.setStreamVolume` per la Rubrica/Whitelists dentro due incapsulamenti garantiti: `Handler(Looper.getMainLooper()).post {}`. Ora l'OS assicura che il muting/unmuting sia sottomesso in perfetta sincronia dal main-thread hardware, bloccando gli alert su eventuali worker thread secondari.
+  3. L'handling di numeri sconosciuti non invoca minimamente le librerie di audio-injection e lascia passare lo stato corrente (riducendo drasticamente il carico cpu per gli SPAM calls).
+  4. Costruita versione 1.1 — Stable, spinta su R3CT905WBDF via ADB senza crash.
+
+---
+### 📅 2026-03-21 01:49 | Agente: ARIA (Antigravity)
+- **TASK**: TASK-SA-010 — INVERSE-VOLUME
+- **STATUS**: ✅ COMPLETATO
+- **AZIONI**: Logica silenziatore radicale Inverse Shield assecondata per Samsung S22.
+  1. Spostata prevaricazione di volume in avvio App nel costruttore `StoppAiApp.kt`. Salvia dell'indice volume originale in `SharedPreferences` e azzeramento coercitivo hardcoded di `STREAM_RING` sin dal bootstrap applicativo.
+  2. Implementazione della Positive-Rebound Logic per la Rubrica: in `CallScreeningServiceImpl.kt` soltanto le chiamate dei contatti noti `!shouldBlock` triggerano dinamicamente un recupero del volume temporaneo, il quale viene innescato una frazione di secondo prima dello screen pass-through, e riportato a `0` esatto dopo un safe delay di 35 sec.
+  3. L'ecosistema per i numeri sconosciuti non interroga più `AudioManager` a zero poichè protetto in partenza. Aggiunta direttiva `setSkipNotification(true)` per coprire alert visivi.
+  4. Cablate le reazioni Toggle in `MainActivity.kt`: de-switchare la protezione Base o Totale ristabilisce in tempo reale il reale volume originario (mentre attivarle rinforza lo Zero-Volume). 
+  5. APK Deployato con successo via ADB stream con firma *"1.0 — Inverse Shield"*.
+
+---
+### 📅 2026-03-21 01:43 | Agente: ARIA (Antigravity)
+- **TASK**: TASK-SA-010 — VOLUME-TIMING
+- **STATUS**: ✅ COMPLETATO
+- **AZIONI**: Shift temporale nell'overriding volume per impedire lo start hardware della suoneria.
+  1. Ricollocata l'estrazione e il set 0 di `STREAM_RING` prelevandolo da `AudioManager` come **istruzione prima assoluta** allo scoccare di `onScreenCall()`, ancor prima di interrogare SharedPreferences o Cache Ram. Questo chiude ad eventuali latenze iniziali di intercettazione.
+  2. Implementato `Executors.newSingleThreadExecutor()` per ripristinare il livello acustico pre-esistente dopo il delay prefissato di 20 secondi per i blocchi sconosciuti.
+  3. Aggiunta reinizializzazione condizionale immediata per le chiamate legittime (consentendo un normale squillo dei contatti whitelisted).
+  4. Footer aggiornato a *StoppAI v1.0 — Volume Guard* e bump su *build.gradle* installato con zero operazioni Git nel network. Installazione eseguita.
+
+---
+### 📅 2026-03-21 01:40 | Agente: ARIA (Antigravity)
+- **TASK**: TASK-SA-009 — FIX-SILENCE-SAMSUNG
+- **STATUS**: ✅ COMPLETATO
+- **AZIONI**: Override totale e profondo su driver audio e policy DND (Do Not Disturb) per mutare le architetture Android customizzate (es. One UI).
+  1. Integrato e autorizzato `ACCESS_NOTIFICATION_POLICY` nel Manifest Android per ottenere il permesso di abbassare lo stato di suoneria.
+  2. Modificato `CallScreeningServiceImpl.kt` inserendo lo stratagemma combo "Deep Silence". Anziché agire superficialmente con lo status in CallResponse o RingerMode, ho manipolato l'esatto byte-level di `AudioManager.STREAM_RING` (volume zero forzato a tempo) assieme a un check su `isNotificationPolicyAccessGranted` volto a innestare una vera eccezione `INTERRUPTION_FILTER_NONE` su `NotificationManager`. 
+  3. L'override acustico è isolato e annullato istantaneamente tramite un `Handler.postDelayed()` dopo 20 secondi, riconsegnando il controllo del dispositivo di output a fine dirottamento chiamate (verso la segreteria).
+  4. Footer "StoppAI v0.9 — Deep Silence" e build.gradle aggiornati senza intaccare macro-logiche su MainActivity. Compilazione lanciata e deployata su hardware Samsung S22.
+
+---
+### 📅 2026-03-21 01:34 | Agente: ARIA (Antigravity)
+- **TASK**: TASK-SA-008 — SILENT-FIX
+- **STATUS**: ✅ COMPLETATO
+- **AZIONI**: Operazione terminale sul silencing fisico del ring device.
+  1. Integrato e applicato un cast brutale ad `AudioManager` in `CallScreeningServiceImpl.kt` imponendo il `RINGER_MODE_SILENT` un istante prima di sparare via IPC la response CallScreening molla, e ripristinato a `RINGER_MODE_NORMAL` subito dopo in blocco try-catch di sicurezza. Questo forza l'assoluto mutismo in override sul dispositivo prima dei tick di squillo.
+  2. Aggiornato l'URI intent del Dial ad attivare le impostazioni della segreteria con un TTL accorciato da 30 a 15 secondi (codice di attivazione MMI **`**61*0421633844*11*15%23`**).
+  3. Avanzata la pipeline a v0.8. Compilato e installato. Nessun DB e XML layout toccati.
+
+---
+### 📅 2026-03-21 01:27 | Agente: ARIA (Antigravity)
+- **TASK**: TASK-SA-007 — FIX-DEVIAZIONE
+- **STATUS**: ✅ COMPLETATO
+- **AZIONI**: Passaggio al modello Deviazione Operatore Assoluta.
+  1. Modificato l'invio codice MMI in `MainActivity.kt` utiizzando l'API `Uri.fromParts` per sfuggire all'encoding bug del cancelleto `%23`. Adesso il Dialer Android assorbe esattamente la stringa `##61#`.
+  2. Aggiornato `CallScreeningServiceImpl.kt` al pattern "Silent Forwarding" parziale: `setSilenceCall(true)` e `setSkipNotification(true)` ma senza bloccare lo stream (`setDisallowCall(false)`). Questo assicura zero squilli in UI, ma la chiamata avanza nel network per 30 secondi, lasciando il tempo alla segreteria/router dell'operatore di completare la deviazione da backend.
+  3. Incremental v0.7 nel Gradle e forzato programmaticamente il rendering footer `ID_HOME_099`. Compilato e Deploy su S22.
+
+---
+### 📅 2026-03-21 01:21 | Agente: ARIA (Antigravity)
+- **TASK**: TASK-SA-006 — UX-REGISTRO-SEGRETERIA (Parte B)
+- **STATUS**: ✅ COMPLETATO
+- **AZIONI**: Aggiunti pulsanti interattivi per dialer Segreteria GSM.
+  1. Incrementata versione su `build.gradle` (v0.6 — Segreteria).
+  2. Aggiunti pulsanti `ID_HOME_005` ("Attiva segreteria") e `ID_HOME_006` ("Disattiva segreteria") in `activity_main.xml`.
+  3. Collegati event listener in `MainActivity.kt` per lanciare il Dialer (`ACTION_DIAL`) con i codici europei standard `**61*...#` e `##61#`.
+  4. Footer aggiornato a v0.6. Buildato e installato su S22. Nessun'altra configurazione toccata.
+
+---
+### 📅 2026-03-21 01:10 | Agente: ARIA (Antigravity)
+- **TASK**: TASK-SA-006B — FIX-BLOCCO-CRITICO
+- **STATUS**: ✅ COMPLETATO
+- **AZIONI**: Rollback strategico del blocco hard per contrastare l'inefficacia parziale di USSD Forwarding locale.
+  1. Commentata/Rimossa interazione con `UssdManager.kt` dalla pipeline di `CallScreeningServiceImpl.kt`.
+  2. Ripristinato il blocco hard asincrono zero-latenza per i numeri sconosciuti: `setDisallowCall(true)`, `setRejectCall(true)`. Eliminato il silence pattern (`setSilenceCall`).
+  3. Aggiunta configurazione esplicita `setDisallowCall(false)` per i numeri noti in whitelist/rubrica.
+  4. Ricompilato e pushato nuovo aggiornamento APK nel dispositivo fisico S22 (zero git).
+
+---
+### 📅 2026-03-21 01:05 | Agente: ARIA (Antigravity)
+- **TASK**: TASK-SA-006 — UX-REGISTRO
+- **STATUS**: ✅ COMPLETATO
+- **AZIONI**: Riperfezionata la User Experience del Registro e aggiunto pulsante Wipe.
+  1. Incrementata versione su `build.gradle` (v0.5 — UX Fix).
+  2. Modificato `item_call_log.xml` innestando un nuovo `TextView` per la formattazione di Data e Ora (`ID_LOG_002`) formattato via `SimpleDateFormat`.
+  3. Aggiunte diciture testuali leggibili con Emoji ("⏳ Da gestire", "✅ Whitelist" etc) nel log di ciascuna chiamata (`CallLogAdapter.kt`).
+  4. Inserito pulsante distruttivo `ID_HOME_006` ("🗑 Svuota registro") con interazione basata su AlertDialog di sicurezza che va ad invocare la funzione nativa di piallaggio su `clearAllTables()`. Aggiornato anche il footer su v0.5 in `activity_main.xml`.
+  5. Buildato e installato su S22. Zero interferenze su CallScreening o Ussd.
+
+---
+### 📅 2026-03-21 00:55 | Agente: ARIA (Antigravity)
+- **TASK**: TASK-SA-005 — FIX-SCREENING-CHECK
+- **STATUS**: ✅ COMPLETATO
+- **AZIONI**: Bugfix rilevamento permessi su Samsung One UI.
+  1. Modificata in modo isolato la funzione `aggiornaPermessi()` in `MainActivity.kt`.
+  2. Sostituito il check tramite `Settings.Secure` con le API native basate su `RoleManager`.
+  3. `ID_PERM_003` (App verifica chiamate) viene ora correttamente ricalcolato col semaforo in base a `isRoleHeld(ROLE_CALL_SCREENING)`.
+  4. Ricompilato e pushato nuovo aggiornamento APK nel S22 (zero git).
+
+---
+### 📅 2026-03-21 00:46 | Agente: ARIA (Antigravity)
+- **TASK**: TASK-SA-004 — VERSIONING-PERMESSI
+- **STATUS**: ✅ COMPLETATO
+- **AZIONI**: Creazione modulo visivo per permessi e Versioning.
+  1. Incrementato `build.gradle` a v0.4 ("Dynamic Shield").
+  2. Layout `activity_main.xml` esteso: creata Card di Configurazione con 5 text view interattive (Contacts, Phone State, Screening Default, Phone Call, Notifications) e Footer finale ID_HOME_099 per versione fissa in schermo.
+  3. Modificata `MainActivity.kt` estraendo logica su `onResume` per ricalcolo icone in real-time. Linkati tutti gli `Intent` appositi ai Settings di sistema Android se un permesso rosso (`🔴`) viene tappato dall'utente.
+  4. Eseguito deploy con adb per validazione versionName ed estrazione test visuale UI su emulatore.
+
+---
+### 📅 2026-03-21 00:26 | Agente: ARIA (Antigravity)
+- **TASK**: TASK-SA-003 — DEVIAZIONE-DINAMICA
+- **STATUS**: ✅ COMPLETATO
+- **AZIONI**: Completata l'infrastruttura di Inoltro Chiamata (Silent Forwarding).
+  1. Integrato e autorizzato `CALL_PHONE` in `AndroidManifest` (Manifest e Request).
+  2. Costruito il layer di comunicazione `UssdManager` per invocare i codici di deviazione WindTre (`**21*0421633844#` e `##21#`).
+  3. Modificato `CallScreeningServiceImpl`: disattivato il blocco hard (`setDisallowCall(false)`), attivato il Mute UI (`setSilenceCall` e `setSkipNotification`) ed integrata l'invocazione ad `UssdManager.activateForward()`.
+  4. Realizzato `PhoneStateListener`/`TelephonyCallback` persistente agganciato ad `applicationContext` per attendere `CALL_STATE_IDLE` (chiamata conclusa) e sganciare la deviazione (`##21#`).
+  5. Eseguito avvio su emulatore e validazione build su SDK 34.
+
+---
+### 📅 2026-03-20 23:25 | Agente: ARIA (Antigravity)
+- **TASK**: TASK-SA-002 — IMPLEMENTAZIONE CORE SCREENING E ROOM DB
+- **STATUS**: ✅ COMPLETATO
+- **AZIONI**: Creata l'infrastruttura nativa Android per la gestione chiamate.
+  1. Configurazione progetto Gradle minimale con App compatibile S22 Ultra (Target 34).
+  2. Aggiunto `ContactCacheManager` per gestire la query rubrica con `HashSet` in background ed aggiornamenti a 15 min.
+  3. Modificato `CallScreeningServiceImpl` per operare asincronamente. STEP 1 = `respondToCall` sincrono immediato. Nessuna decodifica complessa da Main.
+  4. Implementato layer Room DB `StoppAiDatabase` e `CallLogEntry`.
+  5. Sviluppata la UI in `MainActivity` col log dei blocchi tramite RecyclerView.
+  6. Rimosso ogni riferimento a dialer predefinito e `InCallService`.
+
+---
+### 📅 2026-03-20 01:07 | Agente: ARIA (Antigravity)
+- **TASK**: TASK-SA-001 — SETUP-STOPPAI
+- **STATUS**: ✅ COMPLETATO
+- **AZIONI**: Setup iniziale progetto StoppAI.
+  1. Inizializzato Git e collegato origin.
+  2. Creata struttura cartelle richiesta.
+  3. Copiati e aggiornati i file markdown dal progetto precedente.
+  4. Aggiornato GEMINI.md con la struttura del file e regole per l'agente.
+  5. Creato file SKILL.md in .agent/skills/.
+  6. Eseguito primo commit su GitHub ("TASK-NS-081").
+
+---
 ### 📅 2026-03-18 | Agente: Ambrogio (Antigravity)
 - **TASK**: TASK-NS-072-CRASH-FIX — SOLVED CRITICAL DB CRASH
 - **STATUS**: ✅ COMPLETATO

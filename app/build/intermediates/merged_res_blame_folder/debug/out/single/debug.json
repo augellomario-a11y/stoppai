@@ -1,0 +1,10 @@
+[
+    {
+        "merged": "com.ifs.stoppai.app-merged_res-38:/layout_activity_main.xml.flat",
+        "source": "com.ifs.stoppai.app-app-39:/layout/activity_main.xml"
+    },
+    {
+        "merged": "com.ifs.stoppai.app-merged_res-38:/layout_item_call_log.xml.flat",
+        "source": "com.ifs.stoppai.app-app-39:/layout/item_call_log.xml"
+    }
+]
