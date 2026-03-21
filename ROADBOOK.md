@@ -1,5 +1,16 @@
 # 📔 ROADBOOK: StoppAI
 ---
+### 📅 2026-03-21 17:29 | Agente: ARIA (Antigravity)
+- **TASK**: [TASK-SA-017] v1.7 Total Shield — RECAP GIORNATA DA v1.3 A v1.7
+- **STATUS**: ✅ COMPLETATO (Milestone Conclusa e Commit Pushato)
+- **AZIONI ODIERNE**: Riassunto di fine giornata sulle logiche asincrone di Screening che hanno finalmente domato l'intera architettura base:
+  - **v1.3/v1.4 (Pure Silence / Stable Launch)**: Sostituito il blocco forzato della chiamata (`setDisallowCall`) con la logica del *Volume Invertito* (Suoneria master 0 per ignorati / Restoration suoneria a 5 per Amici rilevati). Risolto anche il blocco fatale in avvio scatenato dall'accesso rubrica (inserito doppio check nativo `checkSelfPermission`).
+  - **v1.5 (Sync Cache)**: Estinta la *race-condition* cronica della lettura contatti iniziale disattivando la Coroutine in background. Usato esclusivamente `loadContactsSync()` in `onResume()`, completando la cache (es. 3146 records) PRIMA di rendere disponibile l'app. Aggiunto anche il semaforo visivo verde/rosso `ID_PERM_006`.
+  - **v1.6 (Switch Volume)**: Congelato il volume utente preferito (`vol_originale`) tramite shared preferences dirette estratte all'avvio. La mutazione a master-zero ora viaggia solo premendo `ON` allo Switch "Protezione Base". Rimettendolo su `OFF` vieni riportato magicamente ai pieni squilli.
+  - **v1.7 (Total Shield)**: Introdotta e formalmente innescata l'Opzione Totale `ID_HOME_007`. Essa disabilita lo switch Base e setta `.setSkipNotification(true)` *hardcoded* dal Service su qualsiasi numero chiami, garantendo silenzio irreale su amici, parenti e call center senza sbalzi di decibel. Prevede l'auto-scadenza garantita oltre i +60 minuti.
+  - **GIT**: Tutti i moduli confermati in produzione, push sul repository eseguito (`"Total Shield — Protezione Totale funzionante..."`).
+
+---
 ### 📅 2026-03-21 17:16 | Agente: ARIA (Antigravity)
 - **TASK**: TASK-SA-016 (Appendice) — AGGIORNAMENTO DIARIO PROGETTO
 - **STATUS**: ✅ COMPLETATO

@@ -1,0 +1,2 @@
+--------- beginning of main
+03-21 22:28:27.089 18701 18701 E STOPPAI_VOL: App start - Reset vol_originale

@@ -1,0 +1,2 @@
+--------- beginning of main
+03-21 22:21:52.581 12188 12188 E STOPPAI_CACHE: Caricati 3146 contatti (sincrono)

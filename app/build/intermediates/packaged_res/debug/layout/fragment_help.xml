@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:fillViewport="true">
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:padding="16dp">
+        
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Blocca i fastidi.\nNon le persone."
+            android:textSize="26sp"
+            android:textStyle="bold"
+            android:gravity="center"
+            android:layout_marginBottom="24dp"
+            android:layout_marginTop="16dp"/>
+
+        <TextView android:text="Cos'è StoppAI" android:textStyle="bold" android:textSize="18sp" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginBottom="4dp"/>
+        <TextView android:text="StoppAI non blocca nessuno. Filtra. Chi conosci passa sempre. Chi non conosci viene accolto da un agente che ascolta e ti avvisa con una notifica." android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginBottom="16dp"/>
+
+        <TextView android:text="🛡️ Protezione Base" android:textStyle="bold" android:textSize="18sp" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginBottom="4dp"/>
+        <TextView android:text="Cosa fa: blocca le chiamate di chi non è in rubrica. Il tuo telefono non squilla.\nCome si attiva: tocca lo switch verde nella Home.\nCosa succede: chi ti conosce squilla sempre. Gli altri vengono deviati alla segreteria." android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginBottom="16dp"/>
+
+        <TextView android:text="🔒 Protezione Totale" android:textStyle="bold" android:textSize="18sp" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginBottom="4dp"/>
+        <TextView android:text="Cosa fa: silenzio assoluto per tutti, anche i tuoi contatti. Utile durante riunioni importanti.\nCome si attiva: tocca lo switch Protezione Totale nella Home.\nDurata: 60 minuti, poi torna automaticamente a Protezione Base." android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginBottom="16dp"/>
+
+        <TextView android:text="📞 Segreteria" android:textStyle="bold" android:textSize="18sp" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginBottom="4dp"/>
+        <TextView android:text="Cosa fa: le chiamate sconosciute vengono deviate a un numero che risponde al posto tuo.\nCome si attiva: vai in Impostazioni e tocca Attiva segreteria StoppAI. Lo fai una volta sola." android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginBottom="16dp"/>
+
+        <TextView android:text="📋 Registro" android:textStyle="bold" android:textSize="18sp" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginBottom="4dp"/>
+        <TextView android:text="Qui trovi tutte le chiamate gestite da StoppAI. Per ogni chiamata puoi: richiamare, aggiungere in rubrica, segnare come spam o ignorare." android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginBottom="16dp"/>
+
+        <TextView android:text="💬 Chi sei?" android:textStyle="bold" android:textSize="18sp" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginBottom="4dp"/>
+        <TextView android:text="Se vuoi sapere chi ti ha chiamato puoi inviare un SMS automatico con scritto Chi sei? Lo trovi nel registro toccando il numero della chiamata." android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginBottom="16dp"/>
+
+    </LinearLayout>
+</ScrollView>

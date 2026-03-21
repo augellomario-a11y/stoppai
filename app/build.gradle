@@ -12,8 +12,8 @@ android {
         applicationId "com.ifs.stoppai"
         minSdk 29
         targetSdk 34
-        versionCode 17
-        versionName "1.7 — Total Shield"
+        versionCode 24
+        versionName "2.4"
     }
 
     compileOptions {

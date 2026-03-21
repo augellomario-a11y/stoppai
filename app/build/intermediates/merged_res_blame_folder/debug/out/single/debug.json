@@ -4,7 +4,31 @@
         "source": "com.ifs.stoppai.app-app-39:/layout/activity_main.xml"
     },
     {
+        "merged": "com.ifs.stoppai.app-merged_res-38:/layout_fragment_settings.xml.flat",
+        "source": "com.ifs.stoppai.app-app-39:/layout/fragment_settings.xml"
+    },
+    {
         "merged": "com.ifs.stoppai.app-merged_res-38:/layout_item_call_log.xml.flat",
         "source": "com.ifs.stoppai.app-app-39:/layout/item_call_log.xml"
+    },
+    {
+        "merged": "com.ifs.stoppai.app-merged_res-38:/layout_fragment_help.xml.flat",
+        "source": "com.ifs.stoppai.app-app-39:/layout/fragment_help.xml"
+    },
+    {
+        "merged": "com.ifs.stoppai.app-merged_res-38:/menu_bottom_nav_menu.xml.flat",
+        "source": "com.ifs.stoppai.app-app-39:/menu/bottom_nav_menu.xml"
+    },
+    {
+        "merged": "com.ifs.stoppai.app-merged_res-38:/layout_fragment_home.xml.flat",
+        "source": "com.ifs.stoppai.app-app-39:/layout/fragment_home.xml"
+    },
+    {
+        "merged": "com.ifs.stoppai.app-merged_res-38:/drawable_ic_home.xml.flat",
+        "source": "com.ifs.stoppai.app-app-39:/drawable/ic_home.xml"
+    },
+    {
+        "merged": "com.ifs.stoppai.app-merged_res-38:/layout_fragment_calls.xml.flat",
+        "source": "com.ifs.stoppai.app-app-39:/layout/fragment_calls.xml"
     }
 ]

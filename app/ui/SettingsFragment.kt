@@ -1,0 +1,117 @@
+// FILE: SettingsFragment.kt
+package com.ifs.stoppai.ui
+
+import android.Manifest
+import android.content.Context
+import android.content.Intent
+import android.content.pm.PackageManager
+import android.net.Uri
+import android.os.Build
+import android.os.Bundle
+import android.provider.Settings
+import android.view.View
+import android.widget.Button
+import android.widget.TextView
+import androidx.core.content.ContextCompat
+import androidx.fragment.app.Fragment
+import com.ifs.stoppai.R
+
+class SettingsFragment : Fragment(R.layout.fragment_settings) {
+
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
+
+        val btnAttivaSegreteria = view.findViewById<Button>(R.id.ID_HOME_005)
+        btnAttivaSegreteria.setOnClickListener {
+            val intent = Intent(Intent.ACTION_DIAL)
+            intent.data = Uri.parse("tel:**61*0421633844*11*15%23")
+            startActivity(intent)
+        }
+
+        val btnDisattivaSegreteria = view.findViewById<Button>(R.id.ID_HOME_006)
+        btnDisattivaSegreteria.setOnClickListener {
+            val intent = Intent(Intent.ACTION_DIAL)
+            intent.data = Uri.fromParts("tel", "##61#", null)
+            startActivity(intent)
+        }
+        
+        setupPermissionClickListeners(view)
+    }
+
+    override fun onResume() {
+        super.onResume()
+        view?.let { aggiornaPermessi(it) }
+    }
+
+    private fun setupPermissionClickListeners(view: View) {
+        view.findViewById<TextView>(R.id.ID_PERM_001).setOnClickListener { 
+            openAppSettingsIfMissing(Manifest.permission.READ_CONTACTS) 
+        }
+        view.findViewById<TextView>(R.id.ID_PERM_002).setOnClickListener { 
+            if (!hasPerm(Manifest.permission.READ_PHONE_STATE) || !hasPerm(Manifest.permission.READ_PHONE_NUMBERS)) {
+                openAppSettings()
+            }
+        }
+        view.findViewById<TextView>(R.id.ID_PERM_003).setOnClickListener {
+            val roleManager = requireActivity().getSystemService(android.app.role.RoleManager::class.java)
+            if (!roleManager.isRoleHeld(android.app.role.RoleManager.ROLE_CALL_SCREENING)) {
+                val intent = Intent(Settings.ACTION_MANAGE_DEFAULT_APPS_SETTINGS)
+                startActivity(intent)
+            }
+        }
+        view.findViewById<TextView>(R.id.ID_PERM_004).setOnClickListener { 
+            openAppSettingsIfMissing(Manifest.permission.CALL_PHONE) 
+        }
+        view.findViewById<TextView>(R.id.ID_PERM_005).setOnClickListener {
+            if (Build.VERSION.SDK_INT >= 33 && !hasPerm(Manifest.permission.POST_NOTIFICATIONS)) {
+                val intent = Intent(Settings.ACTION_APP_NOTIFICATION_SETTINGS)
+                intent.putExtra(Settings.EXTRA_APP_PACKAGE, requireActivity().packageName)
+                startActivity(intent)
+            }
+        }
+    }
+
+    private fun openAppSettingsIfMissing(permission: String) {
+        if (!hasPerm(permission)) openAppSettings()
+    }
+
+    private fun openAppSettings() {
+        val intent = Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS)
+        intent.data = Uri.parse("package:${requireActivity().packageName}")
+        startActivity(intent)
+    }
+
+    private fun hasPerm(permission: String): Boolean {
+        return ContextCompat.checkSelfPermission(requireContext(), permission) == PackageManager.PERMISSION_GRANTED
+    }
+
+    private fun aggiornaPermessi(view: View) {
+        val t1 = view.findViewById<TextView>(R.id.ID_PERM_001)
+        val p1 = hasPerm(Manifest.permission.READ_CONTACTS)
+        t1.text = "${if (p1) "🟢" else "🔴"} Accesso rubrica"
+
+        val t2 = view.findViewById<TextView>(R.id.ID_PERM_002)
+        val p2 = hasPerm(Manifest.permission.READ_PHONE_STATE) && hasPerm(Manifest.permission.READ_PHONE_NUMBERS)
+        t2.text = "${if (p2) "🟢" else "🔴"} Stato telefono"
+
+        val t3 = view.findViewById<TextView>(R.id.ID_PERM_003)
+        val roleManager = requireActivity().getSystemService(android.app.role.RoleManager::class.java)
+        val p3 = roleManager.isRoleHeld(android.app.role.RoleManager.ROLE_CALL_SCREENING)
+        t3.text = "${if (p3) "🟢" else "🔴"} App verifica chiamate"
+
+        val t4 = view.findViewById<TextView>(R.id.ID_PERM_004)
+        val p4 = hasPerm(Manifest.permission.CALL_PHONE)
+        t4.text = "${if (p4) "🟢" else "🔴"} Permesso telefonate"
+
+        val t5 = view.findViewById<TextView>(R.id.ID_PERM_005)
+        val p5 = Build.VERSION.SDK_INT < 33 || hasPerm(Manifest.permission.POST_NOTIFICATIONS)
+        t5.text = "${if (p5) "🟢" else "🔴"} Permesso notifiche"
+        
+        val t6 = view.findViewById<TextView>(R.id.ID_PERM_006)
+        if (t6 != null) {
+            val cacheSize = com.ifs.stoppai.core.ContactCacheManager.getSize()
+            val rubricaOk = cacheSize > 0
+            t6.text = if (rubricaOk) "🟢 Rubrica caricata ($cacheSize)" else "🔴 Rubrica in caricamento..."
+        }
+    }
+}

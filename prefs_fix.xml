@@ -1,0 +1,7 @@
+﻿<?xml version='1.0' encoding='utf-8' standalone='yes' ?>
+<map>
+  <boolean name="protezione_base" value="true" />
+  <long name="protezione_totale_scadenza" value="1774117356104" />
+  <boolean name="protezione_totale" value="false" />
+  <int name="vol_originale" value="7" />
+</map>

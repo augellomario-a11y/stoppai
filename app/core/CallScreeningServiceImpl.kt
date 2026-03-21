@@ -1,13 +1,17 @@
 // FILE: CallScreeningServiceImpl.kt
 // SCOPO: Logica di screening sincrona obbligatoria per tolleranza zero ritardi
 // DIPENDENZE: ContactCacheManager.kt, CallLogEntry.kt
-// ULTIMA MODIFICA: 2026-03-20
+// ULTIMA MODIFICA: 2026-03-21
 
 package com.ifs.stoppai.core
 
 import android.content.Context
+import android.os.Build
 import android.telecom.Call
 import android.telecom.CallScreeningService
+import android.telephony.TelephonyManager
+import android.telephony.TelephonyCallback
+import android.telephony.PhoneStateListener
 import com.ifs.stoppai.db.CallLogEntry
 import com.ifs.stoppai.db.StoppAiDatabase
 import kotlinx.coroutines.CoroutineScope
@@ -15,6 +19,12 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 
 class CallScreeningServiceImpl : CallScreeningService() {
+
+    // Inizializza listener fine chiamata
+    override fun onCreate() {
+        super.onCreate()
+        listenCallEnd()
+    }
 
     // OnScreenCall - Punto di ingresso intercettazione
     override fun onScreenCall(callDetails: Call.Details) {
@@ -33,7 +43,6 @@ class CallScreeningServiceImpl : CallScreeningService() {
 
         if (isTotaleActive) {
             // Protezione totale — silenzio per tutti
-            // Non alzare il volume per nessuno
             respondToCall(callDetails,
                 CallResponse.Builder()
                 .setDisallowCall(false)
@@ -47,7 +56,6 @@ class CallScreeningServiceImpl : CallScreeningService() {
         }
 
         // Risposta sempre permessa
-        // Non blocchiamo mai nessuno
         respondToCall(callDetails,
             CallResponse.Builder()
                 .setDisallowCall(false)
@@ -70,24 +78,56 @@ class CallScreeningServiceImpl : CallScreeningService() {
                         val audio = applicationContext.getSystemService(Context.AUDIO_SERVICE) as android.media.AudioManager
                         val volOriginale = applicationContext.getSharedPreferences("stoppai_prefs", Context.MODE_PRIVATE).getInt("vol_originale", 5)
                         audio.setStreamVolume(android.media.AudioManager.STREAM_RING, volOriginale, 0)
-                        
-                        // Rispegni dopo 35 secondi
-                        android.os.Handler(android.os.Looper.getMainLooper()).postDelayed({
-                            try {
-                                audio.setStreamVolume(android.media.AudioManager.STREAM_RING, 0, 0)
-                            } catch (e: Exception) {}
-                        }, 35000)
                     } catch (e: Exception) {
                         android.util.Log.e("STOPPAI", "Volume: ${e.message}")
                     }
                 }
             } else {
-                // Non è in rubrica
-                // Non fare nulla
-                // Volume rimane a 0
-                // Salva nel DB
+                // Non è in rubrica — volume rimane a 0
                 saveCallLog(normalizedNumber)
             }
+        }
+    }
+
+    // Listener fine chiamata — riporta volume a 0
+    private fun listenCallEnd() {
+        val tm = applicationContext.getSystemService(Context.TELEPHONY_SERVICE) as TelephonyManager
+
+        if (Build.VERSION.SDK_INT >= 31) {
+            tm.registerTelephonyCallback(
+                mainExecutor,
+                object : TelephonyCallback(), TelephonyCallback.CallStateListener {
+                    override fun onCallStateChanged(state: Int) {
+                        if (state == TelephonyManager.CALL_STATE_IDLE) {
+                            silenceRing()
+                        }
+                    }
+                })
+        } else {
+            @Suppress("DEPRECATION")
+            tm.listen(
+                object : PhoneStateListener() {
+                    override fun onCallStateChanged(state: Int, number: String?) {
+                        if (state == TelephonyManager.CALL_STATE_IDLE) {
+                            silenceRing()
+                        }
+                    }
+                },
+                PhoneStateListener.LISTEN_CALL_STATE)
+        }
+    }
+
+    // Riporta volume suoneria a 0
+    private fun silenceRing() {
+        try {
+            val prefs = applicationContext.getSharedPreferences("stoppai_prefs", Context.MODE_PRIVATE)
+            val protezioneAttiva = prefs.getBoolean("protezione_base", false)
+            if (!protezioneAttiva) return
+            val audio = applicationContext.getSystemService(Context.AUDIO_SERVICE) as android.media.AudioManager
+            audio.setStreamVolume(android.media.AudioManager.STREAM_RING, 0, 0)
+            android.util.Log.e("STOPPAI_VOL", "Chiamata terminata → volume 0")
+        } catch (e: Exception) {
+            android.util.Log.e("STOPPAI", "silenceRing: ${e.message}")
         }
     }
 
