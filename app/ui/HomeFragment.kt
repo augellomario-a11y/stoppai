@@ -11,6 +11,7 @@ import android.os.Handler
 import android.os.Looper
 import android.view.View
 import android.widget.Button
+import android.widget.ImageView
 import android.widget.Switch
 import android.widget.TextView
 import androidx.appcompat.app.AlertDialog
@@ -32,11 +33,14 @@ class HomeFragment : Fragment(R.layout.fragment_home) {
     private val handler = Handler(Looper.getMainLooper())
     private var countdownRunnable: Runnable? = null
     
-    // View per il volume
-    private lateinit var volIconBase: TextView
+    // View per il volume e registro
+    private lateinit var volIconBase: ImageView
     private lateinit var volTextBase: TextView
-    private lateinit var volIconTotale: TextView
+    private lateinit var volIconTotale: ImageView
     private lateinit var volTextTotale: TextView
+    private lateinit var rvLog: androidx.recyclerview.widget.RecyclerView
+    private lateinit var tvEmpty: TextView
+    private lateinit var adapter: CallLogAdapter
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
@@ -53,12 +57,15 @@ class HomeFragment : Fragment(R.layout.fragment_home) {
         switchTotale.isChecked = prefs.getBoolean("protezione_totale", false)
         tvCountdown = view.findViewById(R.id.ID_HOME_008)
 
-        // Binding nuovi indicatori volume
+        // Binding nuovi indicatori volume e registro
         volIconBase = view.findViewById(R.id.ID_HOME_010_ICON)
         volTextBase = view.findViewById(R.id.ID_HOME_010_TEXT)
         volIconTotale = view.findViewById(R.id.ID_HOME_011_ICON)
         volTextTotale = view.findViewById(R.id.ID_HOME_011_TEXT)
-        
+        rvLog = view.findViewById(R.id.ID_HOME_012)
+        tvEmpty = view.findViewById(R.id.ID_HOME_013_EMPTY)
+
+        setupRecyclerView()
         aggiornaVolumeUI()
 
         if (switchTotale.isChecked) {
@@ -108,23 +115,23 @@ class HomeFragment : Fragment(R.layout.fragment_home) {
             aggiornaVolumeUI()
         }
 
-        // BTN SVUOTA REGISTRO
-        view.findViewById<Button>(R.id.ID_HOME_004).setOnClickListener {
-            AlertDialog.Builder(act)
-                .setTitle("Svuota registro")
-                .setMessage("Sei sicuro? Questa azione non è reversibile.")
-                .setPositiveButton("Svuota") { _, _ ->
-                    lifecycleScope.launch(Dispatchers.IO) {
-                        StoppAiDatabase.getInstance(act.applicationContext).clearAllTables()
-                    }
-                }
-                .setNegativeButton("Annulla", null)
-                .show()
-        }
-
         // Avvio iniziale
         if (prefs.getBoolean("protezione_totale", false)) startCountdown()
         aggiornaVolumeUI()
+    }
+
+    private fun setupRecyclerView() {
+        adapter = CallLogAdapter()
+        rvLog.layoutManager = androidx.recyclerview.widget.LinearLayoutManager(requireContext())
+        rvLog.adapter = adapter
+        
+        val db = StoppAiDatabase.getInstance(requireContext())
+        lifecycleScope.launch {
+            db.callLogDao().getAllCalls().collectLatest { list ->
+                adapter.submitList(list)
+                tvEmpty.visibility = if (list.isEmpty()) View.VISIBLE else View.GONE
+            }
+        }
     }
 
     // Avvia timer countdown aggiornamento ogni secondo
@@ -258,12 +265,20 @@ class HomeFragment : Fragment(R.layout.fragment_home) {
         lifecycleScope.launch(Dispatchers.IO) {
             val target = repo.getVolumePreferito()
             launch(Dispatchers.Main) {
-                val isB = prefs.getBoolean("protezione_base", false); val isT = prefs.getBoolean("protezione_totale", false)
-                val icon = if (audioManager.getStreamVolume(android.media.AudioManager.STREAM_RING) == 0) "🔇" else "🔊"
-                val text = "Vol: $target/15"; val actC = android.graphics.Color.RED; val inC = android.graphics.Color.GRAY
-                volIconBase.text = icon; volTextBase.text = text; volIconTotale.text = icon; volTextTotale.text = text
-                volIconBase.setTextColor(if (isB) actC else inC); volTextBase.setTextColor(if (isB) actC else inC)
-                volIconTotale.setTextColor(if (isT) actC else inC); volTextTotale.setTextColor(if (isT) actC else inC)
+                val isB = switchBase.isChecked
+                val isT = switchTotale.isChecked
+                val text = "Vol: $target/15"
+                val actC = android.graphics.Color.RED
+                val inC = android.graphics.Color.GRAY
+                
+                volTextBase.text = text
+                volTextTotale.text = text
+                
+                volIconBase.setImageResource(if (isB) R.drawable.ic_speaker_active else R.drawable.ic_speaker_inactive)
+                volIconTotale.setImageResource(if (isT) R.drawable.ic_speaker_active else R.drawable.ic_speaker_inactive)
+                
+                volTextBase.setTextColor(if (isB) actC else inC)
+                volTextTotale.setTextColor(if (isT) actC else inC)
             }
         }
     }

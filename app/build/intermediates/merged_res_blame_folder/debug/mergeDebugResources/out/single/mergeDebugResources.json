@@ -28,8 +28,16 @@
         "source": "com.ifs.stoppai.app-app-39:/layout/fragment_help.xml"
     },
     {
+        "merged": "com.ifs.stoppai.app-debug-38:/drawable_ic_speaker_active.xml.flat",
+        "source": "com.ifs.stoppai.app-app-39:/drawable/ic_speaker_active.xml"
+    },
+    {
         "merged": "com.ifs.stoppai.app-debug-38:/layout_fragment_settings.xml.flat",
         "source": "com.ifs.stoppai.app-app-39:/layout/fragment_settings.xml"
+    },
+    {
+        "merged": "com.ifs.stoppai.app-debug-38:/drawable_ic_speaker_inactive.xml.flat",
+        "source": "com.ifs.stoppai.app-app-39:/drawable/ic_speaker_inactive.xml"
     },
     {
         "merged": "com.ifs.stoppai.app-debug-38:/layout_item_call_log.xml.flat",

@@ -71,8 +71,17 @@
             android:layout_height="wrap_content"
             android:text="🔄 Ripristina impostazioni"
             android:textColor="#FFFFFF"
-            android:backgroundTint="#F44336"
+            android:backgroundTint="#888888"
             android:layout_marginTop="16dp" />
+
+        <Button
+            android:id="@+id/ID_SETT_002"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="🗑️ Svuota registro chiamate"
+            android:textColor="#FFFFFF"
+            android:backgroundTint="#F44336"
+            android:layout_marginTop="8dp" />
 
     </LinearLayout>
 </ScrollView>

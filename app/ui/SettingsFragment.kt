@@ -15,48 +15,58 @@ import android.widget.TextView
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
 import com.ifs.stoppai.R
+import androidx.lifecycle.lifecycleScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 
 class SettingsFragment : Fragment(R.layout.fragment_settings) {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        val btnAttivaSegreteria = view.findViewById<Button>(R.id.ID_HOME_005)
-        btnAttivaSegreteria.setOnClickListener {
+        view.findViewById<Button>(R.id.ID_HOME_005).setOnClickListener {
             val intent = Intent(Intent.ACTION_DIAL)
             intent.data = Uri.parse("tel:**61*0421633844*11*15%23")
             startActivity(intent)
         }
 
-        val btnDisattivaSegreteria = view.findViewById<Button>(R.id.ID_HOME_006)
-        btnDisattivaSegreteria.setOnClickListener {
+        view.findViewById<Button>(R.id.ID_HOME_006).setOnClickListener {
             val intent = Intent(Intent.ACTION_DIAL)
             intent.data = Uri.fromParts("tel", "##61#", null)
             startActivity(intent)
         }
 
-        val btnReset = view.findViewById<Button>(R.id.ID_SETT_001)
-        btnReset.setOnClickListener {
+        view.findViewById<Button>(R.id.ID_SETT_001).setOnClickListener {
             androidx.appcompat.app.AlertDialog.Builder(requireContext())
                 .setTitle("Ripristina impostazioni")
                 .setMessage("Sei sicuro? Tutte le impostazioni verranno cancellate.")
                 .setPositiveButton("Ripristina") { _, _ ->
                     val db = com.ifs.stoppai.db.StoppAiDatabase.getInstance(requireContext().applicationContext)
                     val repo = com.ifs.stoppai.db.AppSettingsRepository(db.appSettingsDao())
-                    
-                    // Svuota DB settings
                     repo.clearAll()
-                    
-                    // Ripristina volume hardware a 7
                     val audioManager = requireContext().getSystemService(android.content.Context.AUDIO_SERVICE) as android.media.AudioManager
                     audioManager.setStreamVolume(android.media.AudioManager.STREAM_RING, 7, 0)
-                    
                     android.widget.Toast.makeText(requireContext(), "Impostazioni ripristinate", android.widget.Toast.LENGTH_SHORT).show()
                 }
                 .setNegativeButton("Annulla", null)
                 .show()
         }
-        
+        view.findViewById<Button>(R.id.ID_SETT_002).setOnClickListener {
+            androidx.appcompat.app.AlertDialog.Builder(requireContext())
+                .setTitle("Svuota registro")
+                .setMessage("Sei sicuro? Questa azione non è reversibile.")
+                .setPositiveButton("Svuota") { _, _ ->
+                    lifecycleScope.launch(Dispatchers.IO) {
+                        com.ifs.stoppai.db.StoppAiDatabase.getInstance(requireContext().applicationContext).clearAllTables()
+                        withContext(Dispatchers.Main) {
+                            android.widget.Toast.makeText(requireContext(), "Registro svuotato", android.widget.Toast.LENGTH_SHORT).show()
+                        }
+                    }
+                }
+                .setNegativeButton("Annulla", null)
+                .show()
+        }
         setupPermissionClickListeners(view)
     }
 

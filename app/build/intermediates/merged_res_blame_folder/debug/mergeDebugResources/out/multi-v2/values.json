@@ -171,10 +171,10 @@
                     "from": {
                         "startLines": "2",
                         "startColumns": "4",
-                        "startOffsets": "55",
+                        "startOffsets": "57",
                         "endLines": "4",
                         "endColumns": "12",
-                        "endOffsets": "147"
+                        "endOffsets": "151"
                     },
                     "to": {
                         "startLines": "6511",

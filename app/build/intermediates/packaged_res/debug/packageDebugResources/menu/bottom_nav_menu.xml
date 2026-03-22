@@ -6,11 +6,11 @@
     android:title="Home"/>
   <item
     android:id="@+id/nav_calls"
-    android:icon="@android:drawable/ic_menu_call"
-    android:title="Chiamate"/>
+    android:icon="@android:drawable/ic_dialog_alert"
+    android:title="Da implementare"/>
   <item
     android:id="@+id/nav_settings"
-    android:icon="@android:drawable/ic_menu_preferences"
+    android:icon="@android:drawable/ic_menu_manage"
     android:title="Impostazioni"/>
   <item
     android:id="@+id/nav_help"

@@ -8,26 +8,17 @@
     <TextView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="Registro Chiamate"
+        android:text="Da implementare"
         android:textSize="24sp"
         android:textStyle="bold"
         android:layout_marginBottom="16dp" />
 
-    <LinearLayout
-        android:id="@+id/ID_CALLS_002"
+    <TextView
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="horizontal"
-        android:layout_marginBottom="16dp">
-        <Button android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Tutte" android:layout_marginEnd="4dp" style="?android:attr/buttonBarButtonStyle" />
-        <Button android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Bloccate" android:layout_marginEnd="4dp" style="?android:attr/buttonBarButtonStyle" />
-        <Button android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Ricevute" style="?android:attr/buttonBarButtonStyle" />
-    </LinearLayout>
-
-    <androidx.recyclerview.widget.RecyclerView
-        android:id="@+id/ID_CALLS_001"
-        android:layout_width="match_parent"
-        android:layout_height="0dp"
-        android:layout_weight="1" />
+        android:layout_height="match_parent"
+        android:text="🚧 Sezione in costruzione"
+        android:textSize="18sp"
+        android:textColor="#888888"
+        android:gravity="center" />
 
 </LinearLayout>

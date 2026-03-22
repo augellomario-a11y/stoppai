@@ -3000,6 +3000,8 @@ drawable ic_mtrl_chip_checked_black
 drawable ic_mtrl_chip_checked_circle
 drawable ic_mtrl_chip_close_circle
 drawable ic_search_black_24
+drawable ic_speaker_active
+drawable ic_speaker_inactive
 drawable m3_avd_hide_password
 drawable m3_avd_show_password
 drawable m3_bottom_sheet_drag_handle
@@ -3089,10 +3091,7 @@ id ID_BS_008
 id ID_BS_009
 id ID_BS_RADIO
 id ID_BS_TIMEPICKER
-id ID_CALLS_001
-id ID_CALLS_002
 id ID_HOME_001
-id ID_HOME_004
 id ID_HOME_005
 id ID_HOME_006
 id ID_HOME_007
@@ -3101,6 +3100,8 @@ id ID_HOME_010_ICON
 id ID_HOME_010_TEXT
 id ID_HOME_011_ICON
 id ID_HOME_011_TEXT
+id ID_HOME_012
+id ID_HOME_013_EMPTY
 id ID_HOME_CRM_001
 id ID_HOME_CRM_002
 id ID_LOG_002
@@ -3111,6 +3112,7 @@ id ID_PERM_004
 id ID_PERM_005
 id ID_PERM_006
 id ID_SETT_001
+id ID_SETT_002
 id META
 id NO_DEBUG
 id SHIFT

@@ -16,17 +16,5 @@ class CallsFragment : Fragment(R.layout.fragment_calls) {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-
-        val recycler = view.findViewById<RecyclerView>(R.id.ID_CALLS_001)
-        recycler.layoutManager = LinearLayoutManager(requireContext())
-        val adapter = CallLogAdapter()
-        recycler.adapter = adapter
-
-        lifecycleScope.launch {
-            val db = StoppAiDatabase.getInstance(requireContext())
-            db.callLogDao().getAllCalls().collectLatest { logs ->
-                adapter.submitList(logs)
-            }
-        }
     }
 }

@@ -1,5 +1,25 @@
 # 📔 ROADBOOK: StoppAI
 ---
+### 📅 2026-03-22 23:00 | Agente: Ambrogio (Antigravity)
+- **TASK**: [TASK-SA-048] — SPEAKER-ICONS
+- **STATUS**: ✅ COMPLETATO
+- **AZIONI**:
+  - **UI**: Sostituite emoji 🔊 con `ImageView` vettoriali (`ic_speaker_active.xml` / `ic_speaker_inactive.xml`).
+  - **LOGICA**: Aggiornato `HomeFragment.kt` per gestire il cambio risorsa immagine asincrono.
+  - **VERSIONE**: Bump a v3.6 (Build 36).
+
+---
+### 📅 2026-03-22 22:30 | Agente: Ambrogio (Antigravity)
+- **TASK**: [TASK-SA-047] — UI-FIXES
+- **STATUS**: ✅ COMPLETATO
+- **AZIONI**:
+  - **HOME**: Titoli centrati, rimosso tasto svuota, aggiunto registro chiamate live con `RecyclerView`.
+  - **SETTINGS**: Spostato tasto "Svuota registro" con dialog di conferma.
+  - **NAV**: Icone aggiornate (ingranaggio e alert) e tab "Da implementare".
+  - **FIX**: Colore altoparlanti reso indipendente per switch (Red/Gray).
+  - **VERSIONE**: Bump a v3.5 (Build 35).
+
+---
 ### 📅 2026-03-22 10:30 | Agente: Ambrogio (Antigravity)
 - **TASK**: [TASK-SA-044] — SPEAKER-STATUS
 - **STATUS**: ✅ COMPLETATO
