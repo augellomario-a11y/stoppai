@@ -121,7 +121,7 @@ MERGED from [androidx.startup:startup-runtime:1.1.1] C:\Users\Utente\.gradle\cac
 	android:allowBackup
 		ADDED from C:\progetti\STOPPAI\app\AndroidManifest.xml:15:9-35
 	android:theme
-		ADDED from C:\progetti\STOPPAI\app\AndroidManifest.xml:18:9-65
+		ADDED from C:\progetti\STOPPAI\app\AndroidManifest.xml:18:9-45
 	android:name
 		ADDED from C:\progetti\STOPPAI\app\AndroidManifest.xml:14:9-40
 activity#com.ifs.stoppai.ui.MainActivity

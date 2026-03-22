@@ -10,7 +10,7 @@ import androidx.room.Database
 import androidx.room.Room
 import androidx.room.RoomDatabase
 
-@Database(entities = [CallLogEntry::class, AppSettingsEntity::class], version = 2, exportSchema = false)
+@Database(entities = [CallLogEntry::class, AppSettingsEntity::class], version = 3, exportSchema = false)
 abstract class StoppAiDatabase : RoomDatabase() {
     // Espone il DAO per i log
     abstract fun callLogDao(): CallLogDao
@@ -22,10 +22,20 @@ abstract class StoppAiDatabase : RoomDatabase() {
         @Volatile
         private var INSTANCE: StoppAiDatabase? = null
 
-        // Definizione della migrazione per aggiungere la tabella app_settings
+        // Migrazione v1->v2 (AppSettings)
         val MIGRATION_1_2 = object : androidx.room.migration.Migration(1, 2) {
             override fun migrate(db: androidx.sqlite.db.SupportSQLiteDatabase) {
                 db.execSQL("CREATE TABLE IF NOT EXISTS app_settings (`key` TEXT PRIMARY KEY NOT NULL, `value` TEXT NOT NULL)")
+            }
+        }
+
+        // Migrazione v2->v3 (CRM Fields)
+        val MIGRATION_2_3 = object : androidx.room.migration.Migration(2, 3) {
+            override fun migrate(db: androidx.sqlite.db.SupportSQLiteDatabase) {
+                // Nota: statusId è già presente dalla v1, ignoriamo errore se già presente
+                db.execSQL("ALTER TABLE call_log_entries ADD COLUMN nota TEXT NOT NULL DEFAULT ''")
+                db.execSQL("ALTER TABLE call_log_entries ADD COLUMN ariaNote TEXT NOT NULL DEFAULT ''")
+                db.execSQL("ALTER TABLE call_log_entries ADD COLUMN callOutcome TEXT NOT NULL DEFAULT 'PASSATA'")
             }
         }
 
@@ -36,8 +46,8 @@ abstract class StoppAiDatabase : RoomDatabase() {
                     StoppAiDatabase::class.java,
                     "stoppai_database"
                 )
-                .addMigrations(MIGRATION_1_2) // Aggiunta migration
-                .allowMainThreadQueries() // Necessaria per la lettura settings sincrona nel Service
+                .addMigrations(MIGRATION_1_2, MIGRATION_2_3)
+                .allowMainThreadQueries()
                 .build()
                 INSTANCE = instance
                 instance

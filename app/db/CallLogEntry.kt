@@ -15,6 +15,8 @@ data class CallLogEntry(
     val phoneNumber: String,
     val callType: String,
     val timestamp: Long,
-    val statusId: Int, // 0=DA_GESTIRE, 1=WHITELIST, 2=BLACKLIST, 3=IGNORATO
-    val notes: String?
+    val statusId: Int = 0, // 0=da trattare, 1=trattato, 2=attendibile, 3=spam, 4=possibile spam
+    val nota: String = "",
+    val ariaNote: String = "",
+    val callOutcome: String = "PASSATA" // PASSATA / DEVIATA / MANCATA
 )

@@ -24,7 +24,7 @@ class CallsFragment : Fragment(R.layout.fragment_calls) {
 
         lifecycleScope.launch {
             val db = StoppAiDatabase.getInstance(requireContext())
-            db.callLogDao().getAllLogs().collectLatest { logs ->
+            db.callLogDao().getAllCalls().collectLatest { logs ->
                 adapter.submitList(logs)
             }
         }

@@ -1,8 +1,8 @@
 1<?xml version="1.0" encoding="utf-8"?>
 2<manifest xmlns:android="http://schemas.android.com/apk/res/android"
 3    package="com.ifs.stoppai"
-4    android:versionCode="31"
-5    android:versionName="3.1" >
+4    android:versionCode="34"
+5    android:versionName="3.4" >
 6
 7    <uses-sdk
 8        android:minSdkVersion="26"
@@ -55,8 +55,8 @@
 31-->C:\progetti\STOPPAI\app\AndroidManifest.xml:16:9-32
 32        android:supportsRtl="true"
 32-->C:\progetti\STOPPAI\app\AndroidManifest.xml:17:9-35
-33        android:theme="@style/Theme.AppCompat.Light.NoActionBar" >
-33-->C:\progetti\STOPPAI\app\AndroidManifest.xml:18:9-65
+33        android:theme="@style/Theme.StoppAI" >
+33-->C:\progetti\STOPPAI\app\AndroidManifest.xml:18:9-45
 34        <activity
 34-->C:\progetti\STOPPAI\app\AndroidManifest.xml:20:9-27:20
 35            android:name="com.ifs.stoppai.ui.MainActivity"

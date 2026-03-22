@@ -8,22 +8,100 @@
     <TextView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="StoppAI - Cruscotto"
-        android:textSize="24sp"
+        android:text="StoppAI"
+        android:textSize="28sp"
         android:textStyle="bold"
-        android:layout_marginBottom="16dp" />
+        android:textColor="#000000" />
 
     <TextView
-        android:id="@+id/ID_HOME_003"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="Oggi: -- bloccate / -- ricevute"
-        android:textSize="16sp"
-        android:textStyle="bold"
-        android:textColor="#555555"
-        android:background="#11000000"
-        android:padding="12dp"
+        android:text="Il tuo bodyguard digitale"
+        android:textSize="14sp"
+        android:textColor="#888888"
         android:layout_marginBottom="24dp" />
+
+    <!-- Box Statistiche CRMs -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:layout_marginBottom="24dp">
+
+        <!-- Box Totale -->
+        <LinearLayout
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:orientation="vertical"
+            android:background="#F5F5F5"
+            android:padding="8dp"
+            android:layout_marginEnd="4dp"
+            android:gravity="center">
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Totale"
+                android:textSize="12sp"
+                android:textColor="#888888" />
+            <TextView
+                android:id="@+id/ID_HOME_CRM_001"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="0"
+                android:textSize="16sp"
+                android:textStyle="bold" />
+        </LinearLayout>
+
+        <!-- Box Oggi -->
+        <LinearLayout
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:orientation="vertical"
+            android:background="#F5F5F5"
+            android:padding="8dp"
+            android:layout_marginEnd="4dp"
+            android:gravity="center">
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Oggi"
+                android:textSize="12sp"
+                android:textColor="#888888" />
+            <TextView
+                android:id="@+id/ID_HOME_CRM_002"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="0"
+                android:textSize="16sp"
+                android:textStyle="bold" />
+        </LinearLayout>
+
+        <!-- Box Versione -->
+        <LinearLayout
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:orientation="vertical"
+            android:background="#E3F2FD"
+            android:padding="8dp"
+            android:gravity="center">
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Versione"
+                android:textSize="12sp"
+                android:textColor="#888888" />
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="v3.4 · SA-046"
+                android:textSize="14sp"
+                android:textStyle="bold"
+                android:textColor="#1976D2" />
+        </LinearLayout>
+    </LinearLayout>
 
     <!-- Protezione Base Row -->
     <LinearLayout
@@ -119,19 +197,5 @@
         android:backgroundTint="#D32F2F"
         android:layout_marginBottom="8dp" />
 
-    <Space
-        android:layout_width="match_parent"
-        android:layout_height="0dp"
-        android:layout_weight="1" />
-
-    <TextView
-        android:id="@+id/ID_HOME_099"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="StoppAI v3.1 —\n[TASK-SA-044] — Speaker Status"
-        android:textSize="12sp"
-        android:textColor="#AAAAAA"
-        android:gravity="center"
-        android:layout_marginTop="8dp" />
 
 </LinearLayout>

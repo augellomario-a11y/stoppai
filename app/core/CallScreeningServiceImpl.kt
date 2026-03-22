@@ -54,6 +54,7 @@ class CallScreeningServiceImpl : CallScreeningService() {
                     android.util.Log.e("STOPPAI_SCREEN",
                         "Preferito durante Prot.Totale: $phoneNumber")
                     alzaVolume()
+                    saveCallLog(normalizedNumber, "PASSATA")
                     respondToCall(callDetails,
                         CallResponse.Builder()
                             .setDisallowCall(false)
@@ -63,57 +64,75 @@ class CallScreeningServiceImpl : CallScreeningService() {
             }
 
             // Silenzio per tutti (o includi preferiti attivo)
+            abbassaVolume()
             respondToCall(callDetails,
                 CallResponse.Builder()
                     .setDisallowCall(false)
                     .build())
             java.util.concurrent.Executors.newSingleThreadExecutor().execute {
-                saveCallLog(normalizedNumber)
+                saveCallLog(normalizedNumber, "DEVIATA")
             }
             return
         }
 
-        // Protezione Base — risposta permessa
-        respondToCall(callDetails,
-            CallResponse.Builder()
-                .setDisallowCall(false)
-                .build()
-        )
+        // 2. Logica PROTEZIONE BASE
+        val isContact = ContactCacheManager.isContact(normalizedNumber)
 
-        // Controlla rubrica in background
-        java.util.concurrent.Executors.newSingleThreadExecutor().execute {
-            val isContact = ContactCacheManager.isContact(normalizedNumber)
-
-            android.util.Log.e("STOPPAI_SCREEN",
-                "Numero chiamante: $phoneNumber")
-            android.util.Log.e("STOPPAI_SCREEN",
-                "Cache size: ${ContactCacheManager.getSize()}")
-            android.util.Log.e("STOPPAI_SCREEN",
-                "È contatto: $isContact")
-
+        if (prefs.getBoolean("protezione_base", false)) {
             if (isContact) {
-                // È in rubrica → alza volume
                 alzaVolume()
+                saveCallLog(normalizedNumber, "PASSATA")
+                respondToCall(callDetails,
+                    CallResponse.Builder()
+                        .setDisallowCall(false)
+                        .build())
             } else {
-                // Non è in rubrica — volume rimane a 0
-                saveCallLog(normalizedNumber)
+                abbassaVolume()
+                respondToCall(callDetails,
+                    CallResponse.Builder()
+                        .setDisallowCall(true)
+                        .build())
+                java.util.concurrent.Executors
+                    .newSingleThreadExecutor().execute {
+                    saveCallLog(normalizedNumber, "DEVIATA")
+                }
             }
+        } else {
+            // Protezione OFF → passa tutto normalmente
+            alzaVolume()
+            saveCallLog(normalizedNumber, "PASSATA")
+            respondToCall(callDetails,
+                CallResponse.Builder()
+                    .setDisallowCall(false)
+                    .build())
         }
     }
 
-    // Alza volume per contatto noto
+    // Alza volume al target desiderato
     private fun alzaVolume() {
         android.os.Handler(android.os.Looper.getMainLooper()).post {
             try {
                 val db = StoppAiDatabase.getInstance(applicationContext)
                 val repo = com.ifs.stoppai.db.AppSettingsRepository(db.appSettingsDao())
-                val volOriginale = repo.getVolume()
-                val audio = applicationContext.getSystemService(
-                    Context.AUDIO_SERVICE) as android.media.AudioManager
-                audio.setStreamVolume(
-                    android.media.AudioManager.STREAM_RING, volOriginale, 0)
+                val volTarget = repo.getVolumePreferito()
+
+                val audioManager = getSystemService(Context.AUDIO_SERVICE) as android.media.AudioManager
+                audioManager.setStreamVolume(android.media.AudioManager.STREAM_RING, volTarget, 0)
+                android.util.Log.e("STOPPAI_SCREEN", "Volume ripristinato a: $volTarget")
             } catch (e: Exception) {
-                android.util.Log.e("STOPPAI", "Volume: ${e.message}")
+                android.util.Log.e("STOPPAI_SCREEN", "Errore alzaVolume: ${e.message}")
+            }
+        }
+    }
+
+    // Forza silenzio totale
+    private fun abbassaVolume() {
+        android.os.Handler(android.os.Looper.getMainLooper()).post {
+            try {
+                val audioManager = getSystemService(Context.AUDIO_SERVICE) as android.media.AudioManager
+                audioManager.setStreamVolume(android.media.AudioManager.STREAM_RING, 0, 0)
+            } catch (e: Exception) {
+                android.util.Log.e("STOPPAI_SCREEN", "Errore abbassaVolume: ${e.message}")
             }
         }
     }
@@ -169,7 +188,7 @@ class CallScreeningServiceImpl : CallScreeningService() {
     }
 
     // Salva record chiamata loggata asincronamente
-    private fun saveCallLog(rawNumber: String) {
+    private fun saveCallLog(rawNumber: String, outcome: String = "PASSATA") {
         CoroutineScope(Dispatchers.IO).launch {
             val norm = PhoneNumberUtils.normalizeNumber(rawNumber)
             val callType = when {
@@ -182,8 +201,10 @@ class CallScreeningServiceImpl : CallScreeningService() {
                 phoneNumber = rawNumber.ifEmpty { "Sconosciuto/Privato" },
                 callType = callType,
                 timestamp = System.currentTimeMillis(),
-                statusId = 0, // DA_GESTIRE
-                notes = ""
+                statusId = 0,
+                nota = "",
+                ariaNote = "",
+                callOutcome = outcome
             )
             db.callLogDao().insertCallLog(entry)
         }

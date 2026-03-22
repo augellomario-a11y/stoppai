@@ -15,7 +15,7 @@
         android:allowBackup="true"
         android:label="StoppAI"
         android:supportsRtl="true"
-        android:theme="@style/Theme.AppCompat.Light.NoActionBar">
+        android:theme="@style/Theme.StoppAI">
         
         <activity
             android:name=".ui.MainActivity"

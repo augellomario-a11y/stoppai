@@ -8,14 +8,13 @@ package com.ifs.stoppai.db
 class AppSettingsRepository(private val dao: AppSettingsDao) {
 
     // Recupera il volume originale salvato o restituisce il default 7
-    fun getVolume(): Int {
-        val saved = dao.getValue("vol_originale")
-        return saved?.toIntOrNull() ?: 7
+    fun getVolumePreferito(): Int {
+        val saved = dao.getValue("volume_preferito")
+        return saved?.toIntOrNull() ?: 10
     }
 
-    // Salva il volume originale su database
-    fun setVolume(value: Int) {
-        dao.setValue(AppSettingsEntity("vol_originale", value.toString()))
+    fun setVolumePreferito(value: Int) {
+        dao.setValue(AppSettingsEntity("volume_preferito", value.toString()))
     }
 
     // Recupera il numero di deviazione o restituisce il default Telnyx +3905411770178

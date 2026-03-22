@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="com.ifs.stoppai"
-    android:versionCode="31"
-    android:versionName="3.1" >
+    android:versionCode="34"
+    android:versionName="3.4" >
 
     <uses-sdk
         android:minSdkVersion="26"
@@ -30,7 +30,7 @@
         android:extractNativeLibs="false"
         android:label="StoppAI"
         android:supportsRtl="true"
-        android:theme="@style/Theme.AppCompat.Light.NoActionBar" >
+        android:theme="@style/Theme.StoppAI" >
         <activity
             android:name="com.ifs.stoppai.ui.MainActivity"
             android:exported="true" >

@@ -13,7 +13,6 @@ id ID_BS_TIMEPICKER
 id ID_CALLS_001
 id ID_CALLS_002
 id ID_HOME_001
-id ID_HOME_003
 id ID_HOME_004
 id ID_HOME_005
 id ID_HOME_006
@@ -23,7 +22,8 @@ id ID_HOME_010_ICON
 id ID_HOME_010_TEXT
 id ID_HOME_011_ICON
 id ID_HOME_011_TEXT
-id ID_HOME_099
+id ID_HOME_CRM_001
+id ID_HOME_CRM_002
 id ID_LOG_002
 id ID_PERM_001
 id ID_PERM_002
@@ -49,3 +49,4 @@ layout fragment_settings
 layout item_call_log
 menu bottom_nav_menu
 string app_name
+style Theme.StoppAI

@@ -16,5 +16,20 @@ interface CallLogDao {
     suspend fun insertCallLog(callLog: CallLogEntry)
 
     @Query("SELECT * FROM call_log_entries ORDER BY timestamp DESC")
-    fun getAllLogs(): Flow<List<CallLogEntry>>
+    fun getAllCalls(): kotlinx.coroutines.flow.Flow<List<CallLogEntry>>
+
+    @Query("SELECT COUNT(*) FROM call_log_entries WHERE timestamp > :startOfDay")
+    fun getCallsToday(startOfDay: Long): Int
+
+    @Query("SELECT COUNT(*) FROM call_log_entries")
+    fun getTotalCalls(): Int
+
+    @Query("UPDATE call_log_entries SET statusId = :status WHERE id = :id")
+    suspend fun updateStatus(id: Long, status: Int)
+
+    @Query("UPDATE call_log_entries SET nota = :nota WHERE id = :id")
+    suspend fun updateNota(id: Long, nota: String)
+
+    @Query("DELETE FROM call_log_entries WHERE id = :id")
+    suspend fun deleteById(id: Long)
 }
