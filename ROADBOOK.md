@@ -1,5 +1,14 @@
 # 📔 ROADBOOK: StoppAI
 ---
+### 📅 2026-03-22 01:20 | Agente: Ambrogio (Antigravity)
+- **TASK**: [TASK-SA-037] v2.9 — MILESTONE: Protezione Totale Fixed & Menu Cleaned
+- **STATUS**: ✅ COMPLETATO (Pushato su feature-branch)
+- **AZIONI**:
+  - **MENU [SA-037]**: Rimosse opzioni "Fino a stasera/domani" dal BottomSheet (lasciate solo durate fisse e personalizzate).
+  - **LOGICA**: Confermata stabilità logica preferiti e timer personalizzato.
+  - **GIT**: Commit e push su `feature/gestione-timing-protezione`.
+
+---
 ### 📅 2026-03-22 00:50 | Agente: Ambrogio (Antigravity)
 - **TASK**: [TASK-SA-034] v2.9 — MILESTONE: Timing Protezione + Crash Fix
 - **STATUS**: ✅ COMPLETATO (Milestone Raggiunta e Pushato su `feature/gestione-timing-protezione`)

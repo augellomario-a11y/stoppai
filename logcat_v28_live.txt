@@ -77,3 +77,27 @@
 03-22 00:46:32.820  9782  9782 E STOPPAI_VOL: Chiamata terminata → volume 0
 03-22 00:46:39.531  9782  9782 E STOPPAI_CACHE: Caricati 3146 contatti (sincrono)
 03-22 00:46:39.573  9782  9782 E STOPPAI_CACHE: Caricati 17 preferiti
+03-22 00:48:41.614  9782  9782 E STOPPAI_CACHE: Caricati 3146 contatti (sincrono)
+03-22 00:48:41.661  9782  9782 E STOPPAI_CACHE: Caricati 17 preferiti
+03-22 00:56:32.869  9782  9827 E STOPPAI_CACHE: Caricati 3146 contatti (sincrono)
+03-22 00:56:32.913  9782  9827 E STOPPAI_CACHE: Caricati 17 preferiti
+03-22 00:56:33.196  9782  9827 E STOPPAI_CACHE: Caricati 3146 contatti (sincrono)
+03-22 00:56:33.256  9782  9827 E STOPPAI_CACHE: Caricati 17 preferiti
+03-22 00:58:25.730  9782  9827 E STOPPAI_CACHE: Caricati 3146 contatti (sincrono)
+03-22 00:58:25.785  9782  9827 E STOPPAI_CACHE: Caricati 17 preferiti
+03-22 01:04:09.207  9782  9782 E STOPPAI_VOL: Protezione Totale ON — scadenza: 1774139649199
+03-22 01:04:19.954  9782  9782 E STOPPAI_SCREEN: Preferito durante Prot.Totale: +393272258180
+03-22 01:04:23.678  9782  9782 E STOPPAI_VOL: Chiamata terminata → volume 0
+03-22 01:04:30.643  9782  9782 E STOPPAI_VOL: Protezione Totale ON — scadenza: 1774139670640
+03-22 01:04:41.086  9782  9782 E STOPPAI_VOL: Chiamata terminata → volume 0
+03-22 01:04:41.088  9782  9782 E STOPPAI_VOL: Chiamata terminata → volume 0
+03-22 01:11:33.110  9782  9829 E STOPPAI_CACHE: Caricati 3146 contatti (sincrono)
+03-22 01:11:33.164  9782  9829 E STOPPAI_CACHE: Caricati 17 preferiti
+03-22 01:11:33.422  9782  9829 E STOPPAI_CACHE: Caricati 3146 contatti (sincrono)
+03-22 01:11:33.451  9782  9829 E STOPPAI_CACHE: Caricati 17 preferiti
+03-22 01:13:25.976  9782  9829 E STOPPAI_CACHE: Caricati 3146 contatti (sincrono)
+03-22 01:13:26.027  9782  9829 E STOPPAI_CACHE: Caricati 17 preferiti
+03-22 01:14:03.346  9782  9782 E STOPPAI_CACHE: Caricati 3146 contatti (sincrono)
+03-22 01:14:03.578  9782  9782 E STOPPAI_CACHE: Caricati 17 preferiti
+03-22 01:14:13.578  9782  9782 E STOPPAI_CACHE: Caricati 3146 contatti (sincrono)
+03-22 01:14:13.630  9782  9782 E STOPPAI_CACHE: Caricati 17 preferiti
