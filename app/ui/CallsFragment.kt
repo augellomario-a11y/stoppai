@@ -23,7 +23,7 @@ class CallsFragment : Fragment(R.layout.fragment_calls) {
         recycler.adapter = adapter
 
         lifecycleScope.launch {
-            val db = StoppAiDatabase.getDatabase(requireContext())
+            val db = StoppAiDatabase.getInstance(requireContext())
             db.callLogDao().getAllLogs().collectLatest { logs ->
                 adapter.submitList(logs)
             }

@@ -18,18 +18,24 @@ class StoppAiApp : Application() {
         }
         
         try {
-            val contactPrefs = getSharedPreferences("stoppai_prefs", android.content.Context.MODE_PRIVATE)
-            val volSalvato = contactPrefs.getInt("vol_originale", 0)
+            // Inizializza volume nel DB se non esiste ancora
+            val db = com.ifs.stoppai.db.StoppAiDatabase.getInstance(this)
+            val repo = com.ifs.stoppai.db.AppSettingsRepository(db.appSettingsDao())
             val audio = getSystemService(android.content.Context.AUDIO_SERVICE) as android.media.AudioManager
             
-            if (volSalvato == 0) {
-                val volAttuale = audio.getStreamVolume(android.media.AudioManager.STREAM_RING)
-                contactPrefs.edit().putInt("vol_originale", if (volAttuale > 0) volAttuale else 7).apply()
-                android.util.Log.e("STOPPAI_VOL", "App start - Reset vol_originale")
+            val volAttuale = audio.getStreamVolume(android.media.AudioManager.STREAM_RING)
+            
+            // Se nel DB c'è il default 7 ma il sistema ha un volume diverso e superiore a 0, lo salviamo come originale
+            if (repo.getVolume() == 7 && volAttuale > 0) {
+                repo.setVolume(volAttuale)
+                android.util.Log.e("STOPPAI_VOL", "App start - Salvato vol_originale: $volAttuale")
             }
             
-            val protezioneAttiva = contactPrefs.getBoolean("protezione_base", false)
-            if (protezioneAttiva) {
+            val prefs = getSharedPreferences("stoppai_prefs", android.content.Context.MODE_PRIVATE)
+            val protezioneAttiva = prefs.getBoolean("protezione_base", false)
+            val protezioneTotale = prefs.getBoolean("protezione_totale", false)
+            
+            if (protezioneAttiva || protezioneTotale) {
                 audio.setStreamVolume(android.media.AudioManager.STREAM_RING, 0, 0)
             }
         } catch (e: Exception) {}

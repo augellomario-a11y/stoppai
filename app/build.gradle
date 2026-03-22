@@ -10,10 +10,10 @@ android {
 
     defaultConfig {
         applicationId "com.ifs.stoppai"
-        minSdk 29
-        targetSdk 34
-        versionCode 29
-        versionName "2.9"
+        minSdk = 26
+        targetSdk = 34
+        versionCode = 31
+        versionName = "3.1"
     }
 
     compileOptions {

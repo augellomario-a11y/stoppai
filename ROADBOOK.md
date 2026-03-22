@@ -1,5 +1,38 @@
 # 📔 ROADBOOK: StoppAI
 ---
+### 📅 2026-03-22 10:30 | Agente: Ambrogio (Antigravity)
+- **TASK**: [TASK-SA-044] — SPEAKER-STATUS
+- **STATUS**: ✅ COMPLETATO
+- **AZIONI**:
+  - **LOGICA**: Aggiunta lettura volume `AudioManager` in `onResume/onStart`.
+  - **UI**: Aggiunti indicatori icona+testo (ID_HOME_010/011) per volume reale.
+  - **VERSIONE**: Bump a v3.1 (Build 31).
+
+---
+### 📅 2026-03-22 10:15 | Agente: Ambrogio (Antigravity)
+- **TASK**: [TASK-SA-043] — SETTINGS-DB
+- **STATUS**: ✅ COMPLETATO
+- **AZIONI**:
+  - **DB**: Creata `AppSettingsEntity` e migration v1->v2.
+  - **LOGICA**: Migrata gestione volume originale e deviation_number su DB Room.
+  - **UI**: Aggiunto tasto Reset (ID_SETT_001) in SettingsFragment.
+
+---
+### 📅 2026-03-22 09:30 | Agente: Ambrogio (Antigravity)
+- **TASK**: [TASK-SA-042] — NUOVO-BRANCH
+- **STATUS**: ✅ COMPLETATO
+- **AZIONI**:
+  - **GIT**: Creato e pushato branch `feature/20260322-silenzio-footer-ui`.
+
+---
+### 📅 2026-03-22 09:15 | Agente: Ambrogio (Antigravity)
+- **TASK**: [TASK-SA-041] — AGGIORNA-DIARIO
+- **STATUS**: ✅ COMPLETATO
+- **AZIONI**:
+  - **DIARIO**: Sostituito `docs/storia-progetto.md` con il nuovo diario v3.0 (28 capitoli).
+  - **GIT**: Commit e push su `main`.
+
+---
 ### 📅 2026-03-22 01:20 | Agente: Ambrogio (Antigravity)
 - **TASK**: [TASK-SA-037] v2.9 — MILESTONE: Protezione Totale Fixed & Menu Cleaned
 - **STATUS**: ✅ COMPLETATO (Pushato su feature-branch)

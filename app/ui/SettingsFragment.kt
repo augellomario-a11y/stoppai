@@ -34,6 +34,28 @@ class SettingsFragment : Fragment(R.layout.fragment_settings) {
             intent.data = Uri.fromParts("tel", "##61#", null)
             startActivity(intent)
         }
+
+        val btnReset = view.findViewById<Button>(R.id.ID_SETT_001)
+        btnReset.setOnClickListener {
+            androidx.appcompat.app.AlertDialog.Builder(requireContext())
+                .setTitle("Ripristina impostazioni")
+                .setMessage("Sei sicuro? Tutte le impostazioni verranno cancellate.")
+                .setPositiveButton("Ripristina") { _, _ ->
+                    val db = com.ifs.stoppai.db.StoppAiDatabase.getInstance(requireContext().applicationContext)
+                    val repo = com.ifs.stoppai.db.AppSettingsRepository(db.appSettingsDao())
+                    
+                    // Svuota DB settings
+                    repo.clearAll()
+                    
+                    // Ripristina volume hardware a 7
+                    val audioManager = requireContext().getSystemService(android.content.Context.AUDIO_SERVICE) as android.media.AudioManager
+                    audioManager.setStreamVolume(android.media.AudioManager.STREAM_RING, 7, 0)
+                    
+                    android.widget.Toast.makeText(requireContext(), "Impostazioni ripristinate", android.widget.Toast.LENGTH_SHORT).show()
+                }
+                .setNegativeButton("Annulla", null)
+                .show()
+        }
         
         setupPermissionClickListeners(view)
     }

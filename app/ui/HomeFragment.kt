@@ -31,6 +31,12 @@ class HomeFragment : Fragment(R.layout.fragment_home) {
     private lateinit var tvCountdown: TextView
     private val handler = Handler(Looper.getMainLooper())
     private var countdownRunnable: Runnable? = null
+    
+    // View per il volume
+    private lateinit var volIconBase: TextView
+    private lateinit var volTextBase: TextView
+    private lateinit var volIconTotale: TextView
+    private lateinit var volTextTotale: TextView
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
@@ -46,6 +52,14 @@ class HomeFragment : Fragment(R.layout.fragment_home) {
         switchTotale = view.findViewById(R.id.ID_HOME_007)
         switchTotale.isChecked = prefs.getBoolean("protezione_totale", false)
         tvCountdown = view.findViewById(R.id.ID_HOME_008)
+
+        // Binding nuovi indicatori volume
+        volIconBase = view.findViewById(R.id.ID_HOME_010_ICON)
+        volTextBase = view.findViewById(R.id.ID_HOME_010_TEXT)
+        volIconTotale = view.findViewById(R.id.ID_HOME_011_ICON)
+        volTextTotale = view.findViewById(R.id.ID_HOME_011_TEXT)
+        
+        aggiornaVolumeUI()
 
         if (switchTotale.isChecked) {
             switchBase.isEnabled = false
@@ -70,16 +84,22 @@ class HomeFragment : Fragment(R.layout.fragment_home) {
                     .apply()
                 switchBase.isEnabled = true
                 stopCountdown()
+                
+                val db = StoppAiDatabase.getInstance(requireActivity().applicationContext)
+                val repo = com.ifs.stoppai.db.AppSettingsRepository(db.appSettingsDao())
+                
                 if (switchBase.isChecked) {
                     try {
                         audioManager.setStreamVolume(
                             android.media.AudioManager.STREAM_RING, 0, 0)
+                        aggiornaVolumeUI()
                     } catch (e: Exception) {}
                 } else {
-                    val volOr = prefs.getInt("vol_originale", 5)
+                    val volOr = repo.getVolume()
                     try {
                         audioManager.setStreamVolume(
                             android.media.AudioManager.STREAM_RING, volOr, 0)
+                        aggiornaVolumeUI()
                     } catch (e: Exception) {}
                 }
             }
@@ -88,28 +108,27 @@ class HomeFragment : Fragment(R.layout.fragment_home) {
         // Switch Protezione Base
         switchBase.setOnCheckedChangeListener { _, isChecked ->
             prefs.edit().putBoolean("protezione_base", isChecked).apply()
+            val db = StoppAiDatabase.getInstance(requireActivity().applicationContext)
+            val repo = com.ifs.stoppai.db.AppSettingsRepository(db.appSettingsDao())
+            
             if (isChecked) {
-                val volSalvato = prefs.getInt("vol_originale", 0)
-                if (volSalvato == 0) {
-                    val volAttuale = audioManager.getStreamVolume(
-                        android.media.AudioManager.STREAM_RING)
-                    val volDaSalvare = if (volAttuale > 0) volAttuale else 7
-                    prefs.edit().putInt("vol_originale", volDaSalvare).apply()
-                }
-                val volAdesso = audioManager.getStreamVolume(
+                val volAttuale = audioManager.getStreamVolume(
                     android.media.AudioManager.STREAM_RING)
-                if (volAdesso > 0) {
-                    prefs.edit().putInt("vol_originale", volAdesso).apply()
+                // Salva il volume attuale nel DB prima di azzerarlo se è > 0
+                if (volAttuale > 0) {
+                    repo.setVolume(volAttuale)
                 }
                 try {
                     audioManager.setStreamVolume(
                         android.media.AudioManager.STREAM_RING, 0, 0)
+                    aggiornaVolumeUI()
                 } catch (e: Exception) {}
             } else {
-                val volOr = prefs.getInt("vol_originale", 5)
+                val volOr = repo.getVolume()
                 try {
                     audioManager.setStreamVolume(
                         android.media.AudioManager.STREAM_RING, volOr, 0)
+                    aggiornaVolumeUI()
                 } catch (e: Exception) {}
             }
         }
@@ -122,7 +141,7 @@ class HomeFragment : Fragment(R.layout.fragment_home) {
                 .setMessage("Sei sicuro? Questa azione non è reversibile.")
                 .setPositiveButton("Svuota") { _, _ ->
                     lifecycleScope.launch(Dispatchers.IO) {
-                        StoppAiDatabase.getDatabase(act.applicationContext)
+                        StoppAiDatabase.getInstance(act.applicationContext)
                             .clearAllTables()
                     }
                 }
@@ -133,14 +152,14 @@ class HomeFragment : Fragment(R.layout.fragment_home) {
         // Statistiche rapide
         val tvStats = view.findViewById<TextView>(R.id.ID_HOME_003)
         lifecycleScope.launch {
-            val db = StoppAiDatabase.getDatabase(act)
+            val db = StoppAiDatabase.getInstance(act)
             db.callLogDao().getAllLogs().collectLatest { logs ->
                 tvStats.text = "Oggi: ${logs.size} chiamate gestite e archiviate"
             }
         }
 
         val labelFooter = view.findViewById<TextView>(R.id.ID_HOME_099)
-        labelFooter.text = "StoppAI v2.9 —\n[TASK-SA-034] — Final Fix"
+        labelFooter.text = "StoppAI v3.1 —\n[TASK-SA-044] — Speaker Status"
 
         // Avvia countdown se protezione totale è attiva
         if (prefs.getBoolean("protezione_totale", false)) {
@@ -188,10 +207,13 @@ class HomeFragment : Fragment(R.layout.fragment_home) {
             stopCountdown()
             // Ripristina volume se base non è attiva
             if (!switchBase.isChecked) {
-                val volOr = prefs.getInt("vol_originale", 5)
+                val db = StoppAiDatabase.getInstance(requireActivity().applicationContext)
+                val repo = com.ifs.stoppai.db.AppSettingsRepository(db.appSettingsDao())
+                val volOr = repo.getVolume()
                 try {
                     audioManager.setStreamVolume(
                         android.media.AudioManager.STREAM_RING, volOr, 0)
+                    aggiornaVolumeUI()
                 } catch (e: Exception) {}
             }
             return
@@ -209,10 +231,35 @@ class HomeFragment : Fragment(R.layout.fragment_home) {
         }
     }
 
+    override fun onStart() {
+        super.onStart()
+        aggiornaVolumeUI()
+    }
+
     override fun onResume() {
         super.onResume()
+        aggiornaVolumeUI()
         if (prefs.getBoolean("protezione_totale", false)) {
             startCountdown()
+        }
+    }
+
+    // Legge il volume reale dal sistema e aggiorna le icone/testo accanto agli switch
+    private fun aggiornaVolumeUI() {
+        try {
+            val vol = audioManager.getStreamVolume(android.media.AudioManager.STREAM_RING)
+            val maxVol = audioManager.getStreamMaxVolume(android.media.AudioManager.STREAM_RING)
+            
+            // Icona emoji basata sul volume
+            val icon = if (vol == 0) "🔇" else "🔊"
+            val text = "Vol: $vol/$maxVol"
+            
+            volIconBase.text = icon
+            volTextBase.text = text
+            volIconTotale.text = icon
+            volTextTotale.text = text
+        } catch (e: Exception) {
+            android.util.Log.e("STOPPAI", "Errore aggiornamento volume UI: ${e.message}")
         }
     }
 

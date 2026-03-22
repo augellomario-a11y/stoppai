@@ -105,11 +105,11 @@ class CallScreeningServiceImpl : CallScreeningService() {
     private fun alzaVolume() {
         android.os.Handler(android.os.Looper.getMainLooper()).post {
             try {
+                val db = StoppAiDatabase.getInstance(applicationContext)
+                val repo = com.ifs.stoppai.db.AppSettingsRepository(db.appSettingsDao())
+                val volOriginale = repo.getVolume()
                 val audio = applicationContext.getSystemService(
                     Context.AUDIO_SERVICE) as android.media.AudioManager
-                val volOriginale = applicationContext
-                    .getSharedPreferences("stoppai_prefs", Context.MODE_PRIVATE)
-                    .getInt("vol_originale", 5)
                 audio.setStreamVolume(
                     android.media.AudioManager.STREAM_RING, volOriginale, 0)
             } catch (e: Exception) {
@@ -177,7 +177,7 @@ class CallScreeningServiceImpl : CallScreeningService() {
                 norm.startsWith("+390") -> "LANDLINE"
                 else -> "MOBILE"
             }
-            val db = StoppAiDatabase.getDatabase(applicationContext)
+            val db = StoppAiDatabase.getInstance(applicationContext)
             val entry = CallLogEntry(
                 phoneNumber = rawNumber.ifEmpty { "Sconosciuto/Privato" },
                 callType = callType,
