@@ -104,22 +104,6 @@ class ProtezioneBottomSheet : BottomSheetDialogFragment() {
             R.id.ID_BS_001 -> now + 30L * 60 * 1000       // 30 min
             R.id.ID_BS_002 -> now + 60L * 60 * 1000       // 1 ora
             R.id.ID_BS_003 -> now + 120L * 60 * 1000      // 2 ore
-            R.id.ID_BS_004 -> {                            // Stasera 20:00
-                val cal = Calendar.getInstance()
-                cal.set(Calendar.HOUR_OF_DAY, 20)
-                cal.set(Calendar.MINUTE, 0)
-                cal.set(Calendar.SECOND, 0)
-                if (cal.timeInMillis <= now) cal.add(Calendar.DAY_OF_YEAR, 1)
-                cal.timeInMillis
-            }
-            R.id.ID_BS_005 -> {                            // Domani 08:00
-                val cal = Calendar.getInstance()
-                cal.add(Calendar.DAY_OF_YEAR, 1)
-                cal.set(Calendar.HOUR_OF_DAY, 8)
-                cal.set(Calendar.MINUTE, 0)
-                cal.set(Calendar.SECOND, 0)
-                cal.timeInMillis
-            }
             R.id.ID_BS_006 -> {                            // Personalizzato
                 val cal = Calendar.getInstance()
                 cal.set(Calendar.HOUR_OF_DAY, timePicker.hour)

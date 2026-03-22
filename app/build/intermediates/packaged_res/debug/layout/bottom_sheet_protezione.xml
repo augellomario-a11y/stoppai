@@ -42,19 +42,6 @@
             android:text="2 ore"
             android:textSize="16sp" />
 
-        <RadioButton
-            android:id="@+id/ID_BS_004"
-            android:layout_width="match_parent"
-            android:layout_height="48dp"
-            android:text="Fino a stasera (20:00)"
-            android:textSize="16sp" />
-
-        <RadioButton
-            android:id="@+id/ID_BS_005"
-            android:layout_width="match_parent"
-            android:layout_height="48dp"
-            android:text="Fino a domani (08:00)"
-            android:textSize="16sp" />
 
         <RadioButton
             android:id="@+id/ID_BS_006"

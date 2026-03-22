@@ -4,8 +4,6 @@ drawable ic_home
 id ID_BS_001
 id ID_BS_002
 id ID_BS_003
-id ID_BS_004
-id ID_BS_005
 id ID_BS_006
 id ID_BS_007
 id ID_BS_008
