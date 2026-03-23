@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
+    <color name="purple_shield">#7C4DFF</color>
     <string name="app_name">StoppAI</string>
     <style name="Theme.StoppAI" parent="Theme.Material3.Light.NoActionBar">
     </style>

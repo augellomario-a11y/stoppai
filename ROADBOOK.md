@@ -1,5 +1,76 @@
 # 📔 ROADBOOK: StoppAI
 ---
+### 📅 2026-03-23 02:05 | Agente: Ambrogio (Antigravity)
+- **TASK**: [TASK-SA-051] — REGISTRO-FIX
+- **STATUS**: ✅ COMPLETATO
+- **AZIONI**:
+  - **LOGIC**: Implementato lookup rubrica (`ContactsContract`) in `saveCallLog`.
+  - **DB**: Migrazione v3->v4 per aggiunta campo `displayName` in `CallLogEntry`.
+  - **UX**: Il registro ora mostra il nome del contatto se presente in rubrica.
+  - **FIX**: Numeri nascosti ora vengono correttamente loggati come "Numero nascosto".
+  - **FIX**: Il salvataggio su DB avviene prima del comando `respondToCall` per i blocchi.
+---
+### 📅 2026-03-23 01:50 | Agente: Ambrogio (Antigravity)
+- **TASK**: [TASK-SA-050-LOGO-ULTRA] — LOGO HQ
+- **STATUS**: ✅ COMPLETATO
+- **AZIONI**:
+  - **ASSET**: Sostituito `logo_stoppai.png` con la versione High-Resolution (55KB) fornita dal CEO.
+  - **TEST**: Verificata nitidezza su Samsung S22 e Emulator.
+---
+### 📅 2026-03-23 01:45 | Agente: Ambrogio (Antigravity)
+- **TASK**: [TASK-SA-050-LOGO-FIX] — LOGO TROPPO PICCOLO
+- **STATUS**: ✅ COMPLETATO
+- **AZIONI**:
+  - **UI**: Ingrandito logo PNG in `fragment_home.xml` da 72dp a **120dp**.
+  - **UI**: Impostato `maxWidth="320dp"` e `adjustViewBounds="true"` per stabilità layout.
+  - **TEST**: Validata resa visiva su Samsung S22 e Emulator.
+---
+### 📅 2026-03-23 01:40 | Agente: Ambrogio (Antigravity)
+- **TASK**: [TASK-SA-050-LOGO-PNG] — INSERIMENTO LOGO PNG
+- **STATUS**: ✅ COMPLETATO
+- **AZIONI**:
+  - **ASSET**: Salvato `logo_stoppai.png` in 5 cartelle drawable (densità HDPI fino a XXXHDPI).
+  - **DASHBOARD**: Sostituito header con `ImageView` del logo PNG ufficiale (H: 72dp).
+  - **PAYOFF**: "Il tuo bodyguard digitale" centrato sotto il logo PNG.
+  - **TEST**: Verificato rendering nitido su Samsung S22 e Emulator.
+---
+### 📅 2026-03-23 01:10 | Agente: Ambrogio (Antigravity)
+- **TASK**: [TASK-SA-050-LOGO] — HEADER LOGO FINALE
+- **STATUS**: ✅ COMPLETATO
+- **AZIONI**:
+  - **DASHBOARD**: Ridisegnato header Home con logo centrato "Stopp" (56sp Black) + Scudo (90dp).
+  - **LOGOTIPO**: Creato `ic_shield_logo.xml` ultra-premium: gradiente smeraldo, lettere **A** e **I** integrate, linea centrale luce e ombreggiature 3D.
+  - **PAYOFF**: "Il tuo bodyguard digitale · v3.8" centrato sotto il brand-mark.
+  - **TEST**: Layout validato su Samsung S22 e emulatore.
+---
+### 📅 2026-03-23 00:35 | Agente: Ambrogio (Antigravity)
+- **TASK**: [TASK-SA-050-FIX] — HEADER SHIELD RESIZE
+- **STATUS**: ✅ COMPLETATO
+- **AZIONI**:
+  - **UI**: Ingrandito logo scudo in `fragment_home.xml` da 48dp a **72dp**.
+  - **UI**: Aggiunto `scaleType="fitCenter"` alla ImageView del logo.
+  - **TEST**: Verificato l'impatto visivo e installato su tutti i dispositivi.
+---
+### 📅 2026-03-22 23:55 | Agente: Ambrogio (Antigravity)
+- **TASK**: [TASK-SA-050] — ICON-HEADER
+- **STATUS**: ✅ COMPLETATO
+- **AZIONI**:
+  - **LOGOTIPO**: Creato logo scudo ufficiale `ic_shield_logo.xml` (viola #7C4DFF + S bianca).
+  - **DASHBOARD**: Ridisegnato header con logo in evidenza (48dp), titolo/versione e payoff grigio (#9E9E9E).
+  - **NAV**: Inserita nuova icona ingranaggio `ic_settings_gear.xml` per le impostazioni.
+  - **LAUNCHER**: Impostata l'icona scudo come icona ufficiale dell'app nel Manifest.
+  - **VERSIONE**: Bump a v3.8 (Build 38). Installato con successo.
+---
+### 📅 2026-03-22 23:30 | Agente: Ambrogio (Antigravity)
+- **TASK**: [TASK-SA-049] — UI-POLISH
+- **STATUS**: ✅ COMPLETATO
+- **AZIONI**:
+  - **DASHBOARD**: Riprogettato header (Titolo/Versione), payoff centrato, 3 box statistiche (Totale/Oggi/Referral) e separatori visivi.
+  - **SETTINGS**: Aggiunta sezione "🔊 Audio" con SeekBar, bottoni +/- e feedback testuale "X/15".
+  - **LOGICA**: Implementato recupero statistiche reali da DB Room (`getTotalCalls`/`getCallsToday`).
+  - **NAV**: Bottom Navigation con sfondo neutro, icone corrette e label visibili.
+  - **VERSIONE**: Bump a v3.7 (Build 37). Installato su S22 e Emulator.
+---
 ### 📅 2026-03-22 23:00 | Agente: Ambrogio (Antigravity)
 - **TASK**: [TASK-SA-048] — SPEAKER-ICONS
 - **STATUS**: ✅ COMPLETATO

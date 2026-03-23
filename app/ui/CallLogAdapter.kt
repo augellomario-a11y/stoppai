@@ -26,7 +26,7 @@ class CallLogAdapter : ListAdapter<CallLogEntry, CallLogAdapter.CallViewHolder>(
         val typeText: TextView = view.findViewById(R.id.txt_type)
         
         fun bind(entry: CallLogEntry) {
-            numberText.text = entry.phoneNumber
+            numberText.text = if (entry.displayName.isNotEmpty()) entry.displayName else entry.phoneNumber
             
             val sdf = SimpleDateFormat("dd/MM/yyyy - HH:mm:ss", Locale.ITALY)
             dateText.text = sdf.format(Date(entry.timestamp))

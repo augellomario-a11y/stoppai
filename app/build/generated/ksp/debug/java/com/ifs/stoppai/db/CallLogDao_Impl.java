@@ -44,7 +44,7 @@ public final class CallLogDao_Impl implements CallLogDao {
       @Override
       @NonNull
       protected String createQuery() {
-        return "INSERT OR ABORT INTO `call_log_entries` (`id`,`phoneNumber`,`callType`,`timestamp`,`statusId`,`nota`,`ariaNote`,`callOutcome`) VALUES (nullif(?, 0),?,?,?,?,?,?,?)";
+        return "INSERT OR ABORT INTO `call_log_entries` (`id`,`phoneNumber`,`callType`,`timestamp`,`statusId`,`nota`,`ariaNote`,`callOutcome`,`displayName`) VALUES (nullif(?, 0),?,?,?,?,?,?,?,?)";
       }
 
       @Override
@@ -58,6 +58,7 @@ public final class CallLogDao_Impl implements CallLogDao {
         statement.bindString(6, entity.getNota());
         statement.bindString(7, entity.getAriaNote());
         statement.bindString(8, entity.getCallOutcome());
+        statement.bindString(9, entity.getDisplayName());
       }
     };
     this.__preparedStmtOfUpdateStatus = new SharedSQLiteStatement(__db) {
@@ -204,6 +205,7 @@ public final class CallLogDao_Impl implements CallLogDao {
           final int _cursorIndexOfNota = CursorUtil.getColumnIndexOrThrow(_cursor, "nota");
           final int _cursorIndexOfAriaNote = CursorUtil.getColumnIndexOrThrow(_cursor, "ariaNote");
           final int _cursorIndexOfCallOutcome = CursorUtil.getColumnIndexOrThrow(_cursor, "callOutcome");
+          final int _cursorIndexOfDisplayName = CursorUtil.getColumnIndexOrThrow(_cursor, "displayName");
           final List<CallLogEntry> _result = new ArrayList<CallLogEntry>(_cursor.getCount());
           while (_cursor.moveToNext()) {
             final CallLogEntry _item;
@@ -223,7 +225,9 @@ public final class CallLogDao_Impl implements CallLogDao {
             _tmpAriaNote = _cursor.getString(_cursorIndexOfAriaNote);
             final String _tmpCallOutcome;
             _tmpCallOutcome = _cursor.getString(_cursorIndexOfCallOutcome);
-            _item = new CallLogEntry(_tmpId,_tmpPhoneNumber,_tmpCallType,_tmpTimestamp,_tmpStatusId,_tmpNota,_tmpAriaNote,_tmpCallOutcome);
+            final String _tmpDisplayName;
+            _tmpDisplayName = _cursor.getString(_cursorIndexOfDisplayName);
+            _item = new CallLogEntry(_tmpId,_tmpPhoneNumber,_tmpCallType,_tmpTimestamp,_tmpStatusId,_tmpNota,_tmpAriaNote,_tmpCallOutcome,_tmpDisplayName);
             _result.add(_item);
           }
           return _result;

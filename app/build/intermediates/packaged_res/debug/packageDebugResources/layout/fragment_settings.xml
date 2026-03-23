@@ -64,6 +64,67 @@
             <TextView android:id="@+id/ID_PERM_005" android:layout_width="match_parent" android:layout_height="wrap_content" android:textSize="16sp" android:padding="4dp"/>
             <TextView android:id="@+id/ID_PERM_006" android:layout_width="match_parent" android:layout_height="wrap_content" android:textSize="16sp" android:padding="4dp" android:text="🔴 Rubrica in caricamento..."/>
         </LinearLayout>
+        
+        <View android:layout_width="match_parent" android:layout_height="1dp" android:background="#EEEEEE" android:layout_marginVertical="16dp" />
+        
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="🔊 Audio"
+            android:textStyle="bold"
+            android:layout_marginBottom="12dp"/>
+            
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Volume suoneria"
+            android:textSize="14sp"
+            android:textColor="#666666" />
+            
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:gravity="center_vertical"
+            android:paddingVertical="8dp">
+            
+            <TextView
+                android:id="@+id/ID_SETT_VOL_MINUS"
+                android:layout_width="40dp"
+                android:layout_height="40dp"
+                android:text="−"
+                android:textSize="24sp"
+                android:gravity="center"
+                android:background="?attr/selectableItemBackgroundBorderless" />
+                
+            <SeekBar
+                android:id="@+id/ID_SETT_VOL_SEEK"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:max="15" />
+                
+            <TextView
+                android:id="@+id/ID_SETT_VOL_PLUS"
+                android:layout_width="40dp"
+                android:layout_height="40dp"
+                android:text="+"
+                android:textSize="24sp"
+                android:gravity="center"
+                android:background="?attr/selectableItemBackgroundBorderless" />
+        </LinearLayout>
+        
+        <TextView
+            android:id="@+id/ID_SETT_VOL_VAL"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="12 / 15"
+            android:textSize="16sp"
+            android:textStyle="bold"
+            android:gravity="center"
+            android:layout_marginBottom="16dp" />
+            
+        <View android:layout_width="match_parent" android:layout_height="1dp" android:background="#EEEEEE" android:layout_marginBottom="16dp" />
 
         <Button
             android:id="@+id/ID_SETT_001"

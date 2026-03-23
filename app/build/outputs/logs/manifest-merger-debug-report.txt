@@ -1,9 +1,9 @@
 -- Merging decision tree log ---
 manifest
-ADDED from C:\progetti\STOPPAI\app\AndroidManifest.xml:2:1-38:12
-INJECTED from C:\progetti\STOPPAI\app\AndroidManifest.xml:2:1-38:12
-INJECTED from C:\progetti\STOPPAI\app\AndroidManifest.xml:2:1-38:12
-INJECTED from C:\progetti\STOPPAI\app\AndroidManifest.xml:2:1-38:12
+ADDED from C:\progetti\STOPPAI\app\AndroidManifest.xml:2:1-40:12
+INJECTED from C:\progetti\STOPPAI\app\AndroidManifest.xml:2:1-40:12
+INJECTED from C:\progetti\STOPPAI\app\AndroidManifest.xml:2:1-40:12
+INJECTED from C:\progetti\STOPPAI\app\AndroidManifest.xml:2:1-40:12
 MERGED from [com.google.android.material:material:1.11.0] C:\Users\Utente\.gradle\caches\8.14.3\transforms\1b6951a1123bc6a258a83ceb07a8c38b\transformed\material-1.11.0\AndroidManifest.xml:17:1-24:12
 MERGED from [androidx.constraintlayout:constraintlayout:2.1.4] C:\Users\Utente\.gradle\caches\8.14.3\transforms\b828e49b1306e905b5470087ca1123b6\transformed\constraintlayout-2.1.4\AndroidManifest.xml:2:1-11:12
 MERGED from [androidx.appcompat:appcompat-resources:1.6.1] C:\Users\Utente\.gradle\caches\8.14.3\transforms\e38846c2781f07a16f0359d121eca971\transformed\jetified-appcompat-resources-1.6.1\AndroidManifest.xml:17:1-22:12
@@ -90,8 +90,8 @@ ADDED from C:\progetti\STOPPAI\app\AndroidManifest.xml:11:5-77
 	android:name
 		ADDED from C:\progetti\STOPPAI\app\AndroidManifest.xml:11:22-74
 application
-ADDED from C:\progetti\STOPPAI\app\AndroidManifest.xml:13:5-37:19
-INJECTED from C:\progetti\STOPPAI\app\AndroidManifest.xml:13:5-37:19
+ADDED from C:\progetti\STOPPAI\app\AndroidManifest.xml:13:5-39:19
+INJECTED from C:\progetti\STOPPAI\app\AndroidManifest.xml:13:5-39:19
 MERGED from [com.google.android.material:material:1.11.0] C:\Users\Utente\.gradle\caches\8.14.3\transforms\1b6951a1123bc6a258a83ceb07a8c38b\transformed\material-1.11.0\AndroidManifest.xml:22:5-20
 MERGED from [com.google.android.material:material:1.11.0] C:\Users\Utente\.gradle\caches\8.14.3\transforms\1b6951a1123bc6a258a83ceb07a8c38b\transformed\material-1.11.0\AndroidManifest.xml:22:5-20
 MERGED from [androidx.constraintlayout:constraintlayout:2.1.4] C:\Users\Utente\.gradle\caches\8.14.3\transforms\b828e49b1306e905b5470087ca1123b6\transformed\constraintlayout-2.1.4\AndroidManifest.xml:9:5-20
@@ -115,45 +115,49 @@ MERGED from [androidx.startup:startup-runtime:1.1.1] C:\Users\Utente\.gradle\cac
 	android:appComponentFactory
 		ADDED from [androidx.core:core:1.12.0] C:\Users\Utente\.gradle\caches\8.14.3\transforms\458f09ceaed339a9d5942de565215d43\transformed\core-1.12.0\AndroidManifest.xml:28:18-86
 	android:supportsRtl
-		ADDED from C:\progetti\STOPPAI\app\AndroidManifest.xml:17:9-35
+		ADDED from C:\progetti\STOPPAI\app\AndroidManifest.xml:19:9-35
 	android:label
-		ADDED from C:\progetti\STOPPAI\app\AndroidManifest.xml:16:9-32
+		ADDED from C:\progetti\STOPPAI\app\AndroidManifest.xml:18:9-32
+	android:roundIcon
+		ADDED from C:\progetti\STOPPAI\app\AndroidManifest.xml:17:9-53
+	android:icon
+		ADDED from C:\progetti\STOPPAI\app\AndroidManifest.xml:16:9-48
 	android:allowBackup
 		ADDED from C:\progetti\STOPPAI\app\AndroidManifest.xml:15:9-35
 	android:theme
-		ADDED from C:\progetti\STOPPAI\app\AndroidManifest.xml:18:9-45
+		ADDED from C:\progetti\STOPPAI\app\AndroidManifest.xml:20:9-45
 	android:name
 		ADDED from C:\progetti\STOPPAI\app\AndroidManifest.xml:14:9-40
 activity#com.ifs.stoppai.ui.MainActivity
-ADDED from C:\progetti\STOPPAI\app\AndroidManifest.xml:20:9-27:20
+ADDED from C:\progetti\STOPPAI\app\AndroidManifest.xml:22:9-29:20
 	android:exported
-		ADDED from C:\progetti\STOPPAI\app\AndroidManifest.xml:22:13-36
+		ADDED from C:\progetti\STOPPAI\app\AndroidManifest.xml:24:13-36
 	android:name
-		ADDED from C:\progetti\STOPPAI\app\AndroidManifest.xml:21:13-44
+		ADDED from C:\progetti\STOPPAI\app\AndroidManifest.xml:23:13-44
 intent-filter#action:name:android.intent.action.MAIN+category:name:android.intent.category.LAUNCHER
-ADDED from C:\progetti\STOPPAI\app\AndroidManifest.xml:23:13-26:29
+ADDED from C:\progetti\STOPPAI\app\AndroidManifest.xml:25:13-28:29
 action#android.intent.action.MAIN
-ADDED from C:\progetti\STOPPAI\app\AndroidManifest.xml:24:17-69
+ADDED from C:\progetti\STOPPAI\app\AndroidManifest.xml:26:17-69
 	android:name
-		ADDED from C:\progetti\STOPPAI\app\AndroidManifest.xml:24:25-66
+		ADDED from C:\progetti\STOPPAI\app\AndroidManifest.xml:26:25-66
 category#android.intent.category.LAUNCHER
-ADDED from C:\progetti\STOPPAI\app\AndroidManifest.xml:25:17-77
+ADDED from C:\progetti\STOPPAI\app\AndroidManifest.xml:27:17-77
 	android:name
-		ADDED from C:\progetti\STOPPAI\app\AndroidManifest.xml:25:27-74
+		ADDED from C:\progetti\STOPPAI\app\AndroidManifest.xml:27:27-74
 service#com.ifs.stoppai.core.CallScreeningServiceImpl
-ADDED from C:\progetti\STOPPAI\app\AndroidManifest.xml:29:9-36:19
+ADDED from C:\progetti\STOPPAI\app\AndroidManifest.xml:31:9-38:19
 	android:exported
-		ADDED from C:\progetti\STOPPAI\app\AndroidManifest.xml:32:13-36
+		ADDED from C:\progetti\STOPPAI\app\AndroidManifest.xml:34:13-36
 	android:permission
-		ADDED from C:\progetti\STOPPAI\app\AndroidManifest.xml:31:13-75
+		ADDED from C:\progetti\STOPPAI\app\AndroidManifest.xml:33:13-75
 	android:name
-		ADDED from C:\progetti\STOPPAI\app\AndroidManifest.xml:30:13-58
+		ADDED from C:\progetti\STOPPAI\app\AndroidManifest.xml:32:13-58
 intent-filter#action:name:android.telecom.CallScreeningService
-ADDED from C:\progetti\STOPPAI\app\AndroidManifest.xml:33:13-35:29
+ADDED from C:\progetti\STOPPAI\app\AndroidManifest.xml:35:13-37:29
 action#android.telecom.CallScreeningService
-ADDED from C:\progetti\STOPPAI\app\AndroidManifest.xml:34:17-79
+ADDED from C:\progetti\STOPPAI\app\AndroidManifest.xml:36:17-79
 	android:name
-		ADDED from C:\progetti\STOPPAI\app\AndroidManifest.xml:34:25-76
+		ADDED from C:\progetti\STOPPAI\app\AndroidManifest.xml:36:25-76
 uses-sdk
 INJECTED from C:\progetti\STOPPAI\app\AndroidManifest.xml reason: use-sdk injection requested
 INJECTED from C:\progetti\STOPPAI\app\AndroidManifest.xml

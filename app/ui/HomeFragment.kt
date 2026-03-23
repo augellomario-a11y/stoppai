@@ -22,6 +22,7 @@ import com.ifs.stoppai.db.StoppAiDatabase
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 
 class HomeFragment : Fragment(R.layout.fragment_home) {
 
@@ -41,6 +42,11 @@ class HomeFragment : Fragment(R.layout.fragment_home) {
     private lateinit var rvLog: androidx.recyclerview.widget.RecyclerView
     private lateinit var tvEmpty: TextView
     private lateinit var adapter: CallLogAdapter
+    
+    // Stats
+    private lateinit var tvStatTotale: TextView
+    private lateinit var tvStatOggi: TextView
+    private lateinit var tvStatReferral: TextView
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
@@ -64,20 +70,26 @@ class HomeFragment : Fragment(R.layout.fragment_home) {
         volTextTotale = view.findViewById(R.id.ID_HOME_011_TEXT)
         rvLog = view.findViewById(R.id.ID_HOME_012)
         tvEmpty = view.findViewById(R.id.ID_HOME_013_EMPTY)
+        
+        tvStatTotale = view.findViewById(R.id.ID_HOME_STAT_001)
+        tvStatOggi = view.findViewById(R.id.ID_HOME_STAT_002)
+        tvStatReferral = view.findViewById(R.id.ID_HOME_STAT_003)
 
         setupRecyclerView()
         aggiornaVolumeUI()
+        caricaStatistiche()
 
         if (switchTotale.isChecked) {
             switchBase.isEnabled = false
         }
 
         // Click sugli altoparlanti per cambiare volume target
-        val volClick = View.OnClickListener { showVolumeDialog() }
-        volIconBase.setOnClickListener(volClick)
-        volTextBase.setOnClickListener(volClick)
-        volIconTotale.setOnClickListener(volClick)
-        volTextTotale.setOnClickListener(volClick)
+        // Rimosso listener per le icone come da istruzioni
+        // val volClick = View.OnClickListener { showVolumeDialog() }
+        // volIconBase.setOnClickListener(volClick)
+        // volTextBase.setOnClickListener(volClick)
+        // volIconTotale.setOnClickListener(volClick)
+        // volTextTotale.setOnClickListener(volClick)
 
         // Switch Protezione Totale — apre BottomSheet
         switchTotale.setOnCheckedChangeListener { _, isChecked ->
@@ -130,6 +142,27 @@ class HomeFragment : Fragment(R.layout.fragment_home) {
             db.callLogDao().getAllCalls().collectLatest { list ->
                 adapter.submitList(list)
                 tvEmpty.visibility = if (list.isEmpty()) View.VISIBLE else View.GONE
+            }
+        }
+    }
+
+    private fun caricaStatistiche() {
+        val db = StoppAiDatabase.getInstance(requireContext())
+        lifecycleScope.launch(Dispatchers.IO) {
+            val tot = db.callLogDao().getTotalCalls()
+            
+            val calendar = java.util.Calendar.getInstance().apply {
+                set(java.util.Calendar.HOUR_OF_DAY, 0)
+                set(java.util.Calendar.MINUTE, 0)
+                set(java.util.Calendar.SECOND, 0)
+                set(java.util.Calendar.MILLISECOND, 0)
+            }
+            val oggiCnt = db.callLogDao().getCallsToday(calendar.timeInMillis)
+            
+            withContext(Dispatchers.Main) {
+                tvStatTotale.text = tot.toString()
+                tvStatOggi.text = oggiCnt.toString()
+                tvStatReferral.text = "0"
             }
         }
     }
@@ -199,6 +232,7 @@ class HomeFragment : Fragment(R.layout.fragment_home) {
     override fun onResume() {
         super.onResume()
         aggiornaVolumeUI()
+        caricaStatistiche()
         if (prefs.getBoolean("protezione_totale", false)) {
             startCountdown()
         }

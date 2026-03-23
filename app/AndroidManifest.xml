@@ -13,6 +13,8 @@
     <application
         android:name=".core.StoppAiApp"
         android:allowBackup="true"
+        android:icon="@drawable/ic_shield_logo"
+        android:roundIcon="@drawable/ic_shield_logo"
         android:label="StoppAI"
         android:supportsRtl="true"
         android:theme="@style/Theme.StoppAI">

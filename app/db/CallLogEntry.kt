@@ -18,5 +18,6 @@ data class CallLogEntry(
     val statusId: Int = 0, // 0=da trattare, 1=trattato, 2=attendibile, 3=spam, 4=possibile spam
     val nota: String = "",
     val ariaNote: String = "",
-    val callOutcome: String = "PASSATA" // PASSATA / DEVIATA / MANCATA
+    val callOutcome: String = "PASSATA", // PASSATA / DEVIATA / MANCATA
+    val displayName: String = ""
 )

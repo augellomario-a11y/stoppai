@@ -11,6 +11,7 @@ import android.os.Bundle
 import android.provider.Settings
 import android.view.View
 import android.widget.Button
+import android.widget.SeekBar
 import android.widget.TextView
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
@@ -68,6 +69,57 @@ class SettingsFragment : Fragment(R.layout.fragment_settings) {
                 .show()
         }
         setupPermissionClickListeners(view)
+        setupVolumeControl(view)
+    }
+
+    private fun setupVolumeControl(view: View) {
+        val db = com.ifs.stoppai.db.StoppAiDatabase.getInstance(requireContext().applicationContext)
+        val repo = com.ifs.stoppai.db.AppSettingsRepository(db.appSettingsDao())
+        val seek = view.findViewById<SeekBar>(R.id.ID_SETT_VOL_SEEK)
+        val tvVal = view.findViewById<TextView>(R.id.ID_SETT_VOL_VAL)
+        val btnMinus = view.findViewById<TextView>(R.id.ID_SETT_VOL_MINUS)
+        val btnPlus = view.findViewById<TextView>(R.id.ID_SETT_VOL_PLUS)
+
+        lifecycleScope.launch(Dispatchers.IO) {
+            val vol = repo.getVolumePreferito()
+            withContext(Dispatchers.Main) {
+                seek.progress = vol
+                tvVal.text = "$vol / 15"
+            }
+        }
+
+        seek.setOnSeekBarChangeListener(object : SeekBar.OnSeekBarChangeListener {
+            override fun onProgressChanged(seekBar: SeekBar?, progress: Int, fromUser: Boolean) {
+                tvVal.text = "$progress / 15"
+            }
+            override fun onStartTrackingTouch(seekBar: SeekBar?) {}
+            override fun onStopTrackingTouch(seekBar: SeekBar?) {
+                val progress = seekBar?.progress ?: 7
+                lifecycleScope.launch(Dispatchers.IO) {
+                    repo.setVolumePreferito(progress)
+                }
+            }
+        })
+
+        btnMinus.setOnClickListener {
+            val cur = seek.progress
+            if (cur > 0) {
+                seek.progress = cur - 1
+                lifecycleScope.launch(Dispatchers.IO) {
+                    repo.setVolumePreferito(cur - 1)
+                }
+            }
+        }
+
+        btnPlus.setOnClickListener {
+            val cur = seek.progress
+            if (cur < 15) {
+                seek.progress = cur + 1
+                lifecycleScope.launch(Dispatchers.IO) {
+                    repo.setVolumePreferito(cur + 1)
+                }
+            }
+        }
     }
 
     override fun onResume() {

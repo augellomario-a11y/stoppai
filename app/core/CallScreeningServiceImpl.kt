@@ -12,6 +12,8 @@ import android.telecom.CallScreeningService
 import android.telephony.TelephonyManager
 import android.telephony.TelephonyCallback
 import android.telephony.PhoneStateListener
+import android.provider.ContactsContract
+import android.net.Uri
 import com.ifs.stoppai.db.CallLogEntry
 import com.ifs.stoppai.db.StoppAiDatabase
 import kotlinx.coroutines.CoroutineScope
@@ -65,13 +67,11 @@ class CallScreeningServiceImpl : CallScreeningService() {
 
             // Silenzio per tutti (o includi preferiti attivo)
             abbassaVolume()
+            saveCallLog(normalizedNumber, "DEVIATA")
             respondToCall(callDetails,
                 CallResponse.Builder()
                     .setDisallowCall(false)
                     .build())
-            java.util.concurrent.Executors.newSingleThreadExecutor().execute {
-                saveCallLog(normalizedNumber, "DEVIATA")
-            }
             return
         }
 
@@ -88,14 +88,11 @@ class CallScreeningServiceImpl : CallScreeningService() {
                         .build())
             } else {
                 abbassaVolume()
+                saveCallLog(normalizedNumber, "DEVIATA")
                 respondToCall(callDetails,
                     CallResponse.Builder()
                         .setDisallowCall(true)
                         .build())
-                java.util.concurrent.Executors
-                    .newSingleThreadExecutor().execute {
-                    saveCallLog(normalizedNumber, "DEVIATA")
-                }
             }
         } else {
             // Protezione OFF → passa tutto normalmente
@@ -190,6 +187,9 @@ class CallScreeningServiceImpl : CallScreeningService() {
     // Salva record chiamata loggata asincronamente
     private fun saveCallLog(rawNumber: String, outcome: String = "PASSATA") {
         CoroutineScope(Dispatchers.IO).launch {
+            val displayName = getContactName(rawNumber)
+            val logNumber = rawNumber.ifEmpty { "Numero nascosto" }
+            
             val norm = PhoneNumberUtils.normalizeNumber(rawNumber)
             val callType = when {
                 norm.isBlank() -> "PRIVATE"
@@ -198,15 +198,32 @@ class CallScreeningServiceImpl : CallScreeningService() {
             }
             val db = StoppAiDatabase.getInstance(applicationContext)
             val entry = CallLogEntry(
-                phoneNumber = rawNumber.ifEmpty { "Sconosciuto/Privato" },
+                phoneNumber = logNumber,
                 callType = callType,
                 timestamp = System.currentTimeMillis(),
                 statusId = 0,
                 nota = "",
                 ariaNote = "",
-                callOutcome = outcome
+                callOutcome = outcome,
+                displayName = displayName
             )
             db.callLogDao().insertCallLog(entry)
         }
+    }
+
+    private fun getContactName(phoneNumber: String): String {
+        if (phoneNumber.isBlank()) return ""
+        val uri = Uri.withAppendedPath(
+            ContactsContract.PhoneLookup.CONTENT_FILTER_URI,
+            Uri.encode(phoneNumber)
+        )
+        val projection = arrayOf(ContactsContract.PhoneLookup.DISPLAY_NAME)
+        return try {
+            contentResolver.query(uri, projection, null, null, null)?.use { cursor ->
+                if (cursor.moveToFirst()) {
+                    cursor.getString(0)
+                } else ""
+            } ?: ""
+        } catch (e: Exception) { "" }
     }
 }

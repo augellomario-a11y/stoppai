@@ -2077,6 +2077,7 @@ color primary_text_default_material_dark
 color primary_text_default_material_light
 color primary_text_disabled_material_dark
 color primary_text_disabled_material_light
+color purple_shield
 color ripple_material_dark
 color ripple_material_light
 color secondary_text_default_material_dark
@@ -3000,8 +3001,11 @@ drawable ic_mtrl_chip_checked_black
 drawable ic_mtrl_chip_checked_circle
 drawable ic_mtrl_chip_close_circle
 drawable ic_search_black_24
+drawable ic_settings_gear
+drawable ic_shield_logo
 drawable ic_speaker_active
 drawable ic_speaker_inactive
+drawable logo_stoppai
 drawable m3_avd_hide_password
 drawable m3_avd_show_password
 drawable m3_bottom_sheet_drag_handle
@@ -3102,8 +3106,9 @@ id ID_HOME_011_ICON
 id ID_HOME_011_TEXT
 id ID_HOME_012
 id ID_HOME_013_EMPTY
-id ID_HOME_CRM_001
-id ID_HOME_CRM_002
+id ID_HOME_STAT_001
+id ID_HOME_STAT_002
+id ID_HOME_STAT_003
 id ID_LOG_002
 id ID_PERM_001
 id ID_PERM_002
@@ -3113,6 +3118,10 @@ id ID_PERM_005
 id ID_PERM_006
 id ID_SETT_001
 id ID_SETT_002
+id ID_SETT_VOL_MINUS
+id ID_SETT_VOL_PLUS
+id ID_SETT_VOL_SEEK
+id ID_SETT_VOL_VAL
 id META
 id NO_DEBUG
 id SHIFT
