@@ -10,7 +10,7 @@ import androidx.room.Database
 import androidx.room.Room
 import androidx.room.RoomDatabase
 
-@Database(entities = [CallLogEntry::class, AppSettingsEntity::class], version = 4, exportSchema = false)
+@Database(entities = [CallLogEntry::class, AppSettingsEntity::class], version = 5, exportSchema = false)
 abstract class StoppAiDatabase : RoomDatabase() {
     // Espone il DAO per i log
     abstract fun callLogDao(): CallLogDao
@@ -46,6 +46,13 @@ abstract class StoppAiDatabase : RoomDatabase() {
             }
         }
 
+        // Migrazione v4->v5 (Call Direction)
+        val MIGRATION_4_5 = object : androidx.room.migration.Migration(4, 5) {
+            override fun migrate(db: androidx.sqlite.db.SupportSQLiteDatabase) {
+                db.execSQL("ALTER TABLE call_log_entries ADD COLUMN callDirection TEXT NOT NULL DEFAULT 'ENTRATA'")
+            }
+        }
+
         fun getInstance(context: android.content.Context): StoppAiDatabase {
             return INSTANCE ?: synchronized(this) {
                 val instance = Room.databaseBuilder(
@@ -53,7 +60,7 @@ abstract class StoppAiDatabase : RoomDatabase() {
                     StoppAiDatabase::class.java,
                     "stoppai_database"
                 )
-                .addMigrations(MIGRATION_1_2, MIGRATION_2_3, MIGRATION_3_4)
+                .addMigrations(MIGRATION_1_2, MIGRATION_2_3, MIGRATION_3_4, MIGRATION_4_5)
                 .allowMainThreadQueries()
                 .build()
                 INSTANCE = instance

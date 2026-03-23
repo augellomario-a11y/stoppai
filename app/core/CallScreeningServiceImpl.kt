@@ -19,6 +19,7 @@ import com.ifs.stoppai.db.StoppAiDatabase
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 
 class CallScreeningServiceImpl : CallScreeningService() {
 
@@ -78,22 +79,31 @@ class CallScreeningServiceImpl : CallScreeningService() {
         val isContact = ContactCacheManager.isContact(normalizedNumber)
 
         if (prefs.getBoolean("protezione_base", false)) {
-            if (isContact) {
-                alzaVolume()
-                saveCallLog(normalizedNumber, "PASSATA")
-                respondToCall(callDetails,
-                    CallResponse.Builder()
-                        .setDisallowCall(false)
-                        .build())
-            } else {
-                abbassaVolume()
-                saveCallLog(normalizedNumber, "DEVIATA")
-                respondToCall(callDetails,
-                    CallResponse.Builder()
-                        .setDisallowCall(true)
-                        .build())
+            val db = StoppAiDatabase.getInstance(applicationContext)
+            CoroutineScope(Dispatchers.IO).launch {
+                val isReliableItem = db.callLogDao().isNumberReliable(normalizedNumber)
+                val isReliable = isReliableItem != null
+                
+                withContext(Dispatchers.Main) {
+                    if (isContact || isReliable) {
+                        alzaVolume()
+                        saveCallLog(normalizedNumber, "PASSATA")
+                        respondToCall(callDetails,
+                            CallResponse.Builder()
+                                .setDisallowCall(false)
+                                .build())
+                    } else {
+                        abbassaVolume()
+                        saveCallLog(normalizedNumber, "DEVIATA")
+                        respondToCall(callDetails,
+                            CallResponse.Builder()
+                                .setDisallowCall(true)
+                                .build())
+                    }
+                }
             }
-        } else {
+        }
+ else {
             // Protezione OFF → passa tutto normalmente
             alzaVolume()
             saveCallLog(normalizedNumber, "PASSATA")

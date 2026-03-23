@@ -33,13 +33,13 @@ public final class StoppAiDatabase_Impl extends StoppAiDatabase {
   @Override
   @NonNull
   protected SupportSQLiteOpenHelper createOpenHelper(@NonNull final DatabaseConfiguration config) {
-    final SupportSQLiteOpenHelper.Callback _openCallback = new RoomOpenHelper(config, new RoomOpenHelper.Delegate(4) {
+    final SupportSQLiteOpenHelper.Callback _openCallback = new RoomOpenHelper(config, new RoomOpenHelper.Delegate(5) {
       @Override
       public void createAllTables(@NonNull final SupportSQLiteDatabase db) {
-        db.execSQL("CREATE TABLE IF NOT EXISTS `call_log_entries` (`id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `phoneNumber` TEXT NOT NULL, `callType` TEXT NOT NULL, `timestamp` INTEGER NOT NULL, `statusId` INTEGER NOT NULL, `nota` TEXT NOT NULL, `ariaNote` TEXT NOT NULL, `callOutcome` TEXT NOT NULL, `displayName` TEXT NOT NULL)");
+        db.execSQL("CREATE TABLE IF NOT EXISTS `call_log_entries` (`id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `phoneNumber` TEXT NOT NULL, `callType` TEXT NOT NULL, `timestamp` INTEGER NOT NULL, `statusId` INTEGER NOT NULL, `nota` TEXT NOT NULL, `ariaNote` TEXT NOT NULL, `callOutcome` TEXT NOT NULL, `callDirection` TEXT NOT NULL, `displayName` TEXT NOT NULL)");
         db.execSQL("CREATE TABLE IF NOT EXISTS `app_settings` (`key` TEXT NOT NULL, `value` TEXT NOT NULL, PRIMARY KEY(`key`))");
         db.execSQL("CREATE TABLE IF NOT EXISTS room_master_table (id INTEGER PRIMARY KEY,identity_hash TEXT)");
-        db.execSQL("INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, 'cc48d183be2c2e417c69ba843bd3f2e3')");
+        db.execSQL("INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, '7c23ab88a975f067b0137fdeca437bc8')");
       }
 
       @Override
@@ -89,7 +89,7 @@ public final class StoppAiDatabase_Impl extends StoppAiDatabase {
       @NonNull
       public RoomOpenHelper.ValidationResult onValidateSchema(
           @NonNull final SupportSQLiteDatabase db) {
-        final HashMap<String, TableInfo.Column> _columnsCallLogEntries = new HashMap<String, TableInfo.Column>(9);
+        final HashMap<String, TableInfo.Column> _columnsCallLogEntries = new HashMap<String, TableInfo.Column>(10);
         _columnsCallLogEntries.put("id", new TableInfo.Column("id", "INTEGER", true, 1, null, TableInfo.CREATED_FROM_ENTITY));
         _columnsCallLogEntries.put("phoneNumber", new TableInfo.Column("phoneNumber", "TEXT", true, 0, null, TableInfo.CREATED_FROM_ENTITY));
         _columnsCallLogEntries.put("callType", new TableInfo.Column("callType", "TEXT", true, 0, null, TableInfo.CREATED_FROM_ENTITY));
@@ -98,6 +98,7 @@ public final class StoppAiDatabase_Impl extends StoppAiDatabase {
         _columnsCallLogEntries.put("nota", new TableInfo.Column("nota", "TEXT", true, 0, null, TableInfo.CREATED_FROM_ENTITY));
         _columnsCallLogEntries.put("ariaNote", new TableInfo.Column("ariaNote", "TEXT", true, 0, null, TableInfo.CREATED_FROM_ENTITY));
         _columnsCallLogEntries.put("callOutcome", new TableInfo.Column("callOutcome", "TEXT", true, 0, null, TableInfo.CREATED_FROM_ENTITY));
+        _columnsCallLogEntries.put("callDirection", new TableInfo.Column("callDirection", "TEXT", true, 0, null, TableInfo.CREATED_FROM_ENTITY));
         _columnsCallLogEntries.put("displayName", new TableInfo.Column("displayName", "TEXT", true, 0, null, TableInfo.CREATED_FROM_ENTITY));
         final HashSet<TableInfo.ForeignKey> _foreignKeysCallLogEntries = new HashSet<TableInfo.ForeignKey>(0);
         final HashSet<TableInfo.Index> _indicesCallLogEntries = new HashSet<TableInfo.Index>(0);
@@ -122,7 +123,7 @@ public final class StoppAiDatabase_Impl extends StoppAiDatabase {
         }
         return new RoomOpenHelper.ValidationResult(true, null);
       }
-    }, "cc48d183be2c2e417c69ba843bd3f2e3", "10dca1ec844ced6afcfd50a084155d48");
+    }, "7c23ab88a975f067b0137fdeca437bc8", "35fb0f3a267f711d9e82a7bf313f50a4");
     final SupportSQLiteOpenHelper.Configuration _sqliteConfig = SupportSQLiteOpenHelper.Configuration.builder(config.context).name(config.name).callback(_openCallback).build();
     final SupportSQLiteOpenHelper _helper = config.sqliteOpenHelperFactory.create(_sqliteConfig);
     return _helper;

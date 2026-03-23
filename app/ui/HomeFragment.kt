@@ -27,6 +27,7 @@ import android.widget.ImageView
 import android.widget.Switch
 import android.widget.TextView
 import androidx.appcompat.app.AlertDialog
+import android.provider.ContactsContract
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.lifecycleScope
 import com.ifs.stoppai.R
@@ -176,17 +177,48 @@ class HomeFragment : Fragment(R.layout.fragment_home) {
         // Avvio iniziale
         if (prefs.getBoolean("protezione_totale", false)) startCountdown()
         aggiornaVolumeUI()
+
+        // SEEDER PER TEST MINI CRM (Long click sul volume base)
+        volTextBase.setOnLongClickListener {
+            val db = StoppAiDatabase.getInstance(requireContext())
+            lifecycleScope.launch(Dispatchers.IO) {
+                val now = System.currentTimeMillis()
+                val entries = listOf(
+                    com.ifs.stoppai.db.CallLogEntry(phoneNumber = "+393331234567", callType = "MOBILE", timestamp = now, statusId = 0, displayName = "Mario Rossi"),
+                    com.ifs.stoppai.db.CallLogEntry(phoneNumber = "+3906112233", callType = "LANDLINE", timestamp = now - 3600000, statusId = 1, displayName = "Roma Ufficio"),
+                    com.ifs.stoppai.db.CallLogEntry(phoneNumber = "+39345999888", callType = "MOBILE", timestamp = now - 7200000, statusId = 2, displayName = "Pest Spam"),
+                    com.ifs.stoppai.db.CallLogEntry(phoneNumber = "unknown", callType = "PRIVATE", timestamp = now - 14400000, statusId = 0, displayName = "🕵️ Numero Nascosto"),
+                    com.ifs.stoppai.db.CallLogEntry(phoneNumber = "+39333999888", callType = "MOBILE", timestamp = now - 28800000, statusId = 0, nota = "Ricordati di richiamare", callDirection = "USCITA", displayName = "Luigi Bianchi")
+                )
+                entries.forEach { db.callLogDao().insertCallLog(it) }
+                withContext(Dispatchers.Main) {
+                    android.widget.Toast.makeText(requireContext(), "Test CRM: 5 Chiamate Simulate!", android.widget.Toast.LENGTH_SHORT).show()
+                }
+            }
+            true
+        }
     }
 
     private fun setupRecyclerView() {
-        adapter = CallLogAdapter()
+        adapter = CallLogAdapter { item ->
+            val bs = CallActionBottomSheet(item) {
+                // Refresh or let collectLatest do it
+            }
+            bs.show(parentFragmentManager, "call_actions_bs")
+        }
         rvLog.layoutManager = androidx.recyclerview.widget.LinearLayoutManager(requireContext())
         rvLog.adapter = adapter
         
         val db = StoppAiDatabase.getInstance(requireContext())
         lifecycleScope.launch {
             db.callLogDao().getAllCalls().collectLatest { list ->
-                adapter.submitList(list)
+                val crmItems = withContext(Dispatchers.IO) {
+                    list.map { entry ->
+                        val cnt = db.callLogDao().getCountForNumber(entry.phoneNumber)
+                        com.ifs.stoppai.db.CallLogCrmItem(entry, cnt)
+                    }
+                }
+                adapter.submitList(crmItems)
                 tvEmpty.visibility = if (list.isEmpty()) View.VISIBLE else View.GONE
             }
         }
@@ -273,9 +305,36 @@ class HomeFragment : Fragment(R.layout.fragment_home) {
         super.onResume()
         aggiornaVolumeUI()
         caricaStatistiche()
+        syncContactNames() // Aggiorna nomi se l'utente ha aggiunto contatti
         if (prefs.getBoolean("protezione_totale", false)) {
             startCountdown()
         }
+    }
+
+    private fun syncContactNames() {
+        val context = requireContext()
+        val db = StoppAiDatabase.getInstance(context)
+        lifecycleScope.launch(Dispatchers.IO) {
+            // Aggiorna nomi per i log di oggi senza nome.
+            // In un CRM reale useremmo un Worker, qui facciamo JIT per i recenti.
+            val list = db.callLogDao().getAllCallsSync() 
+            list.filter { it.displayName.isEmpty() || it.displayName == it.phoneNumber }.forEach { entry ->
+                val newName = getContactName(context, entry.phoneNumber)
+                if (newName.isNotEmpty()) {
+                    db.callLogDao().updateDisplayName(entry.id, newName)
+                }
+            }
+        }
+    }
+
+    private fun getContactName(context: Context, phoneNumber: String): String {
+        if (phoneNumber.isBlank()) return ""
+        val uri = Uri.withAppendedPath(ContactsContract.PhoneLookup.CONTENT_FILTER_URI, Uri.encode(phoneNumber))
+        return try {
+            context.contentResolver.query(uri, arrayOf(ContactsContract.PhoneLookup.DISPLAY_NAME), null, null, null)?.use { 
+                if (it.moveToFirst()) it.getString(0) else ""
+            } ?: ""
+        } catch (e: Exception) { "" }
     }
 
     override fun onPause() {

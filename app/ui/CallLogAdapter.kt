@@ -1,7 +1,7 @@
 // FILE: CallLogAdapter.kt
-// SCOPO: Adattatore per RecyclerView registro bloccate con gestione UX Timestamp e Stati (v0.5)
-// DIPENDENZE: CallLogEntry.kt
-// ULTIMA MODIFICA: 2026-03-21
+// SCOPO: Adattatore per RecyclerView CRM (v1.0)
+// DIPENDENZE: CallLogEntry.kt, item_call_log.xml
+// ULTIMA MODIFICA: 2026-03-23
 
 package com.ifs.stoppai.ui
 
@@ -12,33 +12,55 @@ import android.widget.TextView
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
-import com.ifs.stoppai.db.CallLogEntry
+import com.ifs.stoppai.db.CallLogCrmItem
 import com.ifs.stoppai.R
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
 
-class CallLogAdapter : ListAdapter<CallLogEntry, CallLogAdapter.CallViewHolder>(DiffCallback) {
+class CallLogAdapter(
+    private val onClick: (CallLogCrmItem) -> Unit
+) : ListAdapter<CallLogCrmItem, CallLogAdapter.CallViewHolder>(DiffCallback) {
 
     class CallViewHolder(view: View) : RecyclerView.ViewHolder(view) {
-        val numberText: TextView = view.findViewById(R.id.txt_number)
-        val dateText: TextView = view.findViewById(R.id.ID_LOG_002)
-        val typeText: TextView = view.findViewById(R.id.txt_type)
+        val iconType: TextView = view.findViewById(R.id.txt_icon_type)
+        val nameNumber: TextView = view.findViewById(R.id.txt_name_number)
+        val timeLabel: TextView = view.findViewById(R.id.txt_time)
+        val badgeStatus: View = view.findViewById(R.id.view_status_badge)
+        val root: View = view.findViewById(R.id.root_item_log)
         
-        fun bind(entry: CallLogEntry) {
-            numberText.text = if (entry.displayName.isNotEmpty()) entry.displayName else entry.phoneNumber
+        fun bind(item: CallLogCrmItem, onClick: (CallLogCrmItem) -> Unit) {
+            val entry = item.entry
             
-            val sdf = SimpleDateFormat("dd/MM/yyyy - HH:mm:ss", Locale.ITALY)
-            dateText.text = sdf.format(Date(entry.timestamp))
+            // TITOLO
+            val baseName = if (entry.displayName.isNotEmpty()) entry.displayName else entry.phoneNumber
+            nameNumber.text = "$baseName (${item.count})"
 
-            val statusStr = when (entry.statusId) {
-                0 -> "⏳ Da gestire"
-                1 -> "✅ Whitelist"
-                2 -> "🚫 Blacklist"
-                3 -> "👁 Ignorato"
-                else -> "❓ Sconosciuto"
+            // ICONA TIPO
+            iconType.text = when {
+                entry.callDirection == "USCITA" -> "↗"
+                entry.phoneNumber.isEmpty() || entry.phoneNumber.contains("nascosto", true) -> "🕵️"
+                entry.phoneNumber.length < 8 -> "☎️"
+                else -> "📱"
             }
-            typeText.text = "Tipo: ${entry.callType} | $statusStr"
+
+            // ORA
+            val sdf = SimpleDateFormat("HH:mm", Locale.ITALY)
+            timeLabel.text = sdf.format(Date(entry.timestamp))
+
+            // BADGE STATO
+            // Priorità Note (Blu) > Status
+            if (entry.nota.isNotEmpty()) {
+                badgeStatus.setBackgroundResource(R.drawable.shape_badge_status_blue)
+            } else {
+                when (entry.statusId) {
+                    1 -> badgeStatus.setBackgroundResource(R.drawable.shape_badge_status_green)
+                    2 -> badgeStatus.setBackgroundResource(R.drawable.shape_badge_status_gray)
+                    else -> badgeStatus.setBackgroundResource(R.drawable.shape_badge_status_red)
+                }
+            }
+
+            root.setOnClickListener { onClick(item) }
         }
     }
 
@@ -48,13 +70,13 @@ class CallLogAdapter : ListAdapter<CallLogEntry, CallLogAdapter.CallViewHolder>(
     }
 
     override fun onBindViewHolder(holder: CallViewHolder, position: Int) {
-        holder.bind(getItem(position))
+        holder.bind(getItem(position), onClick)
     }
 
     companion object {
-        private val DiffCallback = object : DiffUtil.ItemCallback<CallLogEntry>() {
-            override fun areItemsTheSame(oldItem: CallLogEntry, newItem: CallLogEntry) = oldItem.id == newItem.id
-            override fun areContentsTheSame(oldItem: CallLogEntry, newItem: CallLogEntry) = oldItem == newItem
+        private val DiffCallback = object : DiffUtil.ItemCallback<CallLogCrmItem>() {
+            override fun areItemsTheSame(oldItem: CallLogCrmItem, newItem: CallLogCrmItem) = oldItem.entry.id == newItem.entry.id
+            override fun areContentsTheSame(oldItem: CallLogCrmItem, newItem: CallLogCrmItem) = oldItem == newItem
         }
     }
 }

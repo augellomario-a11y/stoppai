@@ -1,7 +1,7 @@
 // FILE: CallLogEntry.kt
-// SCOPO: Entity DB per la cronologia chiamate
+// SCOPO: Entity DB per la cronologia chiamate con campi CRM
 // DIPENDENZE: Nessuna
-// ULTIMA MODIFICA: 2026-03-20
+// ULTIMA MODIFICA: 2026-03-23
 
 package com.ifs.stoppai.db
 
@@ -15,9 +15,15 @@ data class CallLogEntry(
     val phoneNumber: String,
     val callType: String,
     val timestamp: Long,
-    val statusId: Int = 0, // 0=da trattare, 1=trattato, 2=attendibile, 3=spam, 4=possibile spam
+    val statusId: Int = 0, // 0=DA TRATTARE (Rosso), 1=ATTENDIBILE (Verde), 2=SPAM (Grigio), 3=NOTE (Blu)
     val nota: String = "",
     val ariaNote: String = "",
-    val callOutcome: String = "PASSATA", // PASSATA / DEVIATA / MANCATA
+    val callOutcome: String = "PASSATA", 
+    val callDirection: String = "ENTRATA", // ENTRATA / USCITA
     val displayName: String = ""
+)
+
+data class CallLogCrmItem(
+    val entry: CallLogEntry,
+    val count: Int
 )

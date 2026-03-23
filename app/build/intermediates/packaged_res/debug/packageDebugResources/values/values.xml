@@ -2,6 +2,13 @@
 <resources>
     <color name="purple_shield">#7C4DFF</color>
     <string name="app_name">StoppAI</string>
+    <style name="CustomDialogTheme" parent="Theme.Material3.Light.Dialog">
+        <item name="android:windowBackground">@android:color/transparent</item>
+        <item name="android:windowContentOverlay">@null</item>
+        <item name="android:windowIsFloating">true</item>
+        <item name="android:windowMinWidthMajor">90%</item>
+        <item name="android:windowMinWidthMinor">90%</item>
+    </style>
     <style name="Theme.StoppAI" parent="Theme.Material3.Light.NoActionBar">
     </style>
 </resources>

@@ -32,4 +32,16 @@ interface CallLogDao {
 
     @Query("DELETE FROM call_log_entries WHERE id = :id")
     suspend fun deleteById(id: Long)
+
+    @Query("SELECT COUNT(*) FROM call_log_entries WHERE phoneNumber = :number")
+    suspend fun getCountForNumber(number: String): Int
+
+    @Query("SELECT * FROM call_log_entries WHERE phoneNumber = :number AND statusId = 1 LIMIT 1")
+    suspend fun isNumberReliable(number: String): CallLogEntry?
+
+    @Query("SELECT * FROM call_log_entries ORDER BY timestamp DESC LIMIT 100")
+    suspend fun getAllCallsSync(): List<CallLogEntry>
+
+    @Query("UPDATE call_log_entries SET displayName = :name WHERE id = :id")
+    suspend fun updateDisplayName(id: Long, name: String)
 }
