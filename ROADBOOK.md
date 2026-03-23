@@ -1,5 +1,67 @@
 # 📔 ROADBOOK: StoppAI
 ---
+### 📅 2026-03-23 21:15 | Agente: Ambrogio (Antigravity)
+- **TASK**: [TASK-SA-056-RIPRISTINO-VOLUME] — RIGENERAZIONE AUDIO
+- **STATUS**: ✅ COMPLETATO
+- **VERSIONE**: 3.8.5-AudioAudited (Build Code 42)
+- **AZIONI**:
+  - **LOGICA**: In `CallScreeningServiceImpl.kt`, il ripristino in `IDLE` è ora incondizionato.
+  - **DOPPIO CONTROLLO**: Aggiunta chiamata `alzaVolume()` anche all'arrivo di chiamate dai **contatti** o se la **protezione è spenta**. Questo "forza" l'unmute del telefono anche se il ripristino post-chiamata precedente fosse fallito.
+  - **VOLUME**: Confermata lettura del `volumePreferito` per il ripristino (Default 10).
+---
+### 📅 2026-03-23 16:45 | Agente: Ambrogio (Antigravity)
+- **TASK**: [TASK-SA-055-RINGTONE] — SUONERIA STOPPAI
+- **STATUS**: ✅ COMPLETATO
+- **VERSIONE**: 3.8.4-AudioAudited (Build Code 41)
+- **AZIONI**:
+  - **LOGICA**: Aggiunto salvataggio suoneria originale e impostazione suoneria StoppAI nello switch Protezione Base di `HomeFragment`.
+  - **PERMESSI**: Implementato controllo runtime per `WRITE_SETTINGS` con dialog di reindirizzamento alle impostazioni di sistema.
+  - **RIPRISTINO**: Garantito il ritorno alla suoneria originale quando la protezione viene disattivata.
+---
+### 📅 2026-03-23 14:10 | Agente: Ambrogio (Antigravity)
+- **TASK**: [TASK-SA-054-FIX-DEFINITIVO] — LOGICA ATOMICA AUDIO
+- **STATUS**: ✅ COMPLETATO
+- **VERSIONE**: 3.8.2-AudioAudited (Build Code 39)
+- **AZIONI**:
+  - **ISOLAMENTO**: Rimosse manipolazioni a `STREAM_MUSIC`, `STREAM_NOTIFICATION`, `STREAM_SYSTEM`.
+  - **RING PRECISE**: Il volume `STREAM_RING` viene toccato SOLO se la chiamata è spam (0) e ripristinato SOLO a fine chiamata (IDLE).
+  - **UI**: Rimosso ogni trigger audio dai toggle della Dashboard.
+  - **FIX**: Corretto errore di compilazione su `nuovoVol` in `HomeFragment`.
+---
+### 📅 2026-03-23 13:50 | Agente: Ambrogio (Antigravity)
+- **TASK**: [TASK-SA-054-FIX2] — RIMOZIONE RIGHE ERRATE
+- **STATUS**: ✅ COMPLETATO
+- **AZIONI**:
+  - **AUDIT FINALE**: Eliminate tutte le chiamate a `setStreamVolume` in `HomeFragment`, `ProtezioneBottomSheet`, `MainActivity` e `SettingsFragment`.
+  - **LOGICA ATOMICA**: La gestione audio ora risiede al 100% nel `CallScreeningServiceImpl`.
+  - **REAZIONALITÀ**: Silenzio (0) applicato solo all'arrivo della chiamata da bloccare; ripristino (`volumePreferito`) applicato solo al ritorno in stato IDLE.
+---
+### 📅 2026-03-23 11:45 | Agente: Ambrogio (Antigravity)
+- **TASK**: [TASK-SA-054-FIX] — RIMOZIONE SILENZIO AVVIO
+- **STATUS**: ✅ COMPLETATO
+- **AZIONI**:
+  - **DASHBOARD**: Rimosso il reset volume in `StoppAiApp`. Ora l'app non tocca i volumi all'apertura.
+  - **LOGICA**: Il volume va a zero gestito esclusivamente dal `CallScreeningServiceImpl` durante il filtraggio spam.
+  - **TEST**: Verificata persistenza volume all'avvio su Samsung S22 ed Emulator.
+---
+### 📅 2026-03-23 11:20 | Agente: Ambrogio (Antigravity)
+- **TASK**: [TASK-SA-054] — VOLUME-FIX & RINGTONE
+- **STATUS**: ✅ COMPLETATO
+- **AZIONI**:
+  - **AUDIO**: Rimosse interferenze con `STREAM_MUSIC/NOTIFICATION/SYSTEM`. Ora l'app gestisce esclusivamente `STREAM_RING`.
+  - **INIT**: Implementato Reset Volumi al 75% al primo avvio per sicurezza utente.
+  - **UX**: Aggiunto Popup informativo "StoppAI è attivo" post-reset volumi.
+  - **BRAND**: Integrata suoneria `stoppai_ring.mp3` in `res/raw` e impostata come predefinita di sistema.
+  - **MANIFEST**: Aggiunto permesso `WRITE_SETTINGS` per il controllo suoneria.
+---
+### 📅 2026-03-23 02:00 | Agente: Ambrogio (Antigravity)
+- **TASK**: [TASK-COMMIT-01] — COMMIT + PUSH
+- **STATUS**: ✅ COMPLETATO
+- **AZIONI**:
+  - **GIT**: Eseguito `git add .` e `git commit` ("feat: aggiunto logo, migliorata UI...").
+  - **GITHUB**: Eseguito `git push` sul branch `feature/20260322-crm-registro`.
+  - **STATO**: Tutto il lavoro della sessione sincronizzato correttamente (v3.8).
+---
 ### 📅 2026-03-23 02:05 | Agente: Ambrogio (Antigravity)
 - **TASK**: [TASK-SA-051] — REGISTRO-FIX
 - **STATUS**: ✅ COMPLETATO

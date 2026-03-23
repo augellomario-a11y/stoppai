@@ -16,17 +16,5 @@ class StoppAiApp : Application() {
         } catch (e: Exception) {
             android.util.Log.w("STOPPAI", "Errore cache: ${e.message}")
         }
-        
-        try {
-            val audio = getSystemService(android.content.Context.AUDIO_SERVICE) as android.media.AudioManager
-            
-            val prefs = getSharedPreferences("stoppai_prefs", android.content.Context.MODE_PRIVATE)
-            val protezioneAttiva = prefs.getBoolean("protezione_base", false)
-            val protezioneTotale = prefs.getBoolean("protezione_totale", false)
-            
-            if (protezioneAttiva || protezioneTotale) {
-                audio.setStreamVolume(android.media.AudioManager.STREAM_RING, 0, 0)
-            }
-        } catch (e: Exception) {}
     }
 }

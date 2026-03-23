@@ -46,8 +46,6 @@ class SettingsFragment : Fragment(R.layout.fragment_settings) {
                     val db = com.ifs.stoppai.db.StoppAiDatabase.getInstance(requireContext().applicationContext)
                     val repo = com.ifs.stoppai.db.AppSettingsRepository(db.appSettingsDao())
                     repo.clearAll()
-                    val audioManager = requireContext().getSystemService(android.content.Context.AUDIO_SERVICE) as android.media.AudioManager
-                    audioManager.setStreamVolume(android.media.AudioManager.STREAM_RING, 7, 0)
                     android.widget.Toast.makeText(requireContext(), "Impostazioni ripristinate", android.widget.Toast.LENGTH_SHORT).show()
                 }
                 .setNegativeButton("Annulla", null)

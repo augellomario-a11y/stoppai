@@ -74,12 +74,6 @@ class ProtezioneBottomSheet : BottomSheetDialogFragment() {
                 .putBoolean("includi_preferiti", switchPreferiti.isChecked)
                 .apply()
 
-            // Abbassa volume
-            try {
-                audio.setStreamVolume(
-                    android.media.AudioManager.STREAM_RING, 0, 0)
-            } catch (e: Exception) {}
-
             android.util.Log.e("STOPPAI_VOL",
                 "Protezione Totale ON — scadenza: $scadenza")
 

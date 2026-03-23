@@ -1,9 +1,5 @@
 [
     {
-        "merged": "com.ifs.stoppai.app-debug-38:/drawable-xxxhdpi_logo_stoppai.png.flat",
-        "source": "com.ifs.stoppai.app-app-39:/drawable-xxxhdpi/logo_stoppai.png"
-    },
-    {
         "merged": "C:\\Users\\Utente\\.gradle\\daemon\\8.14.3\\com.ifs.stoppai.app-debug-38:\\drawable-xxhdpi_logo_stoppai.png.flat",
         "source": "C:\\Users\\Utente\\.gradle\\daemon\\8.14.3\\com.ifs.stoppai.app-app-39:\\drawable-xxhdpi\\logo_stoppai.png"
     },
@@ -16,12 +12,8 @@
         "source": "C:\\Users\\Utente\\.gradle\\daemon\\8.14.3\\com.ifs.stoppai.app-app-39:\\drawable-xhdpi\\logo_stoppai.png"
     },
     {
-        "merged": "com.ifs.stoppai.app-debug-38:/drawable_logo_stoppai.png.flat",
-        "source": "com.ifs.stoppai.app-app-39:/drawable/logo_stoppai.png"
-    },
-    {
-        "merged": "com.ifs.stoppai.app-debug-38:/drawable-xxhdpi_logo_stoppai.png.flat",
-        "source": "com.ifs.stoppai.app-app-39:/drawable-xxhdpi/logo_stoppai.png"
+        "merged": "C:\\Users\\Utente\\.gradle\\daemon\\8.14.3\\com.ifs.stoppai.app-debug-38:\\raw_stoppai_ring.mp3.flat",
+        "source": "C:\\Users\\Utente\\.gradle\\daemon\\8.14.3\\com.ifs.stoppai.app-app-39:\\raw\\stoppai_ring.mp3"
     },
     {
         "merged": "C:\\Users\\Utente\\.gradle\\daemon\\8.14.3\\com.ifs.stoppai.app-debug-38:\\drawable_ic_home.xml.flat",
@@ -48,10 +40,6 @@
         "source": "C:\\Users\\Utente\\.gradle\\daemon\\8.14.3\\com.ifs.stoppai.app-app-39:\\menu\\bottom_nav_menu.xml"
     },
     {
-        "merged": "com.ifs.stoppai.app-debug-38:/drawable-xhdpi_logo_stoppai.png.flat",
-        "source": "com.ifs.stoppai.app-app-39:/drawable-xhdpi/logo_stoppai.png"
-    },
-    {
         "merged": "C:\\Users\\Utente\\.gradle\\daemon\\8.14.3\\com.ifs.stoppai.app-debug-38:\\drawable_ic_settings_gear.xml.flat",
         "source": "C:\\Users\\Utente\\.gradle\\daemon\\8.14.3\\com.ifs.stoppai.app-app-39:\\drawable\\ic_settings_gear.xml"
     },
@@ -68,6 +56,10 @@
         "source": "C:\\Users\\Utente\\.gradle\\daemon\\8.14.3\\com.ifs.stoppai.app-app-39:\\drawable\\logo_stoppai.png"
     },
     {
+        "merged": "com.ifs.stoppai.app-debug-38:/layout_fragment_home.xml.flat",
+        "source": "com.ifs.stoppai.app-app-39:/layout/fragment_home.xml"
+    },
+    {
         "merged": "C:\\Users\\Utente\\.gradle\\daemon\\8.14.3\\com.ifs.stoppai.app-debug-38:\\drawable_ic_speaker_active.xml.flat",
         "source": "C:\\Users\\Utente\\.gradle\\daemon\\8.14.3\\com.ifs.stoppai.app-app-39:\\drawable\\ic_speaker_active.xml"
     },
@@ -80,15 +72,11 @@
         "source": "C:\\Users\\Utente\\.gradle\\daemon\\8.14.3\\com.ifs.stoppai.app-app-39:\\layout\\fragment_settings.xml"
     },
     {
-        "merged": "com.ifs.stoppai.app-debug-38:/drawable-hdpi_logo_stoppai.png.flat",
-        "source": "com.ifs.stoppai.app-app-39:/drawable-hdpi/logo_stoppai.png"
+        "merged": "C:\\Users\\Utente\\.gradle\\daemon\\8.14.3\\com.ifs.stoppai.app-debug-38:\\drawable_ic_speaker_inactive.xml.flat",
+        "source": "C:\\Users\\Utente\\.gradle\\daemon\\8.14.3\\com.ifs.stoppai.app-app-39:\\drawable\\ic_speaker_inactive.xml"
     },
     {
         "merged": "C:\\Users\\Utente\\.gradle\\daemon\\8.14.3\\com.ifs.stoppai.app-debug-38:\\layout_activity_main.xml.flat",
         "source": "C:\\Users\\Utente\\.gradle\\daemon\\8.14.3\\com.ifs.stoppai.app-app-39:\\layout\\activity_main.xml"
-    },
-    {
-        "merged": "C:\\Users\\Utente\\.gradle\\daemon\\8.14.3\\com.ifs.stoppai.app-debug-38:\\drawable_ic_speaker_inactive.xml.flat",
-        "source": "C:\\Users\\Utente\\.gradle\\daemon\\8.14.3\\com.ifs.stoppai.app-app-39:\\drawable\\ic_speaker_inactive.xml"
     }
 ]

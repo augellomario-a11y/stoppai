@@ -5,10 +5,22 @@
 
 package com.ifs.stoppai.ui
 
+import android.content.ContentResolver
+import android.content.ContentValues
 import android.content.Context
+import android.content.Intent
+import android.media.AudioManager
+import android.media.RingtoneManager
+import android.net.Uri
+import android.os.Build
 import android.os.Bundle
+import android.os.Environment
 import android.os.Handler
 import android.os.Looper
+import android.provider.MediaStore
+import android.provider.Settings
+import java.io.InputStream
+import java.io.OutputStream
 import android.view.View
 import android.widget.Button
 import android.widget.ImageView
@@ -98,32 +110,66 @@ class HomeFragment : Fragment(R.layout.fragment_home) {
                 bs.onAttivaListener = {
                     switchBase.isEnabled = false
                     switchTotale.isChecked = true
-                    abbassaVolume()
-                    startCountdown()
-                    aggiornaVolumeUI()
-                }
-                bs.onAnnullaListener = {
-                    switchTotale.isChecked = false
-                    aggiornaVolumeUI()
                 }
                 bs.show(parentFragmentManager, "protezione_bs")
             } else {
                 prefs.edit().putBoolean("protezione_totale", false).apply()
                 switchBase.isEnabled = true
                 stopCountdown()
-                if (!switchBase.isChecked) alzaVolume() else abbassaVolume()
                 aggiornaVolumeUI()
             }
         }
 
         // Switch Protezione Base
         switchBase.setOnCheckedChangeListener { _, isChecked ->
-            prefs.edit().putBoolean("protezione_base", isChecked).apply()
-            if (isChecked) {
-                abbassaVolume()
-            } else {
-                if (!switchTotale.isChecked) alzaVolume()
+            val context = requireContext()
+            
+            // Verifica permesso scrittura impostazioni
+            if (isChecked && !Settings.System.canWrite(context)) {
+                switchBase.isChecked = false
+                AlertDialog.Builder(context)
+                    .setTitle("Permesso necessario")
+                    .setMessage("Per impostare la suoneria StoppAI, l'app deve poter modificare le impostazioni di sistema.")
+                    .setPositiveButton("Vai alle impostazioni") { _, _ ->
+                        val intent = Intent(Settings.ACTION_MANAGE_WRITE_SETTINGS)
+                        intent.data = Uri.parse("package:${context.packageName}")
+                        startActivity(intent)
+                    }
+                    .setNegativeButton("Annulla", null)
+                    .show()
+                return@setOnCheckedChangeListener
             }
+
+            prefs.edit().putBoolean("protezione_base", isChecked).apply()
+
+            try {
+                if (isChecked) {
+                    // 1. SALVARE SUONERIA ORIGINALE
+                    val currentUri = RingtoneManager.getActualDefaultRingtoneUri(context, RingtoneManager.TYPE_RINGTONE)
+                    if (currentUri != null && !currentUri.toString().contains(context.packageName)) {
+                        prefs.edit().putString("suoneria_originale", currentUri.toString()).apply()
+                    }
+
+                    // 2. IMPOSTARE SUONERIA STOPPAI (VIA MEDIASTORE)
+                    val stoppaiUri = prepareRingtoneUri(context)
+                    if (stoppaiUri != null) {
+                        RingtoneManager.setActualDefaultRingtoneUri(context, RingtoneManager.TYPE_RINGTONE, stoppaiUri)
+                        android.widget.Toast.makeText(context, "Suoneria StoppAI attivata", android.widget.Toast.LENGTH_SHORT).show()
+                    }
+                } else {
+                    alzaVolume()
+                    
+                    // 3. RIPRISTINARE SUONERIA ORIGINALE
+                    val uriOriginaleStr = prefs.getString("suoneria_originale", null)
+                    if (uriOriginaleStr != null) {
+                        RingtoneManager.setActualDefaultRingtoneUri(context, RingtoneManager.TYPE_RINGTONE, Uri.parse(uriOriginaleStr))
+                        android.widget.Toast.makeText(context, "Suoneria originale ripristinata", android.widget.Toast.LENGTH_SHORT).show()
+                    }
+                }
+            } catch (e: Exception) {
+                android.util.Log.e("STOPPAI_RING", "Errore: ${e.message}")
+            }
+
             aggiornaVolumeUI()
         }
 
@@ -199,16 +245,10 @@ class HomeFragment : Fragment(R.layout.fragment_home) {
 
         if (rimanenti <= 0) {
             // Scaduta — disattiva
-            prefs.edit()
-                .putBoolean("protezione_totale", false)
-                .apply()
+            prefs.edit().putBoolean("protezione_totale", false).apply()
             switchTotale.isChecked = false
             switchBase.isEnabled = true
             stopCountdown()
-            // Ripristina volume se base non è attiva
-            if (!switchBase.isChecked) {
-                alzaVolume()
-            }
             return
         }
 
@@ -269,7 +309,6 @@ class HomeFragment : Fragment(R.layout.fragment_home) {
                 lifecycleScope.launch(Dispatchers.IO) {
                     repo.setVolumePreferito(nuovoVol)
                     launch(Dispatchers.Main) { 
-                        if (!switchBase.isChecked && !switchTotale.isChecked) alzaVolume()
                         aggiornaVolumeUI() 
                     }
                 }
@@ -315,6 +354,37 @@ class HomeFragment : Fragment(R.layout.fragment_home) {
                 volTextTotale.setTextColor(if (isT) actC else inC)
             }
         }
+    }
+
+    private fun prepareRingtoneUri(context: Context): Uri? {
+        try {
+            val fileName = "stoppai_ring.mp3"
+            val queryUri = MediaStore.Audio.Media.EXTERNAL_CONTENT_URI
+            val selection = "${MediaStore.Audio.Media.DISPLAY_NAME} = ?"
+            val selectionArgs = arrayOf(fileName)
+            context.contentResolver.query(queryUri, null, selection, selectionArgs, null)?.use { cursor ->
+                if (cursor.moveToFirst()) {
+                    val id = cursor.getLong(cursor.getColumnIndexOrThrow(MediaStore.Audio.Media._ID))
+                    return Uri.withAppendedPath(queryUri, id.toString())
+                }
+            }
+            val values = ContentValues().apply {
+                put(MediaStore.Audio.Media.DISPLAY_NAME, fileName)
+                put(MediaStore.Audio.Media.MIME_TYPE, "audio/mpeg")
+                put(MediaStore.Audio.Media.IS_RINGTONE, true)
+                if (Build.VERSION.SDK_INT >= 29) put(MediaStore.Audio.Media.RELATIVE_PATH, Environment.DIRECTORY_RINGTONES)
+            }
+            val uri = context.contentResolver.insert(queryUri, values)
+            if (uri != null) {
+                context.resources.openRawResource(R.raw.stoppai_ring).use { input ->
+                    context.contentResolver.openOutputStream(uri)?.use { output ->
+                        input.copyTo(output)
+                    }
+                }
+                return uri
+            }
+        } catch (e: Exception) { android.util.Log.e("STOPPAI_RING", "Fail: ${e.message}") }
+        return null
     }
 
 }

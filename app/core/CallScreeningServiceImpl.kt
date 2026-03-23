@@ -55,7 +55,6 @@ class CallScreeningServiceImpl : CallScreeningService() {
                     // Preferito → lascia squillare
                     android.util.Log.e("STOPPAI_SCREEN",
                         "Preferito durante Prot.Totale: $phoneNumber")
-                    alzaVolume()
                     saveCallLog(normalizedNumber, "PASSATA")
                     respondToCall(callDetails,
                         CallResponse.Builder()
@@ -146,7 +145,7 @@ class CallScreeningServiceImpl : CallScreeningService() {
                     TelephonyCallback.CallStateListener {
                     override fun onCallStateChanged(state: Int) {
                         if (state == TelephonyManager.CALL_STATE_IDLE) {
-                            silenceRing()
+                            ripristinaVolume()
                         }
                     }
                 })
@@ -157,7 +156,7 @@ class CallScreeningServiceImpl : CallScreeningService() {
                     override fun onCallStateChanged(
                         state: Int, number: String?) {
                         if (state == TelephonyManager.CALL_STATE_IDLE) {
-                            silenceRing()
+                            ripristinaVolume()
                         }
                     }
                 },
@@ -165,22 +164,13 @@ class CallScreeningServiceImpl : CallScreeningService() {
         }
     }
 
-    // Riporta volume suoneria a 0
-    private fun silenceRing() {
+    // Riporta volume suoneria al target preferito
+    private fun ripristinaVolume() {
         try {
-            val prefs = applicationContext.getSharedPreferences(
-                "stoppai_prefs", Context.MODE_PRIVATE)
-            val protezioneAttiva = prefs.getBoolean("protezione_base", false)
-            val protezioneTotale = prefs.getBoolean("protezione_totale", false)
-            if (!protezioneAttiva && !protezioneTotale) return
-            val audio = applicationContext.getSystemService(
-                Context.AUDIO_SERVICE) as android.media.AudioManager
-            audio.setStreamVolume(
-                android.media.AudioManager.STREAM_RING, 0, 0)
-            android.util.Log.e("STOPPAI_VOL",
-                "Chiamata terminata → volume 0")
+            alzaVolume()
+            android.util.Log.e("STOPPAI_VOL", "Chiamata terminata → volume ripristinato")
         } catch (e: Exception) {
-            android.util.Log.e("STOPPAI", "silenceRing: ${e.message}")
+            android.util.Log.e("STOPPAI", "ripristinaVolume: ${e.message}")
         }
     }
 

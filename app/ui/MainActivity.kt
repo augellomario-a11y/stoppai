@@ -16,6 +16,8 @@ import android.provider.Settings
 import android.widget.Button
 import android.widget.Switch
 import android.widget.TextView
+import android.media.RingtoneManager
+import android.media.AudioManager
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
@@ -64,16 +66,70 @@ class MainActivity : AppCompatActivity() {
         if (savedInstanceState == null) {
             bottomNav.selectedItemId = R.id.nav_home
         }
+
+        checkFirstLaunch()
+    }
+
+    // Parte 2 e 3: Primo avvio, reset volumi e suoneria
+    private fun checkFirstLaunch() {
+        val prefs = getSharedPreferences("stoppai_prefs", Context.MODE_PRIVATE)
+        val isFirst = prefs.getBoolean("first_launch", true)
+        android.util.Log.e("STOPPAI_DEBUG", "checkFirstLaunch: isFirst = $isFirst")
+        if (!isFirst) return
+
+        val audio = getSystemService(Context.AUDIO_SERVICE) as AudioManager
+        
+        // Reset volumi al 75%
+        fun set75(stream: Int, name: String) {
+            try {
+                val max = audio.getStreamMaxVolume(stream)
+                val target = (max * 0.75).toInt().coerceAtLeast(1)
+                audio.setStreamVolume(stream, target, 0)
+                android.util.Log.e("STOPPAI_DEBUG", "Set $name max=$max target=$target")
+            } catch (e: Exception) {
+                android.util.Log.e("STOPPAI_DEBUG", "Errore $name: ${e.message}")
+            }
+        }
+
+        set75(AudioManager.STREAM_RING, "RING")
+
+        // Se abbiamo il permesso, impostiamo la suoneria
+        android.util.Log.e("STOPPAI_DEBUG", "Calling setStoppAiRingtone")
+        setStoppAiRingtone()
+
+        // Mostra popup informativo
+        AlertDialog.Builder(this)
+            .setTitle("StoppAI è attivo")
+            .setMessage("Per sicurezza abbiamo impostato tutti i volumi al 75% così non perdi notifiche importanti.\n\nPuoi modificarli quando vuoi dalle impostazioni del telefono.\nStoppAI gestirà solo la suoneria delle chiamate.")
+            .setPositiveButton("HO CAPITO") { _, _ ->
+                android.util.Log.e("STOPPAI_DEBUG", "HO CAPITO Clicked")
+                prefs.edit().putBoolean("first_launch", false).apply()
+            }
+            .setCancelable(false)
+            .show()
+    }
+
+    private fun setStoppAiRingtone() {
+        // Su Android 6+ serve permesso speciale per scrivere settings di sistema
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M && !Settings.System.canWrite(this)) {
+            // Chiedi il permesso all'utente (opzionale o automatico se possibile)
+            // Per ora proviamo a settarla, se fallisce amen.
+            val intent = Intent(Settings.ACTION_MANAGE_WRITE_SETTINGS)
+            intent.data = Uri.parse("package:$packageName")
+            startActivity(intent)
+            return
+        }
+        
+        try {
+            val uri = Uri.parse("android.resource://$packageName/${R.raw.stoppai_ring}")
+            RingtoneManager.setActualDefaultRingtoneUri(this, RingtoneManager.TYPE_RINGTONE, uri)
+        } catch (e: Exception) {
+             android.util.Log.e("STOPPAI", "Errore setting ringtone: ${e.message}")
+        }
     }
 
     override fun onDestroy() {
         super.onDestroy()
-        val prefs = getSharedPreferences("stoppai_prefs", Context.MODE_PRIVATE)
-        val volOriginale = prefs.getInt("vol_originale", 5)
-        try {
-            val audioManager = getSystemService(Context.AUDIO_SERVICE) as android.media.AudioManager
-            audioManager.setStreamVolume(android.media.AudioManager.STREAM_RING, volOriginale, 0)
-        } catch (e: Exception) {}
     }
 
     override fun onResume() {

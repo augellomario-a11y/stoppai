@@ -11,8 +11,8 @@
       "type": "SINGLE",
       "filters": [],
       "attributes": [],
-      "versionCode": 38,
-      "versionName": "3.8",
+      "versionCode": 42,
+      "versionName": "3.8.5-AudioAudited",
       "outputFile": "linked-resources-binary-format-debug.ap_"
     }
   ],

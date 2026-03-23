@@ -59,5 +59,6 @@ layout fragment_home
 layout fragment_settings
 layout item_call_log
 menu bottom_nav_menu
+raw stoppai_ring
 string app_name
 style Theme.StoppAI
