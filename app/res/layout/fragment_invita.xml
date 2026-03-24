@@ -1,0 +1,224 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.core.widget.NestedScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="#FAFAFA">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:padding="16dp">
+
+        <!-- SEZIONE A — HEADER CARD -->
+        <com.google.android.material.card.MaterialCardView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            app:cardCornerRadius="16dp"
+            app:cardElevation="4dp"
+            android:layout_marginBottom="16dp"
+            app:cardBackgroundColor="#1B5E20">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:padding="24dp">
+
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="StoppAI Partner Program"
+                    android:textColor="#FFFFFF"
+                    android:textSize="22sp"
+                    android:textStyle="bold" />
+
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="Invita amici e guadagna ogni mese"
+                    android:textColor="#B9F6CA"
+                    android:textSize="14sp"
+                    android:layout_marginTop="4dp" />
+            </LinearLayout>
+        </com.google.android.material.card.MaterialCardView>
+
+        <!-- SEZIONE B — ADESIONE (Sempre visibile) -->
+        <com.google.android.material.card.MaterialCardView
+            android:id="@+id/card_adesione"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            app:cardCornerRadius="16dp"
+            app:cardElevation="2dp"
+            android:layout_marginBottom="16dp"
+            app:cardBackgroundColor="#FFFFFF">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:padding="20dp">
+
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="Guadagna €0,64 al mese per ogni amico che attiva il piano PRO e €1,06 per il piano SHIELD. Il primo mese guadagni il doppio."
+                    android:textColor="#333333"
+                    android:textSize="14sp"
+                    android:lineSpacingExtra="4dp" />
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:layout_marginTop="20dp">
+
+                    <Button
+                        android:id="@+id/btn_how_it_works"
+                        style="@style/Widget.Material3.Button.TonalButton"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:text="COME FUNZIONA"
+                        android:layout_marginEnd="8dp" />
+
+                    <Button
+                        android:id="@+id/btn_join_now"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:text="PARTECIPA ORA"
+                        android:backgroundTint="#43A047"
+                        android:textColor="#FFFFFF" />
+                </LinearLayout>
+            </LinearLayout>
+        </com.google.android.material.card.MaterialCardView>
+
+        <!-- SEZIONE C — DASHBOARD (Nascosta o Placeholder) -->
+        <LinearLayout
+            android:id="@+id/layout_dashboard_referral"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical">
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Il tuo link personale"
+                android:textStyle="bold"
+                android:textColor="#666666"
+                android:textSize="12sp"
+                android:layout_marginBottom="8dp" />
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:background="@drawable/shape_input_note"
+                android:padding="12dp"
+                android:layout_marginBottom="16dp"
+                android:gravity="center_vertical">
+
+                <TextView
+                    android:id="@+id/txt_referral_link"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:text="stoppai.it/invita/CODICE"
+                    android:textColor="#1976D2"
+                    android:textStyle="italic" />
+
+                <TextView
+                    android:id="@+id/btn_copy_link"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="📋 COPIA"
+                    android:textColor="#666666"
+                    android:textSize="12sp"
+                    android:focusable="true"
+                    android:clickable="true"
+                    android:padding="8dp" />
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:layout_marginBottom="16dp">
+
+                <include layout="@layout/item_referral_stat" android:id="@+id/stat_pending" />
+                <include layout="@layout/item_referral_stat" android:id="@+id/stat_installed" />
+                <include layout="@layout/item_referral_stat" android:id="@+id/stat_active" />
+
+            </LinearLayout>
+
+            <com.google.android.material.card.MaterialCardView
+                android:id="@+id/card_earnings_toggle"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                app:cardCornerRadius="12dp"
+                app:cardElevation="1dp"
+                android:layout_marginBottom="16dp">
+
+                <TextView
+                    android:id="@+id/txt_earnings_toggle"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="💶 €0,00 guadagnati"
+                    android:gravity="center"
+                    android:padding="16dp"
+                    android:textSize="18sp"
+                    android:textStyle="bold"
+                    android:textColor="#2E7D32" />
+            </com.google.android.material.card.MaterialCardView>
+
+            <TextView
+                android:id="@+id/txt_soglia_label"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Soglia pagamento: €25"
+                android:textStyle="bold"
+                android:layout_marginBottom="4dp" />
+
+            <SeekBar
+                android:id="@+id/seek_soglia"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:max="90"
+                android:progress="15"
+                android:layout_marginBottom="16dp" />
+
+            <Button
+                android:id="@+id/btn_request_payment"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="RICHIEDI PAGAMENTO"
+                android:layout_marginBottom="16dp" />
+
+            <TextView
+                android:id="@+id/btn_stripe_mgmt"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="💳 Gestione pagamenti — Stripe Connect"
+                android:background="#EEEEEE"
+                android:padding="12dp"
+                android:gravity="center"
+                android:textColor="#1976D2"
+                android:textSize="12sp"
+                android:layout_marginBottom="16dp"
+                android:focusable="true"
+                android:clickable="true" />
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Nessun invitato ancora. Condividi il tuo link!"
+                android:gravity="center"
+                android:padding="32dp"
+                android:textColor="#AAAAAA" />
+
+        </LinearLayout>
+
+    </LinearLayout>
+</androidx.core.widget.NestedScrollView>

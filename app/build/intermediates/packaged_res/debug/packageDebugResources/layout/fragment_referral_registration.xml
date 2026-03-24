@@ -1,0 +1,79 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.core.widget.NestedScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:background="#FFFFFF">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:padding="24dp">
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Diventa Partner StoppAI"
+            android:textSize="20sp"
+            android:textStyle="bold"
+            android:textColor="#333333" />
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Compila il modulo. Ti contatteremo entro 48 ore."
+            android:textColor="#888888"
+            android:textSize="12sp"
+            android:layout_marginBottom="24dp" />
+
+        <!-- DATI PERSONALI -->
+        <TextView android:text="DATI PERSONALI" android:textSize="12sp" android:textStyle="bold" android:textColor="#1B5E20" android:layout_marginBottom="8dp"/>
+        <EditText android:id="@+id/edt_nome" android:layout_width="match_parent" android:layout_height="wrap_content" android:hint="Nome *" />
+        <EditText android:id="@+id/edt_cognome" android:layout_width="match_parent" android:layout_height="wrap_content" android:hint="Cognome *" />
+        <EditText android:id="@+id/edt_email" android:layout_width="match_parent" android:layout_height="wrap_content" android:hint="Email *" android:inputType="textEmailAddress" />
+        <EditText android:id="@+id/edt_tel" android:layout_width="match_parent" android:layout_height="wrap_content" android:hint="Telefono *" android:inputType="phone" />
+        <EditText android:id="@+id/edt_nascita" android:layout_width="match_parent" android:layout_height="wrap_content" android:hint="Data di nascita *" android:layout_marginBottom="16dp" />
+
+        <!-- DATI FISCALI -->
+        <TextView android:text="DATI FISCALI" android:textSize="12sp" android:textStyle="bold" android:textColor="#1B5E20" android:layout_marginBottom="8dp"/>
+        <EditText android:id="@+id/edt_cf" android:layout_width="match_parent" android:layout_height="wrap_content" android:hint="Codice Fiscale *" />
+        <EditText android:id="@+id/edt_indirizzo" android:layout_width="match_parent" android:layout_height="wrap_content" android:hint="Indirizzo *" />
+        <EditText android:id="@+id/edt_cap" android:layout_width="match_parent" android:layout_height="wrap_content" android:hint="CAP *" android:inputType="number" />
+        <EditText android:id="@+id/edt_citta" android:layout_width="match_parent" android:layout_height="wrap_content" android:hint="Città *" />
+        <EditText android:id="@+id/edt_prov" android:layout_width="match_parent" android:layout_height="wrap_content" android:hint="Provincia *" android:layout_marginBottom="16dp" />
+
+        <!-- DATI PAGAMENTO -->
+        <TextView android:text="DATI PAGAMENTO" android:textSize="12sp" android:textStyle="bold" android:textColor="#1B5E20" android:layout_marginBottom="8dp"/>
+        <EditText android:id="@+id/edt_iban" android:layout_width="match_parent" android:layout_height="wrap_content" android:hint="IBAN *" />
+        <EditText android:id="@+id/edt_intestatario" android:layout_width="match_parent" android:layout_height="wrap_content" android:hint="Intestatario conto *" android:layout_marginBottom="16dp" />
+
+        <!-- CONSENSI -->
+        <CheckBox android:id="@+id/chk_regolamento" android:layout_width="match_parent" android:layout_height="wrap_content" android:text="Accetto il regolamento del programma affiliazione *" />
+        <CheckBox android:id="@+id/chk_gdpr" android:layout_width="match_parent" android:layout_height="wrap_content" android:text="Accetto trattamento dati personali GDPR *" />
+        <CheckBox android:id="@+id/chk_maggiorenne" android:layout_width="match_parent" android:layout_height="wrap_content" android:text="Dichiaro di essere maggiorenne *" android:layout_marginBottom="24dp" />
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal">
+
+            <Button
+                android:id="@+id/btn_cancel_reg"
+                style="@style/Widget.Material3.Button.TextButton"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="ANNULLA" />
+
+            <Button
+                android:id="@+id/btn_send_request"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="INVIA RICHIESTA"
+                android:backgroundTint="#43A047"
+                android:textColor="#FFFFFF" />
+        </LinearLayout>
+
+    </LinearLayout>
+</androidx.core.widget.NestedScrollView>

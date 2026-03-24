@@ -11,8 +11,8 @@
       "type": "SINGLE",
       "filters": [],
       "attributes": [],
-      "versionCode": 45,
-      "versionName": "3.9.2-CRM-AddContact",
+      "versionCode": 60,
+      "versionName": "4.8.5-Status-Icons",
       "outputFile": "app-debug.apk"
     }
   ],

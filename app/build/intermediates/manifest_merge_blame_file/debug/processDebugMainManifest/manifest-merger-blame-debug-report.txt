@@ -1,8 +1,8 @@
 1<?xml version="1.0" encoding="utf-8"?>
 2<manifest xmlns:android="http://schemas.android.com/apk/res/android"
 3    package="com.ifs.stoppai"
-4    android:versionCode="45"
-5    android:versionName="3.9.2-CRM-AddContact" >
+4    android:versionCode="60"
+5    android:versionName="4.8.5-Status-Icons" >
 6
 7    <uses-sdk
 8        android:minSdkVersion="26"
@@ -32,146 +32,175 @@
 18    <uses-permission android:name="android.permission.WRITE_SETTINGS" />
 18-->C:\progetti\STOPPAI\app\AndroidManifest.xml:12:5-156
 18-->C:\progetti\STOPPAI\app\AndroidManifest.xml:12:22-70
-19
-20    <permission
-20-->[androidx.core:core:1.12.0] C:\Users\Utente\.gradle\caches\8.14.3\transforms\458f09ceaed339a9d5942de565215d43\transformed\core-1.12.0\AndroidManifest.xml:22:5-24:47
-21        android:name="com.ifs.stoppai.DYNAMIC_RECEIVER_NOT_EXPORTED_PERMISSION"
-21-->[androidx.core:core:1.12.0] C:\Users\Utente\.gradle\caches\8.14.3\transforms\458f09ceaed339a9d5942de565215d43\transformed\core-1.12.0\AndroidManifest.xml:23:9-81
-22        android:protectionLevel="signature" />
-22-->[androidx.core:core:1.12.0] C:\Users\Utente\.gradle\caches\8.14.3\transforms\458f09ceaed339a9d5942de565215d43\transformed\core-1.12.0\AndroidManifest.xml:24:9-44
+19    <uses-permission android:name="android.permission.ANSWER_PHONE_CALLS" />
+19-->C:\progetti\STOPPAI\app\AndroidManifest.xml:14:5-77
+19-->C:\progetti\STOPPAI\app\AndroidManifest.xml:14:22-74
+20    <uses-permission android:name="android.permission.READ_CALL_LOG" />
+20-->C:\progetti\STOPPAI\app\AndroidManifest.xml:15:5-72
+20-->C:\progetti\STOPPAI\app\AndroidManifest.xml:15:22-69
+21    <uses-permission android:name="android.permission.SEND_SMS" />
+21-->C:\progetti\STOPPAI\app\AndroidManifest.xml:16:5-67
+21-->C:\progetti\STOPPAI\app\AndroidManifest.xml:16:22-64
+22    <uses-permission android:name="android.permission.RECEIVE_SMS" />
+22-->C:\progetti\STOPPAI\app\AndroidManifest.xml:17:5-70
+22-->C:\progetti\STOPPAI\app\AndroidManifest.xml:17:22-67
 23
-24    <uses-permission android:name="com.ifs.stoppai.DYNAMIC_RECEIVER_NOT_EXPORTED_PERMISSION" />
-24-->[androidx.core:core:1.12.0] C:\Users\Utente\.gradle\caches\8.14.3\transforms\458f09ceaed339a9d5942de565215d43\transformed\core-1.12.0\AndroidManifest.xml:26:5-97
-24-->[androidx.core:core:1.12.0] C:\Users\Utente\.gradle\caches\8.14.3\transforms\458f09ceaed339a9d5942de565215d43\transformed\core-1.12.0\AndroidManifest.xml:26:22-94
-25
-26    <application
-26-->C:\progetti\STOPPAI\app\AndroidManifest.xml:14:5-40:19
-27        android:name="com.ifs.stoppai.core.StoppAiApp"
-27-->C:\progetti\STOPPAI\app\AndroidManifest.xml:15:9-40
-28        android:allowBackup="true"
-28-->C:\progetti\STOPPAI\app\AndroidManifest.xml:16:9-35
-29        android:appComponentFactory="androidx.core.app.CoreComponentFactory"
-29-->[androidx.core:core:1.12.0] C:\Users\Utente\.gradle\caches\8.14.3\transforms\458f09ceaed339a9d5942de565215d43\transformed\core-1.12.0\AndroidManifest.xml:28:18-86
-30        android:debuggable="true"
-31        android:extractNativeLibs="false"
-32        android:icon="@drawable/ic_shield_logo"
-32-->C:\progetti\STOPPAI\app\AndroidManifest.xml:17:9-48
-33        android:label="StoppAI"
-33-->C:\progetti\STOPPAI\app\AndroidManifest.xml:19:9-32
-34        android:roundIcon="@drawable/ic_shield_logo"
-34-->C:\progetti\STOPPAI\app\AndroidManifest.xml:18:9-53
-35        android:supportsRtl="true"
-35-->C:\progetti\STOPPAI\app\AndroidManifest.xml:20:9-35
-36        android:theme="@style/Theme.StoppAI" >
-36-->C:\progetti\STOPPAI\app\AndroidManifest.xml:21:9-45
-37        <activity
-37-->C:\progetti\STOPPAI\app\AndroidManifest.xml:23:9-30:20
-38            android:name="com.ifs.stoppai.ui.MainActivity"
-38-->C:\progetti\STOPPAI\app\AndroidManifest.xml:24:13-44
-39            android:exported="true" >
-39-->C:\progetti\STOPPAI\app\AndroidManifest.xml:25:13-36
-40            <intent-filter>
-40-->C:\progetti\STOPPAI\app\AndroidManifest.xml:26:13-29:29
-41                <action android:name="android.intent.action.MAIN" />
-41-->C:\progetti\STOPPAI\app\AndroidManifest.xml:27:17-69
-41-->C:\progetti\STOPPAI\app\AndroidManifest.xml:27:25-66
-42
-43                <category android:name="android.intent.category.LAUNCHER" />
-43-->C:\progetti\STOPPAI\app\AndroidManifest.xml:28:17-77
-43-->C:\progetti\STOPPAI\app\AndroidManifest.xml:28:27-74
-44            </intent-filter>
-45        </activity>
+24    <permission
+24-->[androidx.core:core:1.12.0] C:\Users\Utente\.gradle\caches\8.14.3\transforms\458f09ceaed339a9d5942de565215d43\transformed\core-1.12.0\AndroidManifest.xml:22:5-24:47
+25        android:name="com.ifs.stoppai.DYNAMIC_RECEIVER_NOT_EXPORTED_PERMISSION"
+25-->[androidx.core:core:1.12.0] C:\Users\Utente\.gradle\caches\8.14.3\transforms\458f09ceaed339a9d5942de565215d43\transformed\core-1.12.0\AndroidManifest.xml:23:9-81
+26        android:protectionLevel="signature" />
+26-->[androidx.core:core:1.12.0] C:\Users\Utente\.gradle\caches\8.14.3\transforms\458f09ceaed339a9d5942de565215d43\transformed\core-1.12.0\AndroidManifest.xml:24:9-44
+27
+28    <uses-permission android:name="com.ifs.stoppai.DYNAMIC_RECEIVER_NOT_EXPORTED_PERMISSION" />
+28-->[androidx.core:core:1.12.0] C:\Users\Utente\.gradle\caches\8.14.3\transforms\458f09ceaed339a9d5942de565215d43\transformed\core-1.12.0\AndroidManifest.xml:26:5-97
+28-->[androidx.core:core:1.12.0] C:\Users\Utente\.gradle\caches\8.14.3\transforms\458f09ceaed339a9d5942de565215d43\transformed\core-1.12.0\AndroidManifest.xml:26:22-94
+29
+30    <application
+30-->C:\progetti\STOPPAI\app\AndroidManifest.xml:19:5-54:19
+31        android:name="com.ifs.stoppai.core.StoppAiApp"
+31-->C:\progetti\STOPPAI\app\AndroidManifest.xml:20:9-40
+32        android:allowBackup="true"
+32-->C:\progetti\STOPPAI\app\AndroidManifest.xml:21:9-35
+33        android:appComponentFactory="androidx.core.app.CoreComponentFactory"
+33-->[androidx.core:core:1.12.0] C:\Users\Utente\.gradle\caches\8.14.3\transforms\458f09ceaed339a9d5942de565215d43\transformed\core-1.12.0\AndroidManifest.xml:28:18-86
+34        android:debuggable="true"
+35        android:extractNativeLibs="false"
+36        android:icon="@drawable/ic_shield_logo"
+36-->C:\progetti\STOPPAI\app\AndroidManifest.xml:22:9-48
+37        android:label="StoppAI"
+37-->C:\progetti\STOPPAI\app\AndroidManifest.xml:24:9-32
+38        android:roundIcon="@drawable/ic_shield_logo"
+38-->C:\progetti\STOPPAI\app\AndroidManifest.xml:23:9-53
+39        android:supportsRtl="true"
+39-->C:\progetti\STOPPAI\app\AndroidManifest.xml:25:9-35
+40        android:theme="@style/Theme.StoppAI" >
+40-->C:\progetti\STOPPAI\app\AndroidManifest.xml:26:9-45
+41        <activity
+41-->C:\progetti\STOPPAI\app\AndroidManifest.xml:28:9-35:20
+42            android:name="com.ifs.stoppai.ui.MainActivity"
+42-->C:\progetti\STOPPAI\app\AndroidManifest.xml:29:13-44
+43            android:exported="true" >
+43-->C:\progetti\STOPPAI\app\AndroidManifest.xml:30:13-36
+44            <intent-filter>
+44-->C:\progetti\STOPPAI\app\AndroidManifest.xml:31:13-34:29
+45                <action android:name="android.intent.action.MAIN" />
+45-->C:\progetti\STOPPAI\app\AndroidManifest.xml:32:17-69
+45-->C:\progetti\STOPPAI\app\AndroidManifest.xml:32:25-66
 46
-47        <service
-47-->C:\progetti\STOPPAI\app\AndroidManifest.xml:32:9-39:19
-48            android:name="com.ifs.stoppai.core.CallScreeningServiceImpl"
-48-->C:\progetti\STOPPAI\app\AndroidManifest.xml:33:13-58
-49            android:exported="true"
-49-->C:\progetti\STOPPAI\app\AndroidManifest.xml:35:13-36
-50            android:permission="android.permission.BIND_SCREENING_SERVICE" >
-50-->C:\progetti\STOPPAI\app\AndroidManifest.xml:34:13-75
-51            <intent-filter>
-51-->C:\progetti\STOPPAI\app\AndroidManifest.xml:36:13-38:29
-52                <action android:name="android.telecom.CallScreeningService" />
-52-->C:\progetti\STOPPAI\app\AndroidManifest.xml:37:17-79
-52-->C:\progetti\STOPPAI\app\AndroidManifest.xml:37:25-76
-53            </intent-filter>
-54        </service>
-55
-56        <provider
-56-->[androidx.emoji2:emoji2:1.2.0] C:\Users\Utente\.gradle\caches\8.14.3\transforms\ef7fdef6ad78f3b9ebb567f7e3c8c372\transformed\jetified-emoji2-1.2.0\AndroidManifest.xml:24:9-32:20
-57            android:name="androidx.startup.InitializationProvider"
-57-->[androidx.emoji2:emoji2:1.2.0] C:\Users\Utente\.gradle\caches\8.14.3\transforms\ef7fdef6ad78f3b9ebb567f7e3c8c372\transformed\jetified-emoji2-1.2.0\AndroidManifest.xml:25:13-67
-58            android:authorities="com.ifs.stoppai.androidx-startup"
-58-->[androidx.emoji2:emoji2:1.2.0] C:\Users\Utente\.gradle\caches\8.14.3\transforms\ef7fdef6ad78f3b9ebb567f7e3c8c372\transformed\jetified-emoji2-1.2.0\AndroidManifest.xml:26:13-68
-59            android:exported="false" >
-59-->[androidx.emoji2:emoji2:1.2.0] C:\Users\Utente\.gradle\caches\8.14.3\transforms\ef7fdef6ad78f3b9ebb567f7e3c8c372\transformed\jetified-emoji2-1.2.0\AndroidManifest.xml:27:13-37
-60            <meta-data
-60-->[androidx.emoji2:emoji2:1.2.0] C:\Users\Utente\.gradle\caches\8.14.3\transforms\ef7fdef6ad78f3b9ebb567f7e3c8c372\transformed\jetified-emoji2-1.2.0\AndroidManifest.xml:29:13-31:52
-61                android:name="androidx.emoji2.text.EmojiCompatInitializer"
-61-->[androidx.emoji2:emoji2:1.2.0] C:\Users\Utente\.gradle\caches\8.14.3\transforms\ef7fdef6ad78f3b9ebb567f7e3c8c372\transformed\jetified-emoji2-1.2.0\AndroidManifest.xml:30:17-75
-62                android:value="androidx.startup" />
-62-->[androidx.emoji2:emoji2:1.2.0] C:\Users\Utente\.gradle\caches\8.14.3\transforms\ef7fdef6ad78f3b9ebb567f7e3c8c372\transformed\jetified-emoji2-1.2.0\AndroidManifest.xml:31:17-49
-63            <meta-data
-63-->[androidx.lifecycle:lifecycle-process:2.7.0] C:\Users\Utente\.gradle\caches\8.14.3\transforms\73f3baa38a96caf241b8151607859837\transformed\jetified-lifecycle-process-2.7.0\AndroidManifest.xml:29:13-31:52
-64                android:name="androidx.lifecycle.ProcessLifecycleInitializer"
-64-->[androidx.lifecycle:lifecycle-process:2.7.0] C:\Users\Utente\.gradle\caches\8.14.3\transforms\73f3baa38a96caf241b8151607859837\transformed\jetified-lifecycle-process-2.7.0\AndroidManifest.xml:30:17-78
-65                android:value="androidx.startup" />
-65-->[androidx.lifecycle:lifecycle-process:2.7.0] C:\Users\Utente\.gradle\caches\8.14.3\transforms\73f3baa38a96caf241b8151607859837\transformed\jetified-lifecycle-process-2.7.0\AndroidManifest.xml:31:17-49
-66            <meta-data
-66-->[androidx.profileinstaller:profileinstaller:1.3.0] C:\Users\Utente\.gradle\caches\8.14.3\transforms\b537da862a848fb2600b66cb725e0efd\transformed\jetified-profileinstaller-1.3.0\AndroidManifest.xml:29:13-31:52
-67                android:name="androidx.profileinstaller.ProfileInstallerInitializer"
-67-->[androidx.profileinstaller:profileinstaller:1.3.0] C:\Users\Utente\.gradle\caches\8.14.3\transforms\b537da862a848fb2600b66cb725e0efd\transformed\jetified-profileinstaller-1.3.0\AndroidManifest.xml:30:17-85
-68                android:value="androidx.startup" />
-68-->[androidx.profileinstaller:profileinstaller:1.3.0] C:\Users\Utente\.gradle\caches\8.14.3\transforms\b537da862a848fb2600b66cb725e0efd\transformed\jetified-profileinstaller-1.3.0\AndroidManifest.xml:31:17-49
-69        </provider>
-70
-71        <service
-71-->[androidx.room:room-runtime:2.6.1] C:\Users\Utente\.gradle\caches\8.14.3\transforms\b32c658c0ca00dee0752377db4de4581\transformed\room-runtime-2.6.1\AndroidManifest.xml:24:9-28:63
-72            android:name="androidx.room.MultiInstanceInvalidationService"
-72-->[androidx.room:room-runtime:2.6.1] C:\Users\Utente\.gradle\caches\8.14.3\transforms\b32c658c0ca00dee0752377db4de4581\transformed\room-runtime-2.6.1\AndroidManifest.xml:25:13-74
-73            android:directBootAware="true"
-73-->[androidx.room:room-runtime:2.6.1] C:\Users\Utente\.gradle\caches\8.14.3\transforms\b32c658c0ca00dee0752377db4de4581\transformed\room-runtime-2.6.1\AndroidManifest.xml:26:13-43
-74            android:exported="false" />
-74-->[androidx.room:room-runtime:2.6.1] C:\Users\Utente\.gradle\caches\8.14.3\transforms\b32c658c0ca00dee0752377db4de4581\transformed\room-runtime-2.6.1\AndroidManifest.xml:27:13-37
-75
-76        <receiver
-76-->[androidx.profileinstaller:profileinstaller:1.3.0] C:\Users\Utente\.gradle\caches\8.14.3\transforms\b537da862a848fb2600b66cb725e0efd\transformed\jetified-profileinstaller-1.3.0\AndroidManifest.xml:34:9-52:20
-77            android:name="androidx.profileinstaller.ProfileInstallReceiver"
-77-->[androidx.profileinstaller:profileinstaller:1.3.0] C:\Users\Utente\.gradle\caches\8.14.3\transforms\b537da862a848fb2600b66cb725e0efd\transformed\jetified-profileinstaller-1.3.0\AndroidManifest.xml:35:13-76
-78            android:directBootAware="false"
-78-->[androidx.profileinstaller:profileinstaller:1.3.0] C:\Users\Utente\.gradle\caches\8.14.3\transforms\b537da862a848fb2600b66cb725e0efd\transformed\jetified-profileinstaller-1.3.0\AndroidManifest.xml:36:13-44
-79            android:enabled="true"
-79-->[androidx.profileinstaller:profileinstaller:1.3.0] C:\Users\Utente\.gradle\caches\8.14.3\transforms\b537da862a848fb2600b66cb725e0efd\transformed\jetified-profileinstaller-1.3.0\AndroidManifest.xml:37:13-35
-80            android:exported="true"
-80-->[androidx.profileinstaller:profileinstaller:1.3.0] C:\Users\Utente\.gradle\caches\8.14.3\transforms\b537da862a848fb2600b66cb725e0efd\transformed\jetified-profileinstaller-1.3.0\AndroidManifest.xml:38:13-36
-81            android:permission="android.permission.DUMP" >
-81-->[androidx.profileinstaller:profileinstaller:1.3.0] C:\Users\Utente\.gradle\caches\8.14.3\transforms\b537da862a848fb2600b66cb725e0efd\transformed\jetified-profileinstaller-1.3.0\AndroidManifest.xml:39:13-57
-82            <intent-filter>
-82-->[androidx.profileinstaller:profileinstaller:1.3.0] C:\Users\Utente\.gradle\caches\8.14.3\transforms\b537da862a848fb2600b66cb725e0efd\transformed\jetified-profileinstaller-1.3.0\AndroidManifest.xml:40:13-42:29
-83                <action android:name="androidx.profileinstaller.action.INSTALL_PROFILE" />
-83-->[androidx.profileinstaller:profileinstaller:1.3.0] C:\Users\Utente\.gradle\caches\8.14.3\transforms\b537da862a848fb2600b66cb725e0efd\transformed\jetified-profileinstaller-1.3.0\AndroidManifest.xml:41:17-91
-83-->[androidx.profileinstaller:profileinstaller:1.3.0] C:\Users\Utente\.gradle\caches\8.14.3\transforms\b537da862a848fb2600b66cb725e0efd\transformed\jetified-profileinstaller-1.3.0\AndroidManifest.xml:41:25-88
-84            </intent-filter>
-85            <intent-filter>
-85-->[androidx.profileinstaller:profileinstaller:1.3.0] C:\Users\Utente\.gradle\caches\8.14.3\transforms\b537da862a848fb2600b66cb725e0efd\transformed\jetified-profileinstaller-1.3.0\AndroidManifest.xml:43:13-45:29
-86                <action android:name="androidx.profileinstaller.action.SKIP_FILE" />
-86-->[androidx.profileinstaller:profileinstaller:1.3.0] C:\Users\Utente\.gradle\caches\8.14.3\transforms\b537da862a848fb2600b66cb725e0efd\transformed\jetified-profileinstaller-1.3.0\AndroidManifest.xml:44:17-85
-86-->[androidx.profileinstaller:profileinstaller:1.3.0] C:\Users\Utente\.gradle\caches\8.14.3\transforms\b537da862a848fb2600b66cb725e0efd\transformed\jetified-profileinstaller-1.3.0\AndroidManifest.xml:44:25-82
-87            </intent-filter>
-88            <intent-filter>
-88-->[androidx.profileinstaller:profileinstaller:1.3.0] C:\Users\Utente\.gradle\caches\8.14.3\transforms\b537da862a848fb2600b66cb725e0efd\transformed\jetified-profileinstaller-1.3.0\AndroidManifest.xml:46:13-48:29
-89                <action android:name="androidx.profileinstaller.action.SAVE_PROFILE" />
-89-->[androidx.profileinstaller:profileinstaller:1.3.0] C:\Users\Utente\.gradle\caches\8.14.3\transforms\b537da862a848fb2600b66cb725e0efd\transformed\jetified-profileinstaller-1.3.0\AndroidManifest.xml:47:17-88
-89-->[androidx.profileinstaller:profileinstaller:1.3.0] C:\Users\Utente\.gradle\caches\8.14.3\transforms\b537da862a848fb2600b66cb725e0efd\transformed\jetified-profileinstaller-1.3.0\AndroidManifest.xml:47:25-85
-90            </intent-filter>
-91            <intent-filter>
-91-->[androidx.profileinstaller:profileinstaller:1.3.0] C:\Users\Utente\.gradle\caches\8.14.3\transforms\b537da862a848fb2600b66cb725e0efd\transformed\jetified-profileinstaller-1.3.0\AndroidManifest.xml:49:13-51:29
-92                <action android:name="androidx.profileinstaller.action.BENCHMARK_OPERATION" />
-92-->[androidx.profileinstaller:profileinstaller:1.3.0] C:\Users\Utente\.gradle\caches\8.14.3\transforms\b537da862a848fb2600b66cb725e0efd\transformed\jetified-profileinstaller-1.3.0\AndroidManifest.xml:50:17-95
-92-->[androidx.profileinstaller:profileinstaller:1.3.0] C:\Users\Utente\.gradle\caches\8.14.3\transforms\b537da862a848fb2600b66cb725e0efd\transformed\jetified-profileinstaller-1.3.0\AndroidManifest.xml:50:25-92
-93            </intent-filter>
-94        </receiver>
-95    </application>
-96
-97</manifest>
+47                <category android:name="android.intent.category.LAUNCHER" />
+47-->C:\progetti\STOPPAI\app\AndroidManifest.xml:33:17-77
+47-->C:\progetti\STOPPAI\app\AndroidManifest.xml:33:27-74
+48            </intent-filter>
+49        </activity>
+50
+51        <service
+51-->C:\progetti\STOPPAI\app\AndroidManifest.xml:37:9-44:19
+52            android:name="com.ifs.stoppai.core.CallScreeningServiceImpl"
+52-->C:\progetti\STOPPAI\app\AndroidManifest.xml:38:13-58
+53            android:exported="true"
+53-->C:\progetti\STOPPAI\app\AndroidManifest.xml:40:13-36
+54            android:permission="android.permission.BIND_SCREENING_SERVICE" >
+54-->C:\progetti\STOPPAI\app\AndroidManifest.xml:39:13-75
+55            <intent-filter>
+55-->C:\progetti\STOPPAI\app\AndroidManifest.xml:41:13-43:29
+56                <action android:name="android.telecom.CallScreeningService" />
+56-->C:\progetti\STOPPAI\app\AndroidManifest.xml:42:17-79
+56-->C:\progetti\STOPPAI\app\AndroidManifest.xml:42:25-76
+57            </intent-filter>
+58        </service>
+59
+60        <receiver
+60-->C:\progetti\STOPPAI\app\AndroidManifest.xml:46:9-53:20
+61            android:name="com.ifs.stoppai.core.SmsRispostaReceiver"
+61-->C:\progetti\STOPPAI\app\AndroidManifest.xml:47:13-53
+62            android:exported="true"
+62-->C:\progetti\STOPPAI\app\AndroidManifest.xml:49:13-36
+63            android:permission="android.permission.BROADCAST_SMS" >
+63-->C:\progetti\STOPPAI\app\AndroidManifest.xml:48:13-66
+64            <intent-filter android:priority="999" >
+64-->C:\progetti\STOPPAI\app\AndroidManifest.xml:50:13-52:29
+64-->C:\progetti\STOPPAI\app\AndroidManifest.xml:50:28-50
+65                <action android:name="android.provider.Telephony.SMS_RECEIVED" />
+65-->C:\progetti\STOPPAI\app\AndroidManifest.xml:51:17-82
+65-->C:\progetti\STOPPAI\app\AndroidManifest.xml:51:25-79
+66            </intent-filter>
+67        </receiver>
+68
+69        <provider
+69-->[androidx.emoji2:emoji2:1.2.0] C:\Users\Utente\.gradle\caches\8.14.3\transforms\ef7fdef6ad78f3b9ebb567f7e3c8c372\transformed\jetified-emoji2-1.2.0\AndroidManifest.xml:24:9-32:20
+70            android:name="androidx.startup.InitializationProvider"
+70-->[androidx.emoji2:emoji2:1.2.0] C:\Users\Utente\.gradle\caches\8.14.3\transforms\ef7fdef6ad78f3b9ebb567f7e3c8c372\transformed\jetified-emoji2-1.2.0\AndroidManifest.xml:25:13-67
+71            android:authorities="com.ifs.stoppai.androidx-startup"
+71-->[androidx.emoji2:emoji2:1.2.0] C:\Users\Utente\.gradle\caches\8.14.3\transforms\ef7fdef6ad78f3b9ebb567f7e3c8c372\transformed\jetified-emoji2-1.2.0\AndroidManifest.xml:26:13-68
+72            android:exported="false" >
+72-->[androidx.emoji2:emoji2:1.2.0] C:\Users\Utente\.gradle\caches\8.14.3\transforms\ef7fdef6ad78f3b9ebb567f7e3c8c372\transformed\jetified-emoji2-1.2.0\AndroidManifest.xml:27:13-37
+73            <meta-data
+73-->[androidx.emoji2:emoji2:1.2.0] C:\Users\Utente\.gradle\caches\8.14.3\transforms\ef7fdef6ad78f3b9ebb567f7e3c8c372\transformed\jetified-emoji2-1.2.0\AndroidManifest.xml:29:13-31:52
+74                android:name="androidx.emoji2.text.EmojiCompatInitializer"
+74-->[androidx.emoji2:emoji2:1.2.0] C:\Users\Utente\.gradle\caches\8.14.3\transforms\ef7fdef6ad78f3b9ebb567f7e3c8c372\transformed\jetified-emoji2-1.2.0\AndroidManifest.xml:30:17-75
+75                android:value="androidx.startup" />
+75-->[androidx.emoji2:emoji2:1.2.0] C:\Users\Utente\.gradle\caches\8.14.3\transforms\ef7fdef6ad78f3b9ebb567f7e3c8c372\transformed\jetified-emoji2-1.2.0\AndroidManifest.xml:31:17-49
+76            <meta-data
+76-->[androidx.lifecycle:lifecycle-process:2.7.0] C:\Users\Utente\.gradle\caches\8.14.3\transforms\73f3baa38a96caf241b8151607859837\transformed\jetified-lifecycle-process-2.7.0\AndroidManifest.xml:29:13-31:52
+77                android:name="androidx.lifecycle.ProcessLifecycleInitializer"
+77-->[androidx.lifecycle:lifecycle-process:2.7.0] C:\Users\Utente\.gradle\caches\8.14.3\transforms\73f3baa38a96caf241b8151607859837\transformed\jetified-lifecycle-process-2.7.0\AndroidManifest.xml:30:17-78
+78                android:value="androidx.startup" />
+78-->[androidx.lifecycle:lifecycle-process:2.7.0] C:\Users\Utente\.gradle\caches\8.14.3\transforms\73f3baa38a96caf241b8151607859837\transformed\jetified-lifecycle-process-2.7.0\AndroidManifest.xml:31:17-49
+79            <meta-data
+79-->[androidx.profileinstaller:profileinstaller:1.3.0] C:\Users\Utente\.gradle\caches\8.14.3\transforms\b537da862a848fb2600b66cb725e0efd\transformed\jetified-profileinstaller-1.3.0\AndroidManifest.xml:29:13-31:52
+80                android:name="androidx.profileinstaller.ProfileInstallerInitializer"
+80-->[androidx.profileinstaller:profileinstaller:1.3.0] C:\Users\Utente\.gradle\caches\8.14.3\transforms\b537da862a848fb2600b66cb725e0efd\transformed\jetified-profileinstaller-1.3.0\AndroidManifest.xml:30:17-85
+81                android:value="androidx.startup" />
+81-->[androidx.profileinstaller:profileinstaller:1.3.0] C:\Users\Utente\.gradle\caches\8.14.3\transforms\b537da862a848fb2600b66cb725e0efd\transformed\jetified-profileinstaller-1.3.0\AndroidManifest.xml:31:17-49
+82        </provider>
+83
+84        <service
+84-->[androidx.room:room-runtime:2.6.1] C:\Users\Utente\.gradle\caches\8.14.3\transforms\b32c658c0ca00dee0752377db4de4581\transformed\room-runtime-2.6.1\AndroidManifest.xml:24:9-28:63
+85            android:name="androidx.room.MultiInstanceInvalidationService"
+85-->[androidx.room:room-runtime:2.6.1] C:\Users\Utente\.gradle\caches\8.14.3\transforms\b32c658c0ca00dee0752377db4de4581\transformed\room-runtime-2.6.1\AndroidManifest.xml:25:13-74
+86            android:directBootAware="true"
+86-->[androidx.room:room-runtime:2.6.1] C:\Users\Utente\.gradle\caches\8.14.3\transforms\b32c658c0ca00dee0752377db4de4581\transformed\room-runtime-2.6.1\AndroidManifest.xml:26:13-43
+87            android:exported="false" />
+87-->[androidx.room:room-runtime:2.6.1] C:\Users\Utente\.gradle\caches\8.14.3\transforms\b32c658c0ca00dee0752377db4de4581\transformed\room-runtime-2.6.1\AndroidManifest.xml:27:13-37
+88
+89        <receiver
+89-->[androidx.profileinstaller:profileinstaller:1.3.0] C:\Users\Utente\.gradle\caches\8.14.3\transforms\b537da862a848fb2600b66cb725e0efd\transformed\jetified-profileinstaller-1.3.0\AndroidManifest.xml:34:9-52:20
+90            android:name="androidx.profileinstaller.ProfileInstallReceiver"
+90-->[androidx.profileinstaller:profileinstaller:1.3.0] C:\Users\Utente\.gradle\caches\8.14.3\transforms\b537da862a848fb2600b66cb725e0efd\transformed\jetified-profileinstaller-1.3.0\AndroidManifest.xml:35:13-76
+91            android:directBootAware="false"
+91-->[androidx.profileinstaller:profileinstaller:1.3.0] C:\Users\Utente\.gradle\caches\8.14.3\transforms\b537da862a848fb2600b66cb725e0efd\transformed\jetified-profileinstaller-1.3.0\AndroidManifest.xml:36:13-44
+92            android:enabled="true"
+92-->[androidx.profileinstaller:profileinstaller:1.3.0] C:\Users\Utente\.gradle\caches\8.14.3\transforms\b537da862a848fb2600b66cb725e0efd\transformed\jetified-profileinstaller-1.3.0\AndroidManifest.xml:37:13-35
+93            android:exported="true"
+93-->[androidx.profileinstaller:profileinstaller:1.3.0] C:\Users\Utente\.gradle\caches\8.14.3\transforms\b537da862a848fb2600b66cb725e0efd\transformed\jetified-profileinstaller-1.3.0\AndroidManifest.xml:38:13-36
+94            android:permission="android.permission.DUMP" >
+94-->[androidx.profileinstaller:profileinstaller:1.3.0] C:\Users\Utente\.gradle\caches\8.14.3\transforms\b537da862a848fb2600b66cb725e0efd\transformed\jetified-profileinstaller-1.3.0\AndroidManifest.xml:39:13-57
+95            <intent-filter>
+95-->[androidx.profileinstaller:profileinstaller:1.3.0] C:\Users\Utente\.gradle\caches\8.14.3\transforms\b537da862a848fb2600b66cb725e0efd\transformed\jetified-profileinstaller-1.3.0\AndroidManifest.xml:40:13-42:29
+96                <action android:name="androidx.profileinstaller.action.INSTALL_PROFILE" />
+96-->[androidx.profileinstaller:profileinstaller:1.3.0] C:\Users\Utente\.gradle\caches\8.14.3\transforms\b537da862a848fb2600b66cb725e0efd\transformed\jetified-profileinstaller-1.3.0\AndroidManifest.xml:41:17-91
+96-->[androidx.profileinstaller:profileinstaller:1.3.0] C:\Users\Utente\.gradle\caches\8.14.3\transforms\b537da862a848fb2600b66cb725e0efd\transformed\jetified-profileinstaller-1.3.0\AndroidManifest.xml:41:25-88
+97            </intent-filter>
+98            <intent-filter>
+98-->[androidx.profileinstaller:profileinstaller:1.3.0] C:\Users\Utente\.gradle\caches\8.14.3\transforms\b537da862a848fb2600b66cb725e0efd\transformed\jetified-profileinstaller-1.3.0\AndroidManifest.xml:43:13-45:29
+99                <action android:name="androidx.profileinstaller.action.SKIP_FILE" />
+99-->[androidx.profileinstaller:profileinstaller:1.3.0] C:\Users\Utente\.gradle\caches\8.14.3\transforms\b537da862a848fb2600b66cb725e0efd\transformed\jetified-profileinstaller-1.3.0\AndroidManifest.xml:44:17-85
+99-->[androidx.profileinstaller:profileinstaller:1.3.0] C:\Users\Utente\.gradle\caches\8.14.3\transforms\b537da862a848fb2600b66cb725e0efd\transformed\jetified-profileinstaller-1.3.0\AndroidManifest.xml:44:25-82
+100            </intent-filter>
+101            <intent-filter>
+101-->[androidx.profileinstaller:profileinstaller:1.3.0] C:\Users\Utente\.gradle\caches\8.14.3\transforms\b537da862a848fb2600b66cb725e0efd\transformed\jetified-profileinstaller-1.3.0\AndroidManifest.xml:46:13-48:29
+102                <action android:name="androidx.profileinstaller.action.SAVE_PROFILE" />
+102-->[androidx.profileinstaller:profileinstaller:1.3.0] C:\Users\Utente\.gradle\caches\8.14.3\transforms\b537da862a848fb2600b66cb725e0efd\transformed\jetified-profileinstaller-1.3.0\AndroidManifest.xml:47:17-88
+102-->[androidx.profileinstaller:profileinstaller:1.3.0] C:\Users\Utente\.gradle\caches\8.14.3\transforms\b537da862a848fb2600b66cb725e0efd\transformed\jetified-profileinstaller-1.3.0\AndroidManifest.xml:47:25-85
+103            </intent-filter>
+104            <intent-filter>
+104-->[androidx.profileinstaller:profileinstaller:1.3.0] C:\Users\Utente\.gradle\caches\8.14.3\transforms\b537da862a848fb2600b66cb725e0efd\transformed\jetified-profileinstaller-1.3.0\AndroidManifest.xml:49:13-51:29
+105                <action android:name="androidx.profileinstaller.action.BENCHMARK_OPERATION" />
+105-->[androidx.profileinstaller:profileinstaller:1.3.0] C:\Users\Utente\.gradle\caches\8.14.3\transforms\b537da862a848fb2600b66cb725e0efd\transformed\jetified-profileinstaller-1.3.0\AndroidManifest.xml:50:17-95
+105-->[androidx.profileinstaller:profileinstaller:1.3.0] C:\Users\Utente\.gradle\caches\8.14.3\transforms\b537da862a848fb2600b66cb725e0efd\transformed\jetified-profileinstaller-1.3.0\AndroidManifest.xml:50:25-92
+106            </intent-filter>
+107        </receiver>
+108    </application>
+109
+110</manifest>

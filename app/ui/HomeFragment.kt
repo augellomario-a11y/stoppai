@@ -23,6 +23,9 @@ import java.io.InputStream
 import java.io.OutputStream
 import android.view.View
 import android.widget.Button
+import android.util.Log
+import android.app.role.RoleManager
+import android.telecom.TelecomManager
 import android.widget.ImageView
 import android.widget.Switch
 import android.widget.TextView
@@ -60,6 +63,8 @@ class HomeFragment : Fragment(R.layout.fragment_home) {
     private lateinit var tvStatTotale: TextView
     private lateinit var tvStatOggi: TextView
     private lateinit var tvStatReferral: TextView
+    private lateinit var txtSmsStatus: TextView
+    private lateinit var txtPreferitiStatus: TextView
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
@@ -87,6 +92,8 @@ class HomeFragment : Fragment(R.layout.fragment_home) {
         tvStatTotale = view.findViewById(R.id.ID_HOME_STAT_001)
         tvStatOggi = view.findViewById(R.id.ID_HOME_STAT_002)
         tvStatReferral = view.findViewById(R.id.ID_HOME_STAT_003)
+        txtSmsStatus = view.findViewById(R.id.txt_sms_status)
+        txtPreferitiStatus = view.findViewById(R.id.txt_preferiti_status)
 
         setupRecyclerView()
         aggiornaVolumeUI()
@@ -104,6 +111,17 @@ class HomeFragment : Fragment(R.layout.fragment_home) {
         // volIconTotale.setOnClickListener(volClick)
         // volTextTotale.setOnClickListener(volClick)
 
+        // Toggle Referral Box (SA-056)
+        val boxReferral = view.findViewById<View>(R.id.ID_HOME_BOX_REFERRAL)
+        var isShowEarnings = true
+        boxReferral.setOnClickListener {
+            isShowEarnings = !isShowEarnings
+            tvStatReferral.text = if (isShowEarnings) "€0,00" else "0"
+            // Aggiorna anche la label sopra se necessario
+            val lbl = boxReferral.findViewById<TextView>(R.id.txt_referral_label)
+            lbl?.text = if (isShowEarnings) "Guadagni" else "Invitati"
+        }
+
         // Switch Protezione Totale — apre BottomSheet
         switchTotale.setOnCheckedChangeListener { _, isChecked ->
             if (isChecked) {
@@ -111,6 +129,8 @@ class HomeFragment : Fragment(R.layout.fragment_home) {
                 bs.onAttivaListener = {
                     switchBase.isEnabled = false
                     switchTotale.isChecked = true
+                    startCountdown()
+                    aggiornaStatusFlags()
                 }
                 bs.show(parentFragmentManager, "protezione_bs")
             } else {
@@ -118,61 +138,63 @@ class HomeFragment : Fragment(R.layout.fragment_home) {
                 switchBase.isEnabled = true
                 stopCountdown()
                 aggiornaVolumeUI()
+                aggiornaStatusFlags()
             }
         }
-
-        // Switch Protezione Base
-        switchBase.setOnCheckedChangeListener { _, isChecked ->
+        aggiornaStatusFlags()
+        // Switch Protezione Base — apre Configurazione (SA-057)
+        switchBase.setOnClickListener {
+            val isChecked = switchBase.isChecked
             val context = requireContext()
             
-            // Verifica permesso scrittura impostazioni
-            if (isChecked && !Settings.System.canWrite(context)) {
-                switchBase.isChecked = false
-                AlertDialog.Builder(context)
-                    .setTitle("Permesso necessario")
-                    .setMessage("Per impostare la suoneria StoppAI, l'app deve poter modificare le impostazioni di sistema.")
-                    .setPositiveButton("Vai alle impostazioni") { _, _ ->
-                        val intent = Intent(Settings.ACTION_MANAGE_WRITE_SETTINGS)
-                        intent.data = Uri.parse("package:${context.packageName}")
-                        startActivity(intent)
-                    }
-                    .setNegativeButton("Annulla", null)
-                    .show()
-                return@setOnCheckedChangeListener
-            }
-
-            prefs.edit().putBoolean("protezione_base", isChecked).apply()
-
-            try {
-                if (isChecked) {
-                    // 1. SALVARE SUONERIA ORIGINALE
-                    val currentUri = RingtoneManager.getActualDefaultRingtoneUri(context, RingtoneManager.TYPE_RINGTONE)
-                    if (currentUri != null && !currentUri.toString().contains(context.packageName)) {
-                        prefs.edit().putString("suoneria_originale", currentUri.toString()).apply()
-                    }
-
-                    // 2. IMPOSTARE SUONERIA STOPPAI (VIA MEDIASTORE)
-                    val stoppaiUri = prepareRingtoneUri(context)
-                    if (stoppaiUri != null) {
-                        RingtoneManager.setActualDefaultRingtoneUri(context, RingtoneManager.TYPE_RINGTONE, stoppaiUri)
-                        android.widget.Toast.makeText(context, "Suoneria StoppAI attivata", android.widget.Toast.LENGTH_SHORT).show()
-                    }
-                } else {
-                    alzaVolume()
-                    
-                    // 3. RIPRISTINARE SUONERIA ORIGINALE
-                    val uriOriginaleStr = prefs.getString("suoneria_originale", null)
-                    if (uriOriginaleStr != null) {
-                        RingtoneManager.setActualDefaultRingtoneUri(context, RingtoneManager.TYPE_RINGTONE, Uri.parse(uriOriginaleStr))
-                        android.widget.Toast.makeText(context, "Suoneria originale ripristinata", android.widget.Toast.LENGTH_SHORT).show()
+            if (isChecked) {
+                // Se attiviamo, mostriamo PRIMA il configuratore
+                val bs = ConfiguraProtezioneBottomSheet()
+                bs.onConfirmListener = {
+                    // Verifichiamo i permessi prima di attivare definitivamente
+                    if (!Settings.System.canWrite(context)) {
+                        switchBase.isChecked = false
+                        AlertDialog.Builder(context)
+                            .setTitle("Permesso necessario")
+                            .setMessage("Per impostare la suoneria StoppAI, l'app deve poter modificare le impostazioni di sistema.")
+                            .setPositiveButton("Vai alle impostazioni") { _, _ ->
+                                val intent = Intent(Settings.ACTION_MANAGE_WRITE_SETTINGS)
+                                intent.data = Uri.parse("package:${context.packageName}")
+                                startActivity(intent)
+                            }
+                            .setNegativeButton("Annulla", null)
+                            .show()
+                    } else {
+                        switchBase.isChecked = true
+                        prefs.edit().putBoolean("protezione_base", true).apply()
+                        try {
+                            // Salvare suoneria originale se non già salvata
+                            val currentUri = RingtoneManager.getActualDefaultRingtoneUri(context, RingtoneManager.TYPE_RINGTONE)
+                            if (currentUri != null && !currentUri.toString().contains(context.packageName)) {
+                                prefs.edit().putString("original_ringtone", currentUri.toString()).apply()
+                            }
+                            // Imposta StoppAI ring
+                            val stoppAiUri = Uri.parse("android.resource://${context.packageName}/${R.raw.stoppai_ring}")
+                            RingtoneManager.setActualDefaultRingtoneUri(context, RingtoneManager.TYPE_RINGTONE, stoppAiUri)
+                        } catch (e: Exception) {}
+                        aggiornaStatusFlags()
                     }
                 }
-            } catch (e: Exception) {
-                android.util.Log.e("STOPPAI_RING", "Errore: ${e.message}")
+                bs.show(parentFragmentManager, "config_base_bs")
+            } else {
+                // Se disattiviamo
+                prefs.edit().putBoolean("protezione_base", false).apply()
+                // Ripristina suoneria originale
+                try {
+                    val originalStr = prefs.getString("original_ringtone", null)
+                    if (originalStr != null) {
+                        RingtoneManager.setActualDefaultRingtoneUri(context, RingtoneManager.TYPE_RINGTONE, Uri.parse(originalStr))
+                    }
+                } catch (e: Exception) {}
+                aggiornaStatusFlags()
             }
-
-            aggiornaVolumeUI()
         }
+        aggiornaVolumeUI()
 
         // Avvio iniziale
         if (prefs.getBoolean("protezione_totale", false)) startCountdown()
@@ -304,11 +326,22 @@ class HomeFragment : Fragment(R.layout.fragment_home) {
     override fun onResume() {
         super.onResume()
         aggiornaVolumeUI()
+        aggiornaStatusFlags()
         caricaStatistiche()
         syncContactNames() // Aggiorna nomi se l'utente ha aggiunto contatti
         if (prefs.getBoolean("protezione_totale", false)) {
             startCountdown()
         }
+    }
+
+    private fun aggiornaStatusFlags() {
+        val pBase = switchBase.isChecked
+        val pTotale = switchTotale.isChecked
+        val smsOn = prefs.getBoolean("sms_risposta_attivo", false)
+        val prefOn = prefs.getBoolean("includi_preferiti", false)
+
+        txtSmsStatus.visibility = if (pBase && smsOn) View.VISIBLE else View.GONE
+        txtPreferitiStatus.visibility = if (pTotale && prefOn) View.VISIBLE else View.GONE
     }
 
     private fun syncContactNames() {

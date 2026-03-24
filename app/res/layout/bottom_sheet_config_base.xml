@@ -1,0 +1,109 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    android:padding="24dp"
+    android:background="#FFFFFF">
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Configura Protezione Base"
+        android:textSize="20sp"
+        android:textStyle="bold"
+        android:textColor="#333333"
+        android:layout_marginBottom="12dp" />
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Tutti i numeri sconosciuti verranno bloccati e deviati alla segreteria. I numeri internazionali vengono sempre bloccati automaticamente."
+        android:textSize="14sp"
+        android:textColor="#666666"
+        android:lineSpacingExtra="4dp"
+        android:layout_marginBottom="24dp" />
+
+    <!-- SMS Switch -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:gravity="center_vertical"
+        android:layout_marginBottom="8dp">
+        
+        <LinearLayout
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:orientation="vertical">
+            
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="📩 SMS Risposta Rapida"
+                android:textSize="16sp"
+                android:textStyle="bold" />
+            
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="I numeri mobili italiani sconosciuti riceveranno un SMS automatico invece di essere deviati alla segreteria."
+                android:textSize="12sp"
+                android:textColor="#666666" />
+        </LinearLayout>
+        
+        <Switch
+            android:id="@+id/switch_sms_reply"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content" />
+    </LinearLayout>
+
+    <LinearLayout
+        android:id="@+id/layout_sms_editor"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:visibility="gone"
+        android:layout_marginBottom="24dp">
+        
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Testo del messaggio"
+            android:textSize="12sp"
+            android:textStyle="bold"
+            android:layout_marginTop="8dp" />
+            
+        <EditText
+            android:id="@+id/edt_sms_text"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:minLines="3"
+            android:gravity="top"
+            android:maxLength="160"
+            android:textSize="14sp"
+            android:background="@drawable/shape_input_note"
+            android:padding="12dp"
+            android:layout_marginTop="4dp" />
+            
+        <TextView
+            android:id="@+id/txt_char_counter"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="0 / 160"
+            android:textSize="10sp"
+            android:gravity="end"
+            android:layout_marginTop="2dp" />
+    </LinearLayout>
+
+    <Button
+        android:id="@+id/btn_confirm_base"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="CONFERMA E ATTIVA"
+        android:backgroundTint="#4CAF50"
+        android:paddingVertical="12dp"
+        android:layout_marginTop="8dp" />
+
+</LinearLayout>

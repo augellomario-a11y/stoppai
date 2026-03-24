@@ -46,8 +46,8 @@ class MainActivity : AppCompatActivity() {
                     supportFragmentManager.beginTransaction().replace(R.id.fragment_container, HomeFragment()).commit()
                     true
                 }
-                R.id.nav_calls -> {
-                    supportFragmentManager.beginTransaction().replace(R.id.fragment_container, CallsFragment()).commit()
+                R.id.nav_referral -> {
+                    supportFragmentManager.beginTransaction().replace(R.id.fragment_container, InvitaFragment()).commit()
                     true
                 }
                 R.id.nav_settings -> {

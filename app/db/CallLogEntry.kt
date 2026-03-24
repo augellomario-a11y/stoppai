@@ -20,7 +20,9 @@ data class CallLogEntry(
     val ariaNote: String = "",
     val callOutcome: String = "PASSATA", 
     val callDirection: String = "ENTRATA", // ENTRATA / USCITA
-    val displayName: String = ""
+    val displayName: String = "",
+    val smsInviato: Boolean = false,
+    val smsRisposta: String? = null
 )
 
 data class CallLogCrmItem(

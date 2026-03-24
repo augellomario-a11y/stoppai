@@ -62,6 +62,7 @@
             <TextView android:id="@+id/ID_PERM_003" android:layout_width="match_parent" android:layout_height="wrap_content" android:textSize="16sp" android:padding="4dp"/>
             <TextView android:id="@+id/ID_PERM_004" android:layout_width="match_parent" android:layout_height="wrap_content" android:textSize="16sp" android:padding="4dp"/>
             <TextView android:id="@+id/ID_PERM_005" android:layout_width="match_parent" android:layout_height="wrap_content" android:textSize="16sp" android:padding="4dp"/>
+            <TextView android:id="@+id/ID_PERM_007" android:layout_width="match_parent" android:layout_height="wrap_content" android:textSize="16sp" android:padding="4dp"/>
             <TextView android:id="@+id/ID_PERM_006" android:layout_width="match_parent" android:layout_height="wrap_content" android:textSize="16sp" android:padding="4dp" android:text="🔴 Rubrica in caricamento..."/>
         </LinearLayout>
         

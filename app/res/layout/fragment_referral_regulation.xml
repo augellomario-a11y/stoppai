@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.core.widget.NestedScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:padding="24dp"
+    android:background="#FFFFFF">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical">
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Come funziona"
+            android:textSize="20sp"
+            android:textStyle="bold"
+            android:textColor="#333333"
+            android:layout_marginBottom="24dp" />
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="1. CONDIVIDI IL LINK\nOgni partner ha un link personale univoco da condividere con amici e colleghi.\n\n2. LORO INSTALLANO\nQuando qualcuno installa StoppAI tramite il tuo link viene registrato come tuo invitato.\n\n3. TU GUADAGNI\nPer ogni invitato che attiva un piano a pagamento ricevi:\nPiano PRO €2,99: €0,64/mese (Bonus 1° mese: €1,28)\nPiano SHIELD €4,99: €1,06/mese (Bonus 1° mese: €2,12)\n\n4. PAGAMENTI\nMensili al raggiungimento della soglia da te impostata (minimo €10). Trattati come collaborazione occasionale ai sensi di legge.\n\n5. REGOLE\nVietato lo spam. Vietato invitare sé stessi. IFS si riserva di modificare le commissioni con 30 giorni di preavviso via email."
+            android:lineSpacingExtra="6dp"
+            android:textColor="#555555"
+            android:textSize="14sp"
+            android:layout_marginBottom="24dp" />
+
+        <Button
+            android:id="@+id/btn_close_reg"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="HO CAPITO"
+            android:backgroundTint="#43A047"
+            android:textColor="#FFFFFF" />
+
+    </LinearLayout>
+</androidx.core.widget.NestedScrollView>

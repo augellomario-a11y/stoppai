@@ -44,4 +44,10 @@ interface CallLogDao {
 
     @Query("UPDATE call_log_entries SET displayName = :name WHERE id = :id")
     suspend fun updateDisplayName(id: Long, name: String)
+
+    @Query("SELECT * FROM call_log_entries WHERE phoneNumber = :number ORDER BY timestamp DESC LIMIT 1")
+    suspend fun getLastEntryForNumber(number: String): CallLogEntry?
+
+    @Query("UPDATE call_log_entries SET smsRisposta = :text WHERE id = :id")
+    suspend fun updateSmsRisposta(id: Long, text: String)
 }

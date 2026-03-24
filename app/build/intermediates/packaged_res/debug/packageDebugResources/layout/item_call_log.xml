@@ -37,12 +37,23 @@
             android:singleLine="true" />
 
         <LinearLayout
-            android:layout_width="wrap_content"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="horizontal"
+            android:gravity="center_vertical"
             android:layout_marginTop="2dp">
 
-            <!-- BADGE STATO -->
+            <!-- DIREZIONE -->
+            <TextView
+                android:id="@+id/txt_direction"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textSize="12sp"
+                android:text="↙"
+                android:textColor="#4CAF50"
+                android:layout_marginEnd="6dp" />
+
+            <!-- BADGE STATO (VECCHIO) -->
             <View
                 android:id="@+id/view_status_badge"
                 android:layout_width="12dp"
@@ -50,13 +61,33 @@
                 android:layout_gravity="center_vertical"
                 android:background="@drawable/shape_badge_status" />
 
+            <!-- STATO SMS (✉️ Inviato) -->
+            <TextView
+                android:id="@+id/txt_sms_sent"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="✉️"
+                android:textSize="10sp"
+                android:visibility="gone"
+                android:layout_marginStart="6dp" />
+
+            <!-- STATO RISPOSTA (💬 Ricevuta) -->
+            <TextView
+                android:id="@+id/txt_sms_replied"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="💬"
+                android:textSize="10sp"
+                android:visibility="gone"
+                android:layout_marginStart="4dp" />
+
             <TextView
                 android:id="@+id/txt_time"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:textSize="12sp"
                 android:textColor="#888888"
-                android:layout_marginStart="6dp" />
+                android:layout_marginStart="8dp" />
         </LinearLayout>
     </LinearLayout>
 

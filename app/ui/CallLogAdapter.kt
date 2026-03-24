@@ -28,28 +28,32 @@ class CallLogAdapter(
         val timeLabel: TextView = view.findViewById(R.id.txt_time)
         val badgeStatus: View = view.findViewById(R.id.view_status_badge)
         val root: View = view.findViewById(R.id.root_item_log)
+        val txtDirection: TextView = view.findViewById(R.id.txt_direction)
+        val txtSmsSent: TextView = view.findViewById(R.id.txt_sms_sent)
+        val txtSmsReplied: TextView = view.findViewById(R.id.txt_sms_replied)
         
         fun bind(item: CallLogCrmItem, onClick: (CallLogCrmItem) -> Unit) {
             val entry = item.entry
-            
-            // TITOLO
             val baseName = if (entry.displayName.isNotEmpty()) entry.displayName else entry.phoneNumber
             nameNumber.text = "$baseName (${item.count})"
 
-            // ICONA TIPO
+            // DIREZIONE
+            txtDirection.text = if (entry.callDirection == "USCITA") "↗" else "↙"
+            txtDirection.setTextColor(if (entry.callDirection == "USCITA") android.graphics.Color.GRAY else android.graphics.Color.parseColor("#4CAF50"))
+
+            // STATO SMS
+            txtSmsSent.visibility = if (entry.smsInviato) View.VISIBLE else View.GONE
+            txtSmsReplied.visibility = if (!entry.smsRisposta.isNullOrBlank()) View.VISIBLE else View.GONE
+
             iconType.text = when {
-                entry.callDirection == "USCITA" -> "↗"
                 entry.phoneNumber.isEmpty() || entry.phoneNumber.contains("nascosto", true) -> "🕵️"
                 entry.phoneNumber.length < 8 -> "☎️"
                 else -> "📱"
             }
 
-            // ORA
             val sdf = SimpleDateFormat("HH:mm", Locale.ITALY)
             timeLabel.text = sdf.format(Date(entry.timestamp))
 
-            // BADGE STATO
-            // Priorità Note (Blu) > Status
             if (entry.nota.isNotEmpty()) {
                 badgeStatus.setBackgroundResource(R.drawable.shape_badge_status_blue)
             } else {
@@ -59,7 +63,6 @@ class CallLogAdapter(
                     else -> badgeStatus.setBackgroundResource(R.drawable.shape_badge_status_red)
                 }
             }
-
             root.setOnClickListener { onClick(item) }
         }
     }

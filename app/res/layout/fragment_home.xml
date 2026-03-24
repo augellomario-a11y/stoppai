@@ -1,10 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
     android:padding="16dp"
     android:background="#FFFFFF">
+
 
     <!-- Header Logo PNG Ufficiale (SA-050-LOGO-PNG) -->
     <LinearLayout
@@ -35,9 +37,9 @@
         <TextView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="v3.9.2-CRM-AddContact — SYNC RUBRICA"
+            android:text="v4.8.5-Status-Icons — SMART DASHBOARD"
             android:textSize="10sp"
-            android:textColor="#3F51B5"
+            android:textColor="#388E3C"
             android:gravity="center"
             android:layout_marginTop="2dp" />
     </LinearLayout>
@@ -106,14 +108,18 @@
         </LinearLayout>
 
         <LinearLayout
+            android:id="@+id/ID_HOME_BOX_REFERRAL"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"
             android:orientation="vertical"
             android:background="#E3F2FD"
             android:padding="8dp"
-            android:gravity="center">
+            android:gravity="center"
+            android:clickable="true"
+            android:focusable="true">
             <TextView
+                android:id="@+id/txt_referral_label"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="Referral"
@@ -140,29 +146,45 @@
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:orientation="horizontal"
-        android:gravity="center_vertical"
-        android:layout_marginBottom="4dp">
-        <Switch
-            android:id="@+id/ID_HOME_001"
-            android:layout_width="0dp"
+        android:orientation="vertical">
+        
+        <LinearLayout
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:text="Protezione Base"
-            android:textSize="16sp" />
-        <ImageView
-            android:id="@+id/ID_HOME_010_ICON"
-            android:layout_width="20dp"
-            android:layout_height="20dp"
-            android:src="@drawable/ic_speaker_inactive"
-            android:layout_marginEnd="6dp" />
+            android:orientation="horizontal"
+            android:gravity="center_vertical">
+            <Switch
+                android:id="@+id/ID_HOME_001"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="Protezione Base"
+                android:textSize="16sp" />
+            <ImageView
+                android:id="@+id/ID_HOME_010_ICON"
+                android:layout_width="20dp"
+                android:layout_height="20dp"
+                android:src="@drawable/ic_speaker_inactive"
+                android:layout_marginEnd="6dp" />
+            <TextView
+                android:id="@+id/ID_HOME_010_TEXT"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Vel: --"
+                android:textSize="13sp"
+                android:textColor="#666666" />
+        </LinearLayout>
+
         <TextView
-            android:id="@+id/ID_HOME_010_TEXT"
-            android:layout_width="wrap_content"
+            android:id="@+id/txt_sms_status"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="Vel: --"
+            android:text="✉️ SMS attivo"
             android:textSize="13sp"
-            android:textColor="#666666" />
+            android:textColor="#2E7D32"
+            android:textStyle="bold"
+            android:visibility="gone"
+            android:layout_marginBottom="4dp" />
     </LinearLayout>
 
     <View
@@ -174,40 +196,63 @@
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:orientation="horizontal"
-        android:gravity="center_vertical"
-        android:layout_marginBottom="4dp">
-        <Switch
-            android:id="@+id/ID_HOME_007"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:text="Protezione Totale"
-            android:textSize="16sp" />
-        <ImageView
-            android:id="@+id/ID_HOME_011_ICON"
-            android:layout_width="20dp"
-            android:layout_height="20dp"
-            android:src="@drawable/ic_speaker_inactive"
-            android:layout_marginEnd="6dp" />
-        <TextView
-            android:id="@+id/ID_HOME_011_TEXT"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Vol: --"
-            android:textSize="13sp"
-            android:textColor="#666666" />
-    </LinearLayout>
+        android:orientation="vertical">
 
-    <TextView
-        android:id="@+id/ID_HOME_008"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text=""
-        android:textSize="13sp"
-        android:textColor="#D32F2F"
-        android:visibility="gone"
-        android:layout_marginTop="4dp" />
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:gravity="center_vertical"
+            android:layout_marginBottom="4dp">
+            <Switch
+                android:id="@+id/ID_HOME_007"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="Protezione Totale"
+                android:textSize="16sp" />
+            <ImageView
+                android:id="@+id/ID_HOME_011_ICON"
+                android:layout_width="20dp"
+                android:layout_height="20dp"
+                android:src="@drawable/ic_speaker_inactive"
+                android:layout_marginEnd="6dp" />
+            <TextView
+                android:id="@+id/ID_HOME_011_TEXT"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Vol: --"
+                android:textSize="13sp"
+                android:textColor="#666666" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:gravity="center_vertical">
+            
+            <TextView
+                android:id="@+id/ID_HOME_008"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text=""
+                android:textSize="13sp"
+                android:textColor="#D32F2F"
+                android:visibility="gone" />
+
+            <TextView
+                android:id="@+id/txt_preferiti_status"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="⭐ Preferiti inclusi"
+                android:textSize="13sp"
+                android:textColor="#FBC02D"
+                android:textStyle="bold"
+                android:layout_marginStart="12dp"
+                android:visibility="gone" />
+        </LinearLayout>
+    </LinearLayout>
 
     <View
         android:layout_width="match_parent"

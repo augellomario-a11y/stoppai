@@ -54,6 +54,19 @@ class CallActionBottomSheet(
 
         btnClose.setOnClickListener { dismiss() }
 
+        // RISPOSTA SMS (SA-057)
+        val layoutSms = root.findViewById<View>(R.id.layout_sms_response)
+        val txtSmsContent = root.findViewById<TextView>(R.id.txt_sms_response_content)
+        
+        if (!entry.smsRisposta.isNullOrBlank()) {
+            layoutSms.visibility = View.VISIBLE
+            txtSmsContent.text = "\"" + entry.smsRisposta + "\""
+        } else if (entry.smsInviato) {
+            layoutSms.visibility = View.VISIBLE
+            txtSmsContent.text = "Attesa risposta..."
+            txtSmsContent.setTextColor(android.graphics.Color.GRAY)
+        }
+
         // 1. TRASCRIZIONE AI
         root.findViewById<Button>(R.id.btn_ai_transcription).setOnClickListener {
             AlertDialog.Builder(requireContext())

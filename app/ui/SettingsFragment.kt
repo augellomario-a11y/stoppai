@@ -16,6 +16,9 @@ import android.widget.TextView
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
 import com.ifs.stoppai.R
+import android.app.role.RoleManager
+import android.telecom.TelecomManager
+import androidx.annotation.RequiresApi
 import androidx.lifecycle.lifecycleScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -135,8 +138,13 @@ class SettingsFragment : Fragment(R.layout.fragment_settings) {
             }
         }
         view.findViewById<TextView>(R.id.ID_PERM_003).setOnClickListener {
-            val roleManager = requireActivity().getSystemService(android.app.role.RoleManager::class.java)
-            if (!roleManager.isRoleHeld(android.app.role.RoleManager.ROLE_CALL_SCREENING)) {
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+                val roleManager = requireActivity().getSystemService(RoleManager::class.java)
+                if (roleManager != null && !roleManager.isRoleHeld(RoleManager.ROLE_CALL_SCREENING)) {
+                    val intent = roleManager.createRequestRoleIntent(RoleManager.ROLE_CALL_SCREENING)
+                    startActivityForResult(intent, 200)
+                }
+            } else {
                 val intent = Intent(Settings.ACTION_MANAGE_DEFAULT_APPS_SETTINGS)
                 startActivity(intent)
             }
@@ -150,6 +158,9 @@ class SettingsFragment : Fragment(R.layout.fragment_settings) {
                 intent.putExtra(Settings.EXTRA_APP_PACKAGE, requireActivity().packageName)
                 startActivity(intent)
             }
+        }
+        view.findViewById<TextView>(R.id.ID_PERM_007).setOnClickListener { 
+            openAppSettingsIfMissing(Manifest.permission.SEND_SMS) 
         }
     }
 
@@ -168,32 +179,51 @@ class SettingsFragment : Fragment(R.layout.fragment_settings) {
     }
 
     private fun aggiornaPermessi(view: View) {
+        val red = android.graphics.Color.RED
+        val black = android.graphics.Color.BLACK
+
         val t1 = view.findViewById<TextView>(R.id.ID_PERM_001)
         val p1 = hasPerm(Manifest.permission.READ_CONTACTS)
         t1.text = "${if (p1) "🟢" else "🔴"} Accesso rubrica"
+        t1.setTextColor(if (p1) black else red)
 
         val t2 = view.findViewById<TextView>(R.id.ID_PERM_002)
         val p2 = hasPerm(Manifest.permission.READ_PHONE_STATE) && hasPerm(Manifest.permission.READ_PHONE_NUMBERS)
         t2.text = "${if (p2) "🟢" else "🔴"} Stato telefono"
+        t2.setTextColor(if (p2) black else red)
 
         val t3 = view.findViewById<TextView>(R.id.ID_PERM_003)
-        val roleManager = requireActivity().getSystemService(android.app.role.RoleManager::class.java)
-        val p3 = roleManager.isRoleHeld(android.app.role.RoleManager.ROLE_CALL_SCREENING)
-        t3.text = "${if (p3) "🟢" else "🔴"} App verifica chiamate"
+        val isScreeningActive = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+            val roleManager = requireActivity().getSystemService(RoleManager::class.java)
+            roleManager?.isRoleHeld(RoleManager.ROLE_CALL_SCREENING) == true
+        } else {
+            val telecomManager = requireActivity().getSystemService(Context.TELECOM_SERVICE) as TelecomManager
+            telecomManager.defaultDialerPackage == requireActivity().packageName
+        }
+        t3.text = "${if (isScreeningActive) "🟢" else "🔴"} App verifica chiamate"
+        t3.setTextColor(if (isScreeningActive) black else red)
 
         val t4 = view.findViewById<TextView>(R.id.ID_PERM_004)
         val p4 = hasPerm(Manifest.permission.CALL_PHONE)
         t4.text = "${if (p4) "🟢" else "🔴"} Permesso telefonate"
+        t4.setTextColor(if (p4) black else red)
 
         val t5 = view.findViewById<TextView>(R.id.ID_PERM_005)
         val p5 = Build.VERSION.SDK_INT < 33 || hasPerm(Manifest.permission.POST_NOTIFICATIONS)
         t5.text = "${if (p5) "🟢" else "🔴"} Permesso notifiche"
+        t5.setTextColor(if (p5) black else red)
+
+        val t7 = view.findViewById<TextView>(R.id.ID_PERM_007)
+        val p7 = hasPerm(Manifest.permission.SEND_SMS)
+        t7.text = "${if (p7) "🟢" else "🔴"} Invio SMS"
+        t7.setTextColor(if (p7) black else red)
         
         val t6 = view.findViewById<TextView>(R.id.ID_PERM_006)
         if (t6 != null) {
             val cacheSize = com.ifs.stoppai.core.ContactCacheManager.getSize()
             val rubricaOk = cacheSize > 0
             t6.text = if (rubricaOk) "🟢 Rubrica caricata ($cacheSize)" else "🔴 Rubrica in caricamento..."
+            t6.setTextColor(if (rubricaOk) black else red)
         }
     }
 }

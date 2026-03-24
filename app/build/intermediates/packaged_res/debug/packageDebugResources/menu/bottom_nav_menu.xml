@@ -5,9 +5,9 @@
     android:icon="@drawable/ic_home"
     android:title="Home"/>
   <item
-    android:id="@+id/nav_calls"
-    android:icon="@android:drawable/ic_dialog_alert"
-    android:title="Chiamate"/>
+    android:id="@+id/nav_referral"
+    android:icon="@drawable/ic_person_add"
+    android:title="Invita"/>
   <item
     android:id="@+id/nav_settings"
     android:icon="@drawable/ic_settings_gear"
