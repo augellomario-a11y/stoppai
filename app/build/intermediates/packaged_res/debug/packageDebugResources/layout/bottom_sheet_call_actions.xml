@@ -165,6 +165,23 @@
         android:paddingStart="16dp"
         android:backgroundTint="#FFFFFF"
         android:textColor="#333333"
+        android:layout_marginBottom="16dp" />
+
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:background="#EEEEEE"
+        android:layout_marginBottom="16dp" />
+
+    <Button
+        android:id="@+id/btn_delete_call"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="🗑️ ELIMINA DAL REGISTRO"
+        android:gravity="start|center_vertical"
+        android:paddingStart="16dp"
+        android:backgroundTint="#FFEBEE"
+        android:textColor="#B71C1C"
         android:layout_marginBottom="12dp" />
 
 </LinearLayout>

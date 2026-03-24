@@ -20,27 +20,72 @@
         <TextView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="SEGRETERIA"
+            android:text="SEGRETERIA ARIA"
             android:textStyle="bold"
-            android:layout_marginBottom="8dp"/>
+            android:layout_marginBottom="12dp"/>
 
-        <Button
-            android:id="@+id/ID_HOME_005"
+        <!-- SEZIONE CONFIGURAZIONE USSD (SA-067-REORG) -->
+        <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="📞 Attiva segreteria"
-            android:textColor="#FFFFFF"
-            android:backgroundTint="#4CAF50"
-            android:layout_marginBottom="8dp" />
+            android:orientation="vertical"
+            android:background="#E1F5FE"
+            android:padding="12dp"
+            android:layout_marginBottom="12dp">
+
+            <Button
+                android:id="@+id/ID_SETT_BTN_CONFIG_USSD"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="📞 CONFIGURA SEGRETERIA ARIA"
+                android:backgroundTint="#0277BD"
+                android:textColor="#FFFFFF"
+                android:layout_marginBottom="12dp" />
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="⚙️ CONFIGURAZIONE DEVIAZIONE"
+                android:textStyle="bold"
+                android:textColor="#0277BD"
+                android:layout_marginBottom="8dp"/>
+
+            <TextView
+                android:id="@+id/ID_SETT_OPERATORE"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Operatore rilevato: --"
+                android:textSize="14sp"
+                android:textColor="#333333"
+                android:layout_marginBottom="12dp" />
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Dopo quanti secondi di squillo deviare?"
+                android:textSize="12sp"
+                android:textColor="#666666" />
+
+            <RadioGroup
+                android:id="@+id/ID_SETT_SEC_GROUP"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal">
+                <RadioButton android:id="@+id/ID_SETT_SEC_5" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="5s" android:layout_weight="1"/>
+                <RadioButton android:id="@+id/ID_SETT_SEC_10" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="10s" android:layout_weight="1"/>
+                <RadioButton android:id="@+id/ID_SETT_SEC_15" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="15s" android:layout_weight="1" android:checked="true"/>
+                <RadioButton android:id="@+id/ID_SETT_SEC_20" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="20s" android:layout_weight="1"/>
+            </RadioGroup>
+        </LinearLayout>
 
         <Button
             android:id="@+id/ID_HOME_006"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="🔕 Disattiva segreteria"
+            android:text="🚫 Disattiva segreteria"
             android:textColor="#FFFFFF"
-            android:backgroundTint="#888888"
-            android:layout_marginBottom="16dp" />
+            android:backgroundTint="#555555"
+            android:layout_marginBottom="24dp" />
 
         <LinearLayout
             android:layout_width="match_parent"
@@ -63,7 +108,17 @@
             <TextView android:id="@+id/ID_PERM_004" android:layout_width="match_parent" android:layout_height="wrap_content" android:textSize="16sp" android:padding="4dp"/>
             <TextView android:id="@+id/ID_PERM_005" android:layout_width="match_parent" android:layout_height="wrap_content" android:textSize="16sp" android:padding="4dp"/>
             <TextView android:id="@+id/ID_PERM_007" android:layout_width="match_parent" android:layout_height="wrap_content" android:textSize="16sp" android:padding="4dp"/>
+            
+            <View android:layout_width="match_parent" android:layout_height="8dp" />
+            
             <TextView android:id="@+id/ID_PERM_006" android:layout_width="match_parent" android:layout_height="wrap_content" android:textSize="16sp" android:padding="4dp" android:text="🔴 Rubrica in caricamento..."/>
+            <ProgressBar 
+                android:id="@+id/ID_SETT_RUB_PROGRESS"
+                style="@android:style/Widget.ProgressBar.Horizontal"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginHorizontal="6dp"
+                android:visibility="gone" />
         </LinearLayout>
         
         <View android:layout_width="match_parent" android:layout_height="1dp" android:background="#EEEEEE" android:layout_marginVertical="16dp" />
@@ -131,19 +186,10 @@
             android:id="@+id/ID_SETT_001"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="🔄 Ripristina impostazioni"
+            android:text="🔄 Ripristina valori default"
             android:textColor="#FFFFFF"
             android:backgroundTint="#888888"
             android:layout_marginTop="16dp" />
-
-        <Button
-            android:id="@+id/ID_SETT_002"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="🗑️ Svuota registro chiamate"
-            android:textColor="#FFFFFF"
-            android:backgroundTint="#F44336"
-            android:layout_marginTop="8dp" />
 
     </LinearLayout>
 </ScrollView>

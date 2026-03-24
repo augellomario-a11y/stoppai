@@ -45,6 +45,10 @@ public final class CallLogDao_Impl implements CallLogDao {
 
   private final SharedSQLiteStatement __preparedStmtOfUpdateSmsRisposta;
 
+  private final SharedSQLiteStatement __preparedStmtOfDeleteAllCalls;
+
+  private final SharedSQLiteStatement __preparedStmtOfDeleteCallsSince;
+
   public CallLogDao_Impl(@NonNull final RoomDatabase __db) {
     this.__db = __db;
     this.__insertionAdapterOfCallLogEntry = new EntityInsertionAdapter<CallLogEntry>(__db) {
@@ -113,6 +117,22 @@ public final class CallLogDao_Impl implements CallLogDao {
       @NonNull
       public String createQuery() {
         final String _query = "UPDATE call_log_entries SET smsRisposta = ? WHERE id = ?";
+        return _query;
+      }
+    };
+    this.__preparedStmtOfDeleteAllCalls = new SharedSQLiteStatement(__db) {
+      @Override
+      @NonNull
+      public String createQuery() {
+        final String _query = "DELETE FROM call_log_entries";
+        return _query;
+      }
+    };
+    this.__preparedStmtOfDeleteCallsSince = new SharedSQLiteStatement(__db) {
+      @Override
+      @NonNull
+      public String createQuery() {
+        final String _query = "DELETE FROM call_log_entries WHERE timestamp >= ?";
         return _query;
       }
     };
@@ -269,6 +289,79 @@ public final class CallLogDao_Impl implements CallLogDao {
           }
         } finally {
           __preparedStmtOfUpdateSmsRisposta.release(_stmt);
+        }
+      }
+    }, $completion);
+  }
+
+  @Override
+  public Object deleteCall(final long id, final Continuation<? super Unit> $completion) {
+    return CoroutinesRoom.execute(__db, true, new Callable<Unit>() {
+      @Override
+      @NonNull
+      public Unit call() throws Exception {
+        final SupportSQLiteStatement _stmt = __preparedStmtOfDeleteById.acquire();
+        int _argIndex = 1;
+        _stmt.bindLong(_argIndex, id);
+        try {
+          __db.beginTransaction();
+          try {
+            _stmt.executeUpdateDelete();
+            __db.setTransactionSuccessful();
+            return Unit.INSTANCE;
+          } finally {
+            __db.endTransaction();
+          }
+        } finally {
+          __preparedStmtOfDeleteById.release(_stmt);
+        }
+      }
+    }, $completion);
+  }
+
+  @Override
+  public Object deleteAllCalls(final Continuation<? super Unit> $completion) {
+    return CoroutinesRoom.execute(__db, true, new Callable<Unit>() {
+      @Override
+      @NonNull
+      public Unit call() throws Exception {
+        final SupportSQLiteStatement _stmt = __preparedStmtOfDeleteAllCalls.acquire();
+        try {
+          __db.beginTransaction();
+          try {
+            _stmt.executeUpdateDelete();
+            __db.setTransactionSuccessful();
+            return Unit.INSTANCE;
+          } finally {
+            __db.endTransaction();
+          }
+        } finally {
+          __preparedStmtOfDeleteAllCalls.release(_stmt);
+        }
+      }
+    }, $completion);
+  }
+
+  @Override
+  public Object deleteCallsSince(final long since, final Continuation<? super Unit> $completion) {
+    return CoroutinesRoom.execute(__db, true, new Callable<Unit>() {
+      @Override
+      @NonNull
+      public Unit call() throws Exception {
+        final SupportSQLiteStatement _stmt = __preparedStmtOfDeleteCallsSince.acquire();
+        int _argIndex = 1;
+        _stmt.bindLong(_argIndex, since);
+        try {
+          __db.beginTransaction();
+          try {
+            _stmt.executeUpdateDelete();
+            __db.setTransactionSuccessful();
+            return Unit.INSTANCE;
+          } finally {
+            __db.endTransaction();
+          }
+        } finally {
+          __preparedStmtOfDeleteCallsSince.release(_stmt);
         }
       }
     }, $completion);

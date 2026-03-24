@@ -37,9 +37,9 @@
         <TextView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="v4.9.2-Cursor-Fix — SMART CAPS INPUT"
+            android:text="v5.1.1-Reorg-Voicemail — ARIA FIRST"
             android:textSize="10sp"
-            android:textColor="#FF8F00"
+            android:textColor="#555555"
             android:gravity="center"
             android:layout_marginTop="2dp" />
     </LinearLayout>
@@ -58,6 +58,7 @@
         android:layout_marginBottom="16dp">
 
         <LinearLayout
+            android:id="@+id/ID_HOME_BOX_TOTALE"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"
@@ -65,7 +66,9 @@
             android:background="#F8F9FA"
             android:padding="8dp"
             android:layout_marginEnd="6dp"
-            android:gravity="center">
+            android:gravity="center"
+            android:clickable="true"
+            android:focusable="true">
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
@@ -83,6 +86,7 @@
         </LinearLayout>
 
         <LinearLayout
+            android:id="@+id/ID_HOME_BOX_OGGI"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"
@@ -90,7 +94,9 @@
             android:background="#F8F9FA"
             android:padding="8dp"
             android:layout_marginEnd="6dp"
-            android:gravity="center">
+            android:gravity="center"
+            android:clickable="true"
+            android:focusable="true">
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
@@ -142,12 +148,40 @@
         android:background="#EEEEEE"
         android:layout_marginBottom="16dp" />
 
-    <!-- Sezione Protezione -->
+    <!-- Sezione Protezione (SA-066-COLLAPSIBLE) -->
     <LinearLayout
+        android:id="@+id/ID_HOME_HEADER_PROT"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:gravity="center_vertical"
+        android:paddingVertical="4dp">
+        
+        <TextView
+            android:id="@+id/ID_HOME_TXT_PROT_SUMMARY"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="🛡️ Base: -- | Totale: --"
+            android:textSize="13sp"
+            android:textColor="#666666" />
+
+        <TextView
+            android:id="@+id/ID_HOME_BTN_TOGGLE_PROT"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="▼"
+            android:textSize="18sp"
+            android:textColor="#1976D2"
+            android:padding="8dp" />
+    </LinearLayout>
+
+    <LinearLayout
+        android:id="@+id/ID_HOME_LAYOUT_PROT"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="vertical">
-        
+
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -185,18 +219,12 @@
             android:textStyle="bold"
             android:visibility="gone"
             android:layout_marginBottom="4dp" />
-    </LinearLayout>
 
-    <View
-        android:layout_width="match_parent"
-        android:layout_height="0.5dp"
-        android:background="#DDDDDD"
-        android:layout_marginVertical="8dp" />
-
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="vertical">
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="0.5dp"
+            android:background="#DDDDDD"
+            android:layout_marginVertical="8dp" />
 
         <LinearLayout
             android:layout_width="match_parent"
@@ -231,7 +259,6 @@
             android:layout_height="wrap_content"
             android:orientation="horizontal"
             android:gravity="center_vertical">
-            
             <TextView
                 android:id="@+id/ID_HOME_008"
                 android:layout_width="wrap_content"
@@ -240,7 +267,6 @@
                 android:textSize="13sp"
                 android:textColor="#D32F2F"
                 android:visibility="gone" />
-
             <TextView
                 android:id="@+id/txt_preferiti_status"
                 android:layout_width="wrap_content"

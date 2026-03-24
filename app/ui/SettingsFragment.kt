@@ -23,17 +23,20 @@ import androidx.lifecycle.lifecycleScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import android.telephony.TelephonyManager
 
 class SettingsFragment : Fragment(R.layout.fragment_settings) {
 
+    private val progressReceiver = object : android.content.BroadcastReceiver() {
+        override fun onReceive(context: Context?, intent: Intent?) {
+            val current = intent?.getIntExtra("current", 0) ?: 0
+            val total = intent?.getIntExtra("total", 0) ?: 0
+            view?.let { updateProgressUI(it, current, total) }
+        }
+    }
+
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-
-        view.findViewById<Button>(R.id.ID_HOME_005).setOnClickListener {
-            val intent = Intent(Intent.ACTION_DIAL)
-            intent.data = Uri.parse("tel:**61*0421633844*11*15%23")
-            startActivity(intent)
-        }
 
         view.findViewById<Button>(R.id.ID_HOME_006).setOnClickListener {
             val intent = Intent(Intent.ACTION_DIAL)
@@ -41,36 +44,38 @@ class SettingsFragment : Fragment(R.layout.fragment_settings) {
             startActivity(intent)
         }
 
+        setupPermissionClickListeners(view)
+        setupVolumeControl(view)
+        setupUssdConfig(view)
+
+        // Ripristina valori default (SA-067)
         view.findViewById<Button>(R.id.ID_SETT_001).setOnClickListener {
             androidx.appcompat.app.AlertDialog.Builder(requireContext())
-                .setTitle("Ripristina impostazioni")
-                .setMessage("Sei sicuro? Tutte le impostazioni verranno cancellate.")
+                .setTitle("Ripristina valori default")
+                .setMessage("Tutte le impostazioni verranno riportate ai valori di fabbrica. Continuare?")
                 .setPositiveButton("Ripristina") { _, _ ->
+                    val prefs = requireContext().getSharedPreferences("stoppai_prefs", Context.MODE_PRIVATE)
+                    prefs.edit()
+                        .putBoolean("protezione_base", false)
+                        .putBoolean("protezione_totale", false)
+                        .putBoolean("sms_risposta_attivo", false)
+                        .putString("sms_text_custom", "Ciao, sono l'assistente ARIA. Non posso rispondere ora, lasciami un messaggio.")
+                        .putInt("payment_threshold", 25)
+                        .apply()
+                    
                     val db = com.ifs.stoppai.db.StoppAiDatabase.getInstance(requireContext().applicationContext)
                     val repo = com.ifs.stoppai.db.AppSettingsRepository(db.appSettingsDao())
-                    repo.clearAll()
-                    android.widget.Toast.makeText(requireContext(), "Impostazioni ripristinate", android.widget.Toast.LENGTH_SHORT).show()
-                }
-                .setNegativeButton("Annulla", null)
-                .show()
-        }
-        view.findViewById<Button>(R.id.ID_SETT_002).setOnClickListener {
-            androidx.appcompat.app.AlertDialog.Builder(requireContext())
-                .setTitle("Svuota registro")
-                .setMessage("Sei sicuro? Questa azione non è reversibile.")
-                .setPositiveButton("Svuota") { _, _ ->
                     lifecycleScope.launch(Dispatchers.IO) {
-                        com.ifs.stoppai.db.StoppAiDatabase.getInstance(requireContext().applicationContext).clearAllTables()
+                        repo.setVolumePreferito(11) // circa 75% di 15
                         withContext(Dispatchers.Main) {
-                            android.widget.Toast.makeText(requireContext(), "Registro svuotato", android.widget.Toast.LENGTH_SHORT).show()
+                            setupVolumeControl(view)
+                            android.widget.Toast.makeText(requireContext(), "Valori default ripristinati", android.widget.Toast.LENGTH_SHORT).show()
                         }
                     }
                 }
                 .setNegativeButton("Annulla", null)
                 .show()
         }
-        setupPermissionClickListeners(view)
-        setupVolumeControl(view)
     }
 
     private fun setupVolumeControl(view: View) {
@@ -126,6 +131,13 @@ class SettingsFragment : Fragment(R.layout.fragment_settings) {
     override fun onResume() {
         super.onResume()
         view?.let { aggiornaPermessi(it) }
+        val filter = android.content.IntentFilter("com.ifs.stoppai.CONTACTS_SYNC_PROGRESS")
+        requireContext().registerReceiver(progressReceiver, filter, Context.RECEIVER_EXPORTED)
+    }
+
+    override fun onPause() {
+        super.onPause()
+        requireContext().unregisterReceiver(progressReceiver)
     }
 
     private fun setupPermissionClickListeners(view: View) {
@@ -224,6 +236,59 @@ class SettingsFragment : Fragment(R.layout.fragment_settings) {
             val rubricaOk = cacheSize > 0
             t6.text = if (rubricaOk) "🟢 Rubrica caricata ($cacheSize)" else "🔴 Rubrica in caricamento..."
             t6.setTextColor(if (rubricaOk) black else red)
+        }
+    }
+
+    private fun updateProgressUI(view: View, current: Int, total: Int) {
+        val t6 = view.findViewById<TextView>(R.id.ID_PERM_006)
+        // ProgressBar nel layout per visualizzare l'avanzamento sincronizzazione
+        val pb = view.findViewById<android.widget.ProgressBar>(R.id.ID_SETT_RUB_PROGRESS)
+        
+        if (current < total) {
+            pb.visibility = View.VISIBLE
+            pb.max = total
+            pb.progress = current
+            t6.text = "🔴 Caricamento rubrica: $current / $total"
+            t6.setTextColor(android.graphics.Color.RED)
+        } else {
+            pb.visibility = View.GONE
+            t6.text = "🟢 Rubrica: $total contatti"
+            t6.setTextColor(android.graphics.Color.BLACK)
+        }
+    }
+
+    private fun setupUssdConfig(view: View) {
+        val tm = requireContext().getSystemService(Context.TELEPHONY_SERVICE) as TelephonyManager
+        val tvOperatore = view.findViewById<TextView>(R.id.ID_SETT_OPERATORE)
+        val operatore = tm.networkOperatorName ?: "Non rilevato"
+        tvOperatore.text = "Operatore rilevato: $operatore"
+
+        val group = view.findViewById<android.widget.RadioGroup>(R.id.ID_SETT_SEC_GROUP)
+        val btnConfig = view.findViewById<Button>(R.id.ID_SETT_BTN_CONFIG_USSD)
+        
+        btnConfig.setOnClickListener {
+            val sec = when (group.checkedRadioButtonId) {
+                R.id.ID_SETT_SEC_5 -> 5
+                R.id.ID_SETT_SEC_10 -> 10
+                R.id.ID_SETT_SEC_20 -> 20
+                else -> 15
+            }
+            // Salva preferenza
+            val prefs = requireContext().getSharedPreferences("stoppai_prefs", Context.MODE_PRIVATE)
+            prefs.edit().putInt("secondi_deviazione", sec).apply()
+
+            // Genera codice USSD (Standard italiano per deviazione su mancata risposta)
+            // Codice segreteria ARIA: 0421633844
+            val ussdCode = "*61*0421633844**$sec#"
+            
+            try {
+                val intent = Intent(Intent.ACTION_DIAL)
+                intent.data = Uri.parse("tel:${Uri.encode(ussdCode)}")
+                startActivity(intent)
+                android.widget.Toast.makeText(requireContext(), "Codice generato: $ussdCode", android.widget.Toast.LENGTH_LONG).show()
+            } catch (e: Exception) {
+                android.widget.Toast.makeText(requireContext(), "Errore apertura dialer", android.widget.Toast.LENGTH_SHORT).show()
+            }
         }
     }
 }

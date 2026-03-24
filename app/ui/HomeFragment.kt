@@ -65,6 +65,15 @@ class HomeFragment : Fragment(R.layout.fragment_home) {
     private lateinit var tvStatReferral: TextView
     private lateinit var txtSmsStatus: TextView
     private lateinit var txtPreferitiStatus: TextView
+    private lateinit var layoutProt: View
+    private lateinit var btnToggleProt: TextView
+    private lateinit var txtProtSummary: TextView
+
+    private val receiver = object : android.content.BroadcastReceiver() {
+        override fun onReceive(context: Context?, intent: Intent?) {
+            caricaStatistiche()
+        }
+    }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
@@ -95,7 +104,13 @@ class HomeFragment : Fragment(R.layout.fragment_home) {
         txtSmsStatus = view.findViewById(R.id.txt_sms_status)
         txtPreferitiStatus = view.findViewById(R.id.txt_preferiti_status)
 
+        layoutProt = view.findViewById(R.id.ID_HOME_LAYOUT_PROT)
+        btnToggleProt = view.findViewById(R.id.ID_HOME_BTN_TOGGLE_PROT)
+        txtProtSummary = view.findViewById(R.id.ID_HOME_TXT_PROT_SUMMARY)
+
         setupRecyclerView()
+        setupCollapsibleProtections(view)
+        setupStatsLongClicks(view)
         aggiornaVolumeUI()
         caricaStatistiche()
 
@@ -325,13 +340,22 @@ class HomeFragment : Fragment(R.layout.fragment_home) {
 
     override fun onResume() {
         super.onResume()
+        val filter = android.content.IntentFilter("com.ifs.stoppai.CALL_LOGGED")
+        requireContext().registerReceiver(receiver, filter, Context.RECEIVER_EXPORTED)
+        
         aggiornaVolumeUI()
         aggiornaStatusFlags()
         caricaStatistiche()
-        syncContactNames() // Aggiorna nomi se l'utente ha aggiunto contatti
+        syncContactNames()
         if (prefs.getBoolean("protezione_totale", false)) {
             startCountdown()
         }
+    }
+
+    override fun onPause() {
+        super.onPause()
+        requireContext().unregisterReceiver(receiver)
+        stopCountdown()
     }
 
     private fun aggiornaStatusFlags() {
@@ -342,6 +366,72 @@ class HomeFragment : Fragment(R.layout.fragment_home) {
 
         txtSmsStatus.visibility = if (pBase && smsOn) View.VISIBLE else View.GONE
         txtPreferitiStatus.visibility = if (pTotale && prefOn) View.VISIBLE else View.GONE
+        
+        // Aggiorna summary header (SA-066)
+        val sBase = if (pBase) "ON" else "OFF"
+        val sTot = if (pTotale) "ON" else "OFF"
+        txtProtSummary.text = "🛡️ Base: $sBase | Totale: $sTot"
+    }
+
+    private fun setupCollapsibleProtections(view: View) {
+        val header = view.findViewById<View>(R.id.ID_HOME_HEADER_PROT)
+        var isExpanded = prefs.getBoolean("home_sezione_espansa", true)
+        
+        val updateUI = {
+            layoutProt.visibility = if (isExpanded) View.VISIBLE else View.GONE
+            btnToggleProt.text = if (isExpanded) "▲" else "▼"
+        }
+        
+        updateUI()
+        
+        header.setOnClickListener {
+            isExpanded = !isExpanded
+            prefs.edit().putBoolean("home_sezione_espansa", isExpanded).apply()
+            updateUI()
+        }
+    }
+
+    private fun setupStatsLongClicks(view: View) {
+        val boxTotale = view.findViewById<View>(R.id.ID_HOME_BOX_TOTALE)
+        val boxOggi = view.findViewById<View>(R.id.ID_HOME_BOX_OGGI)
+
+        boxTotale.setOnLongClickListener {
+            AlertDialog.Builder(requireContext())
+                .setTitle("Azzera tutto")
+                .setMessage("Vuoi azzerare il contatore totale e cancellare tutto il registro chiamate?")
+                .setPositiveButton("AZZERA") { _, _ ->
+                    lifecycleScope.launch(Dispatchers.IO) {
+                        val db = StoppAiDatabase.getInstance(requireContext())
+                        db.callLogDao().deleteAllCalls()
+                        launch(Dispatchers.Main) { 
+                            caricaStatistiche() 
+                            // Forza pulizia lista immediata
+                            adapter.submitList(emptyList())
+                        }
+                    }
+                }
+                .setNegativeButton("ANNULLA", null).show()
+            true
+        }
+
+        boxOggi.setOnLongClickListener {
+            AlertDialog.Builder(requireContext())
+                .setTitle("Azzera oggi")
+                .setMessage("Vuoi azzerare il contatore di oggi?")
+                .setPositiveButton("AZZERA") { _, _ ->
+                    lifecycleScope.launch(Dispatchers.IO) {
+                        val db = StoppAiDatabase.getInstance(requireContext())
+                        val cal = java.util.Calendar.getInstance().apply {
+                            set(java.util.Calendar.HOUR_OF_DAY, 0); set(java.util.Calendar.MINUTE, 0)
+                            set(java.util.Calendar.SECOND, 0); set(java.util.Calendar.MILLISECOND, 0)
+                        }
+                        db.callLogDao().deleteCallsSince(cal.timeInMillis)
+                        launch(Dispatchers.Main) { caricaStatistiche() }
+                    }
+                }
+                .setNegativeButton("ANNULLA", null).show()
+            true
+        }
     }
 
     private fun syncContactNames() {
@@ -368,11 +458,6 @@ class HomeFragment : Fragment(R.layout.fragment_home) {
                 if (it.moveToFirst()) it.getString(0) else ""
             } ?: ""
         } catch (e: Exception) { "" }
-    }
-
-    override fun onPause() {
-        super.onPause()
-        stopCountdown()
     }
 
     private fun showVolumeDialog() {

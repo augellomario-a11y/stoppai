@@ -20,6 +20,10 @@
         "source": "C:\\Users\\Utente\\.gradle\\daemon\\8.14.3\\com.ifs.stoppai.app-app-39:\\layout\\fragment_referral_registration.xml"
     },
     {
+        "merged": "com.ifs.stoppai.app-debug-38:/layout_fragment_settings.xml.flat",
+        "source": "com.ifs.stoppai.app-app-39:/layout/fragment_settings.xml"
+    },
+    {
         "merged": "C:\\Users\\Utente\\.gradle\\daemon\\8.14.3\\com.ifs.stoppai.app-debug-38:\\drawable-hdpi_logo_stoppai.png.flat",
         "source": "C:\\Users\\Utente\\.gradle\\daemon\\8.14.3\\com.ifs.stoppai.app-app-39:\\drawable-hdpi\\logo_stoppai.png"
     },
@@ -106,10 +110,6 @@
     {
         "merged": "C:\\Users\\Utente\\.gradle\\daemon\\8.14.3\\com.ifs.stoppai.app-debug-38:\\raw_stoppai_ring.mp3.flat",
         "source": "C:\\Users\\Utente\\.gradle\\daemon\\8.14.3\\com.ifs.stoppai.app-app-39:\\raw\\stoppai_ring.mp3"
-    },
-    {
-        "merged": "com.ifs.stoppai.app-debug-38:/layout_bottom_sheet_partecipa.xml.flat",
-        "source": "com.ifs.stoppai.app-app-39:/layout/bottom_sheet_partecipa.xml"
     },
     {
         "merged": "C:\\Users\\Utente\\.gradle\\daemon\\8.14.3\\com.ifs.stoppai.app-debug-38:\\drawable_ic_person_add.xml.flat",

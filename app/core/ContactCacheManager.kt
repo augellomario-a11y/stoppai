@@ -39,10 +39,14 @@ object ContactCacheManager {
         appCtx.contentResolver.query(
             uri, projection, null, null, null
         )?.use { cursor ->
+            val total = cursor.count
             val numIndex = cursor.getColumnIndex(
                 ContactsContract.CommonDataKinds.Phone.NUMBER)
+            var current = 0
+            
             if (numIndex >= 0) {
                 while (cursor.moveToNext()) {
+                    current++
                     val number = cursor.getString(numIndex)
                     if (number != null) {
                         val normalized =
@@ -50,6 +54,10 @@ object ContactCacheManager {
                         if (normalized.isNotEmpty()) {
                             tempSet.add(normalized)
                         }
+                    }
+                    // Notifica progresso ogni 50 contatti per non saturare il bus
+                    if (current % 50 == 0 || current == total) {
+                        sendProgressBroadcast(appCtx, current, total)
                     }
                 }
             }
@@ -64,6 +72,13 @@ object ContactCacheManager {
 
         // Carica anche i preferiti
         loadFavorites(appCtx)
+    }
+
+    private fun sendProgressBroadcast(context: Context, current: Int, total: Int) {
+        val intent = android.content.Intent("com.ifs.stoppai.CONTACTS_SYNC_PROGRESS")
+        intent.putExtra("current", current)
+        intent.putExtra("total", total)
+        context.sendBroadcast(intent)
     }
 
     // Carica contatti preferiti (stellina)

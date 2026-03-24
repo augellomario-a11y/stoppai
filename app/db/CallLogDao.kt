@@ -50,4 +50,13 @@ interface CallLogDao {
 
     @Query("UPDATE call_log_entries SET smsRisposta = :text WHERE id = :id")
     suspend fun updateSmsRisposta(id: Long, text: String)
+
+    @Query("DELETE FROM call_log_entries WHERE id = :id")
+    suspend fun deleteCall(id: Long)
+
+    @Query("DELETE FROM call_log_entries")
+    suspend fun deleteAllCalls()
+
+    @Query("DELETE FROM call_log_entries WHERE timestamp >= :since")
+    suspend fun deleteCallsSince(since: Long)
 }

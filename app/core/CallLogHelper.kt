@@ -37,6 +37,10 @@ object CallLogHelper {
             )
             
             db.callLogDao().insertCallLog(entry)
+            
+            // INVIA BROADCAST PER AGGIORNAMENTO UI (SA-066)
+            val intent = android.content.Intent("com.ifs.stoppai.CALL_LOGGED")
+            context.sendBroadcast(intent)
         }
     }
 

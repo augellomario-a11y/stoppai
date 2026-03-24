@@ -108,6 +108,24 @@ class CallActionBottomSheet(
             } catch (e: Exception) {}
         }
 
+        // 🗑️ ELIMINA DAL REGISTRO (SA-066)
+        root.findViewById<Button>(R.id.btn_delete_call).setOnClickListener {
+            AlertDialog.Builder(requireContext())
+                .setTitle("Elimina voce")
+                .setMessage("Vuoi eliminare questo numero dal registro chiamate?")
+                .setPositiveButton("ELIMINA") { _, _ ->
+                    CoroutineScope(Dispatchers.IO).launch {
+                        val db = StoppAiDatabase.getInstance(requireContext())
+                        db.callLogDao().deleteCall(entry.id)
+                        withContext(Dispatchers.Main) {
+                            onUpdate()
+                            dismiss()
+                        }
+                    }
+                }
+                .setNegativeButton("ANNULLA", null).show()
+        }
+
         return root
     }
 
