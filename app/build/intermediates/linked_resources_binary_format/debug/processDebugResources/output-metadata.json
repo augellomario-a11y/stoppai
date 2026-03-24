@@ -11,8 +11,8 @@
       "type": "SINGLE",
       "filters": [],
       "attributes": [],
-      "versionCode": 60,
-      "versionName": "4.8.5-Status-Icons",
+      "versionCode": 63,
+      "versionName": "4.9.2-Cursor-Fix",
       "outputFile": "linked-resources-binary-format-debug.ap_"
     }
   ],

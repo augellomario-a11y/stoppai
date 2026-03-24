@@ -1,8 +1,8 @@
 1<?xml version="1.0" encoding="utf-8"?>
 2<manifest xmlns:android="http://schemas.android.com/apk/res/android"
 3    package="com.ifs.stoppai"
-4    android:versionCode="60"
-5    android:versionName="4.8.5-Status-Icons" >
+4    android:versionCode="63"
+5    android:versionName="4.9.2-Cursor-Fix" >
 6
 7    <uses-sdk
 8        android:minSdkVersion="26"

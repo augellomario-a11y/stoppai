@@ -37,9 +37,9 @@
         <TextView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="v4.8.5-Status-Icons — SMART DASHBOARD"
+            android:text="v4.9.2-Cursor-Fix — SMART CAPS INPUT"
             android:textSize="10sp"
-            android:textColor="#388E3C"
+            android:textColor="#FF8F00"
             android:gravity="center"
             android:layout_marginTop="2dp" />
     </LinearLayout>

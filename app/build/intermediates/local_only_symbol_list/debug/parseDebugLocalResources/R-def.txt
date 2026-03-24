@@ -55,6 +55,7 @@ id ID_SETT_VOL_VAL
 id bottom_navigation
 id btn_add_contact
 id btn_ai_transcription
+id btn_annulla
 id btn_attendibile
 id btn_call_now
 id btn_cancel_note
@@ -66,6 +67,7 @@ id btn_confirm_base
 id btn_copy_link
 id btn_da_trattare
 id btn_how_it_works
+id btn_invia
 id btn_join_now
 id btn_note
 id btn_request_payment
@@ -93,6 +95,18 @@ id edt_note_input
 id edt_prov
 id edt_sms_text
 id edt_tel
+id et_cap
+id et_cf
+id et_citta
+id et_cognome
+id et_email
+id et_iban
+id et_indirizzo
+id et_intestatario
+id et_nascita
+id et_nome
+id et_provincia
+id et_telefono
 id fragment_container
 id layout_dashboard_referral
 id layout_sms_editor
@@ -130,6 +144,7 @@ id view_status_badge
 layout activity_main
 layout bottom_sheet_call_actions
 layout bottom_sheet_config_base
+layout bottom_sheet_partecipa
 layout bottom_sheet_protezione
 layout dialog_crm_note
 layout dialog_partecipa_programma
@@ -145,5 +160,7 @@ layout item_referral_stat
 menu bottom_nav_menu
 raw stoppai_ring
 string app_name
+style AppName
+style BottomSheetDialogTheme_Fullscreen
 style CustomDialogTheme
 style Theme.StoppAI

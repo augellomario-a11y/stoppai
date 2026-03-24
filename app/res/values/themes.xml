@@ -10,4 +10,11 @@
         <item name="android:windowMinWidthMajor">90%</item>
         <item name="android:windowMinWidthMinor">90%</item>
     </style>
+    <style name="AppName">StoppAI</style>
+
+    <style name="BottomSheetDialogTheme_Fullscreen" parent="Theme.Design.Light.BottomSheetDialog">
+        <item name="android:windowIsFloating">false</item>
+        <item name="android:windowSoftInputMode">adjustResize</item>
+        <item name="android:windowFullscreen">false</item>
+    </style>
 </resources>

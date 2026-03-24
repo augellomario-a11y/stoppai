@@ -1,0 +1,122 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.coordinatorlayout.widget.CoordinatorLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="#FFFFFF">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="vertical">
+
+        <!-- HEADER VERDE SCURO -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="#1B5E20"
+            android:orientation="vertical"
+            android:padding="20dp">
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Diventa Partner StoppAI"
+                android:textColor="#FFFFFF"
+                android:textSize="22sp"
+                android:textStyle="bold" />
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="4dp"
+                android:text="Compila il modulo. Ti contatteremo entro 48 ore."
+                android:textColor="#BDBDBD"
+                android:textSize="14sp" />
+        </LinearLayout>
+
+        <androidx.core.widget.NestedScrollView
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_weight="1"
+            android:padding="20dp">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical">
+
+                <!-- DATI PERSONALI -->
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="Dati Personali"
+                    android:textColor="#1B5E20"
+                    android:textSize="16sp"
+                    android:textStyle="bold"
+                    android:layout_marginBottom="12dp" />
+
+                <EditText android:id="@+id/et_nome" android:layout_width="match_parent" android:layout_height="wrap_content" android:hint="Nome *" android:layout_marginBottom="8dp"/>
+                <EditText android:id="@+id/et_cognome" android:layout_width="match_parent" android:layout_height="wrap_content" android:hint="Cognome *" android:layout_marginBottom="8dp"/>
+                <EditText android:id="@+id/et_email" android:layout_width="match_parent" android:layout_height="wrap_content" android:hint="Email *" android:inputType="textEmailAddress" android:layout_marginBottom="8dp"/>
+                <EditText android:id="@+id/et_telefono" android:layout_width="match_parent" android:layout_height="wrap_content" android:hint="Telefono *" android:inputType="phone" android:layout_marginBottom="8dp"/>
+                <EditText android:id="@+id/et_nascita" android:layout_width="match_parent" android:layout_height="wrap_content" android:hint="Data di nascita (GG/MM/AAAA) *" android:layout_marginBottom="24dp"/>
+
+                <!-- DATI FISCALI -->
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="Dati Fiscali"
+                    android:textColor="#1B5E20"
+                    android:textSize="16sp"
+                    android:textStyle="bold"
+                    android:layout_marginBottom="12dp" />
+
+                <EditText android:id="@+id/et_cf" android:layout_width="match_parent" android:layout_height="wrap_content" android:hint="Codice Fiscale *" android:layout_marginBottom="8dp"/>
+                <EditText android:id="@+id/et_indirizzo" android:layout_width="match_parent" android:layout_height="wrap_content" android:hint="Indirizzo *" android:layout_marginBottom="8dp"/>
+                <EditText android:id="@+id/et_cap" android:layout_width="match_parent" android:layout_height="wrap_content" android:hint="CAP *" android:inputType="number" android:layout_marginBottom="8dp"/>
+                <EditText android:id="@+id/et_citta" android:layout_width="match_parent" android:layout_height="wrap_content" android:hint="Città *" android:layout_marginBottom="8dp"/>
+                <EditText android:id="@+id/et_provincia" android:layout_width="match_parent" android:layout_height="wrap_content" android:hint="Provincia (ES: RM) *" android:maxLength="2" android:textAllCaps="true" android:layout_marginBottom="24dp"/>
+
+                <!-- DATI PAGAMENTO -->
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="Dati Pagamento"
+                    android:textColor="#1B5E20"
+                    android:textSize="16sp"
+                    android:textStyle="bold"
+                    android:layout_marginBottom="12dp" />
+
+                <EditText android:id="@+id/et_iban" android:layout_width="match_parent" android:layout_height="wrap_content" android:hint="IBAN *" android:layout_marginBottom="8dp"/>
+                <EditText android:id="@+id/et_intestatario" android:layout_width="match_parent" android:layout_height="wrap_content" android:hint="Intestatario conto *" android:layout_marginBottom="24dp"/>
+
+                <!-- CONSENSI -->
+                <CheckBox android:id="@+id/chk_regolamento" android:layout_width="match_parent" android:layout_height="wrap_content" android:text="Accetto il regolamento del programma affiliazione *" android:layout_marginBottom="4dp"/>
+                <CheckBox android:id="@+id/chk_gdpr" android:layout_width="match_parent" android:layout_height="wrap_content" android:text="Accetto trattamento dati personali GDPR *" android:layout_marginBottom="4dp"/>
+                <CheckBox android:id="@+id/chk_maggiorenne" android:layout_width="match_parent" android:layout_height="wrap_content" android:text="Dichiaro di essere maggiorenne *" android:layout_marginBottom="32dp"/>
+
+                <Button
+                    android:id="@+id/btn_invia"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="INVIA RICHIESTA"
+                    android:backgroundTint="#1B5E20"
+                    android:textColor="#FFFFFF"
+                    android:textStyle="bold"
+                    android:padding="16dp"/>
+
+                <Button
+                    android:id="@+id/btn_annulla"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="ANNULLA"
+                    style="@style/Widget.MaterialComponents.Button.TextButton"
+                    android:textColor="#757575"
+                    android:layout_marginTop="8dp"/>
+
+                <View android:layout_width="match_parent" android:layout_height="40dp"/>
+            </LinearLayout>
+        </androidx.core.widget.NestedScrollView>
+    </LinearLayout>
+</androidx.coordinatorlayout.widget.CoordinatorLayout>

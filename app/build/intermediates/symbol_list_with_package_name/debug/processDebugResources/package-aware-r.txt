@@ -3227,6 +3227,7 @@ id bounceEnd
 id bounceStart
 id btn_add_contact
 id btn_ai_transcription
+id btn_annulla
 id btn_attendibile
 id btn_call_now
 id btn_cancel_note
@@ -3238,6 +3239,7 @@ id btn_confirm_base
 id btn_copy_link
 id btn_da_trattare
 id btn_how_it_works
+id btn_invia
 id btn_join_now
 id btn_note
 id btn_request_payment
@@ -3346,6 +3348,18 @@ id end
 id endToStart
 id enterAlways
 id enterAlwaysCollapsed
+id et_cap
+id et_cf
+id et_citta
+id et_cognome
+id et_email
+id et_iban
+id et_indirizzo
+id et_intestatario
+id et_nascita
+id et_nome
+id et_provincia
+id et_telefono
 id exitUntilCollapsed
 id expand_activities_button
 id expanded_menu
@@ -3814,6 +3828,7 @@ layout abc_tooltip
 layout activity_main
 layout bottom_sheet_call_actions
 layout bottom_sheet_config_base
+layout bottom_sheet_partecipa
 layout bottom_sheet_protezione
 layout custom_dialog
 layout design_bottom_navigation_item
@@ -4086,6 +4101,7 @@ style Animation_Material3_SideSheetDialog
 style Animation_Material3_SideSheetDialog_Left
 style Animation_Material3_SideSheetDialog_Right
 style Animation_MaterialComponents_BottomSheetDialog
+style AppName
 style Base_AlertDialog_AppCompat
 style Base_AlertDialog_AppCompat_Light
 style Base_Animation_AppCompat_Dialog
@@ -4362,6 +4378,7 @@ style Base_Widget_MaterialComponents_Snackbar
 style Base_Widget_MaterialComponents_TextInputEditText
 style Base_Widget_MaterialComponents_TextInputLayout
 style Base_Widget_MaterialComponents_TextView
+style BottomSheetDialogTheme_Fullscreen
 style CardView
 style CardView_Dark
 style CardView_Light
