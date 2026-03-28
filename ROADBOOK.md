@@ -1,5 +1,41 @@
 # 📔 ROADBOOK: StoppAI
 ---
+### 📅 2026-03-27 17:15 | Agente: Antigravity
+- **TASK**: [TASK-SA-071-ASTERISK] — ENGINE VOIP ARIA
+- **STATUS**: ✅ COMPLETATO
+- **VERSIONE**: v5.2.0-Voicemail-Aware (Server Hetzner Active)
+- **AZIONI**:
+  - **DOCKER**: Installato Asterisk 20+ via Docker in `network_mode: host` su Hetzner.
+  - **TRUNK**: Configurato peering PJSIP con Opensolution (Registered).
+  - **VOICE**: Generato benvenuto ARIA in italiano (gTTS 8kHz Mono).
+  - **DIALPLAN**: Answer -> Playback -> Record (con timestamp `${EPOCH}`).
+
+### 📅 2026-03-27 16:45 | Agente: Antigravity
+- **TASK**: [TASK-SA-070-HETZNER-AUDIT] — AUDIT INFRASTRUTTURA
+- **STATUS**: ✅ COMPLETATO
+- **AZIONI**:
+  - **SYSTEM**: Verificato Ubuntu 24.04 LTS, 8GB RAM, 150GB Disco.
+  - **PORTS**: Aperte 5060/5061 (SIP) e 10000:20000 (RTP) su UFW.
+  - **SOFTWARE**: Verificata presenza Docker, Nginx e Python 3.12.
+
+### 📅 2026-03-25 12:20 | Agente: Antigravity
+- **TASK**: [TASK-SA-068-SEGRETERIA-AVVISO] — VOICEMAIL AWARENESS
+- **STATUS**: ✅ COMPLETATO
+- **VERSIONE**: v5.2.0-Voicemail-Aware (Build 67)
+- **AZIONI**:
+  - **USER GUARD**: Inserito dialog d'avviso allo spegnimento della protezione base se la segreteria è ancora attiva.
+  - **SYNC**: Salvataggio stato `segreteria_attiva` nelle prefs dopo ogni azione USSD.
+  - **DASHBOARD**: Stato segreteria ON/OFF visibile nel menu collassato in Home.
+
+### 📅 2026-03-24 18:30 | Agente: Antigravity
+- **TASK**: [TASK-SA-067] — SETTINGS POWER-UP
+- **STATUS**: ✅ COMPLETATO
+- **VERSIONE**: v5.1.1-Reorg-Voicemail (Build 66)
+- **AZIONI**:
+  - **UI**: Riorganizzata sezione segreteria (Aria First), rimosso tasto verde ridondante.
+  - **SYNC**: Implementata ProgressBar reale per il caricamento rubrica con broadcast receiver.
+  - **RESET**: Aggiunto tasto "Ripristina valori default" nelle impostazioni.
+---
 ### 📅 2026-03-23 21:15 | Agente: Ambrogio (Antigravity)
 - **TASK**: [TASK-SA-056-RIPRISTINO-VOLUME] — RIGENERAZIONE AUDIO
 - **STATUS**: ✅ COMPLETATO

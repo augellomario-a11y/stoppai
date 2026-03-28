@@ -37,9 +37,9 @@
         <TextView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="v5.1.1-Reorg-Voicemail — ARIA FIRST"
+            android:text="v5.2.0-Voicemail-Aware — ARIA SYNC"
             android:textSize="10sp"
-            android:textColor="#555555"
+            android:textColor="#388E3C"
             android:gravity="center"
             android:layout_marginTop="2dp" />
     </LinearLayout>

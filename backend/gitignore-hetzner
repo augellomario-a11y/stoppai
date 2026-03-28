@@ -1,0 +1,12 @@
+# Registrazioni audio
+asterisk/recordings/
+# File audio generati
+asterisk/sounds/benvenuto.wav
+asterisk/sounds/beep.wav
+# Credenziali SIP
+asterisk/config/sip_config*
+asterisk/config/pjsip.conf
+# Log
+*.log
+__pycache__/
+*.pyc

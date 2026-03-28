@@ -197,16 +197,32 @@ class HomeFragment : Fragment(R.layout.fragment_home) {
                 }
                 bs.show(parentFragmentManager, "config_base_bs")
             } else {
-                // Se disattiviamo
-                prefs.edit().putBoolean("protezione_base", false).apply()
-                // Ripristina suoneria originale
-                try {
-                    val originalStr = prefs.getString("original_ringtone", null)
-                    if (originalStr != null) {
-                        RingtoneManager.setActualDefaultRingtoneUri(context, RingtoneManager.TYPE_RINGTONE, Uri.parse(originalStr))
-                    }
-                } catch (e: Exception) {}
-                aggiornaStatusFlags()
+                // Se disattiviamo (SA-068)
+                val segreteriaAttiva = prefs.getBoolean("segreteria_attiva", false)
+                if (segreteriaAttiva) {
+                    AlertDialog.Builder(context)
+                        .setTitle("⚠️ Segreteria ancora attiva")
+                        .setMessage("Hai disattivato la protezione base ma la segreteria telefonica è ancora attiva.\nTutte le chiamate senza risposta continueranno ad essere deviate anche senza StoppAI attivo.\nVuoi disattivarla?")
+                        .setPositiveButton("DISATTIVA SEGRETERIA") { _, _ ->
+                            try {
+                                val intent = Intent(Intent.ACTION_DIAL)
+                                intent.data = Uri.parse("tel:${Uri.encode("##61#")}")
+                                startActivity(intent)
+                                prefs.edit().putBoolean("segreteria_attiva", false).apply()
+                            } catch (e: Exception) {}
+                            eseguiDisattivazioneProtezione(prefs, context)
+                        }
+                        .setNeutralButton("LASCIA ATTIVA") { _, _ ->
+                            eseguiDisattivazioneProtezione(prefs, context)
+                        }
+                        .setNegativeButton("ANNULLA") { _, _ ->
+                            switchBase.isChecked = true
+                        }
+                        .setCancelable(false)
+                        .show()
+                } else {
+                    eseguiDisattivazioneProtezione(prefs, context)
+                }
             }
         }
         aggiornaVolumeUI()
@@ -234,6 +250,17 @@ class HomeFragment : Fragment(R.layout.fragment_home) {
             }
             true
         }
+    }
+
+    private fun eseguiDisattivazioneProtezione(prefs: android.content.SharedPreferences, context: Context) {
+        prefs.edit().putBoolean("protezione_base", false).apply()
+        try {
+            val originalStr = prefs.getString("original_ringtone", null)
+            if (originalStr != null) {
+                RingtoneManager.setActualDefaultRingtoneUri(context, RingtoneManager.TYPE_RINGTONE, Uri.parse(originalStr))
+            }
+        } catch (e: Exception) {}
+        aggiornaStatusFlags()
     }
 
     private fun setupRecyclerView() {
@@ -367,10 +394,13 @@ class HomeFragment : Fragment(R.layout.fragment_home) {
         txtSmsStatus.visibility = if (pBase && smsOn) View.VISIBLE else View.GONE
         txtPreferitiStatus.visibility = if (pTotale && prefOn) View.VISIBLE else View.GONE
         
-        // Aggiorna summary header (SA-066)
+        // Aggiorna summary header (SA-068)
         val sBase = if (pBase) "ON" else "OFF"
         val sTot = if (pTotale) "ON" else "OFF"
-        txtProtSummary.text = "🛡️ Base: $sBase | Totale: $sTot"
+        val segRetOn = prefs.getBoolean("segreteria_attiva", false)
+        val sSeg = if (segRetOn) "ON" else "OFF"
+        
+        txtProtSummary.text = "🛡️ Base: $sBase | Totale: $sTot\n📞 Segreteria: $sSeg"
     }
 
     private fun setupCollapsibleProtections(view: View) {

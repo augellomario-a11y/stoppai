@@ -42,6 +42,11 @@ class SettingsFragment : Fragment(R.layout.fragment_settings) {
             val intent = Intent(Intent.ACTION_DIAL)
             intent.data = Uri.fromParts("tel", "##61#", null)
             startActivity(intent)
+            
+            // AGGIORNA STATO (SA-068)
+            val prefs = requireContext().getSharedPreferences("stoppai_prefs", Context.MODE_PRIVATE)
+            prefs.edit().putBoolean("segreteria_attiva", false).apply()
+            android.widget.Toast.makeText(requireContext(), "Segreteria disattivata", android.widget.Toast.LENGTH_SHORT).show()
         }
 
         setupPermissionClickListeners(view)
@@ -273,10 +278,13 @@ class SettingsFragment : Fragment(R.layout.fragment_settings) {
                 R.id.ID_SETT_SEC_20 -> 20
                 else -> 15
             }
-            // Salva preferenza
+            // Salva preferenza secondi
             val prefs = requireContext().getSharedPreferences("stoppai_prefs", Context.MODE_PRIVATE)
-            prefs.edit().putInt("secondi_deviazione", sec).apply()
-
+            prefs.edit()
+                .putInt("secondi_deviazione", sec)
+                .putBoolean("segreteria_attiva", true)
+                .apply()
+            
             // Genera codice USSD (Standard italiano per deviazione su mancata risposta)
             // Codice segreteria ARIA: 0421633844
             val ussdCode = "*61*0421633844**$sec#"

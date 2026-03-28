@@ -1,0 +1,13 @@
+[general]
+static=yes
+writeprotect=no
+
+[default]
+exten => _X.,1,NoOp(CHIAMATA ARIA IN ARRIVO: ${EXTEN})
+exten => _X.,2,Answer()
+exten => _X.,3,Wait(1)
+exten => _X.,4,Playback(/var/lib/asterisk/sounds/it/benvenuto)
+exten => _X.,5,Wait(1)
+exten => _X.,6,Record(/var/spool/asterisk/voicemail/msg${EPOCH}:wav,5,60)
+exten => _X.,7,Playback(vm-goodbye)
+exten => _X.,8,Hangup()

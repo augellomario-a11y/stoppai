@@ -1,0 +1,13 @@
+version: '3.8'
+services:
+  asterisk:
+    image: andrius/asterisk
+    container_name: stoppai_asterisk
+    network_mode: host
+    restart: always
+    volumes:
+      - ./config:/etc/asterisk
+      - ./sounds:/var/lib/asterisk/sounds/it
+      - ./recordings:/var/spool/asterisk/voicemail
+    environment:
+      - TZ=Europe/Rome
