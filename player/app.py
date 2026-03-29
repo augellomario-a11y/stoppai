@@ -1,11 +1,11 @@
-import json
-from flask import Flask, send_file, redirect
-import os, glob
+import json, os, glob
+from flask import Flask, send_file, redirect, request
 from datetime import datetime
 
 app = Flask(__name__)
 RECORDINGS_DIR = "/opt/stoppai/asterisk/recordings"
 TRANSCRIPTIONS_DIR = "/opt/stoppai/transcriptions"
+FCM_TOKEN_FILE = "/opt/stoppai/fcm_token.txt"
 
 def parse_filename(filename):
     try:
@@ -115,10 +115,26 @@ def index():
           {contenuto}
           <div style="text-align:center;margin-top:40px;
           font-size:11px;color:#ccc;">
-          Infrastruttura StoppAI ARIA-Core v5.2.0</div>
+          Infrastruttura StoppAI ARIA-Core v9.2.0 (FCM)</div>
         </body></html>"""
     except Exception as e:
         return f"Errore: {str(e)}", 500
+
+@app.route('/fcm-token', methods=['POST'])
+def salva_token():
+    try:
+        import json as jsonlib
+        dati = jsonlib.loads(request.data)
+        token = dati.get('token', '')
+        if token:
+            with open(FCM_TOKEN_FILE, 'w') as f:
+                f.write(token)
+            print(f"FCM: Ricevuto e salvato nuovo token: {token[:15]}...")
+            return jsonlib.dumps({'status': 'ok'})
+        return jsonlib.dumps({'status': 'error'}), 400
+    except Exception as e:
+        print(f"FCM ERROR: {str(e)}")
+        return str(e), 500
 
 @app.route('/play/<filename>')
 def play(filename):

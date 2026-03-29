@@ -1,7 +1,7 @@
 // FILE: MainActivity.kt
-// SCOPO: Gestione UI dashboard, permessi ed attivazione (Versione v0.5)
-// DIPENDENZE: DB, CallLogAdapter.kt
-// ULTIMA MODIFICA: 2026-03-21
+// SCOPO: Gestione UI dashboard, permessi ed attivazione (Versione v9.2)
+// DIPENDENZE: DB, CallLogAdapter.kt, Firebase
+// ULTIMA MODIFICA: 2026-03-29
 
 package com.ifs.stoppai.ui
 
@@ -13,23 +13,19 @@ import android.net.Uri
 import android.os.Build
 import android.os.Bundle
 import android.provider.Settings
-import android.widget.Button
-import android.widget.Switch
-import android.widget.TextView
 import android.media.RingtoneManager
 import android.media.AudioManager
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
-import androidx.lifecycle.lifecycleScope
-import androidx.recyclerview.widget.LinearLayoutManager
-import androidx.recyclerview.widget.RecyclerView
-import com.ifs.stoppai.db.StoppAiDatabase
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.flow.collectLatest
-import kotlinx.coroutines.launch
 import com.ifs.stoppai.R
+import com.ifs.stoppai.core.AriaFcmService
+import com.google.firebase.messaging.FirebaseMessaging
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import java.net.URL
 
 class MainActivity : AppCompatActivity() {
 
@@ -39,30 +35,38 @@ class MainActivity : AppCompatActivity() {
 
         checkPermissions()
 
+        // Recupero Token FCM per notifiche ARIA
+        FirebaseMessaging.getInstance().token.addOnCompleteListener { task ->
+            if (task.isSuccessful) {
+                val token = task.result
+                android.util.Log.e("STOPPAI_FCM", "FCM Token: $token")
+                inviaTokenAlServerManuale(token)
+            }
+        }
+
         val bottomNav = findViewById<com.google.android.material.bottomnavigation.BottomNavigationView>(R.id.bottom_navigation)
         bottomNav.setOnItemSelectedListener { item ->
             when (item.itemId) {
                 R.id.nav_home -> {
-                    supportFragmentManager.beginTransaction().replace(R.id.fragment_container, HomeFragment()).commit()
+                    supportFragmentManager.beginTransaction().replace(R.id.fragment_container, com.ifs.stoppai.ui.HomeFragment()).commit()
                     true
                 }
                 R.id.nav_referral -> {
-                    supportFragmentManager.beginTransaction().replace(R.id.fragment_container, InvitaFragment()).commit()
+                    supportFragmentManager.beginTransaction().replace(R.id.fragment_container, com.ifs.stoppai.ui.InvitaFragment()).commit()
                     true
                 }
                 R.id.nav_settings -> {
-                    supportFragmentManager.beginTransaction().replace(R.id.fragment_container, SettingsFragment()).commit()
+                    supportFragmentManager.beginTransaction().replace(R.id.fragment_container, com.ifs.stoppai.ui.SettingsFragment()).commit()
                     true
                 }
                 R.id.nav_help -> {
-                    supportFragmentManager.beginTransaction().replace(R.id.fragment_container, HelpFragment()).commit()
+                    supportFragmentManager.beginTransaction().replace(R.id.fragment_container, com.ifs.stoppai.ui.HelpFragment()).commit()
                     true
                 }
                 else -> false
             }
         }
         
-        // Mostra HomeFragment all'avvio
         if (savedInstanceState == null) {
             bottomNav.selectedItemId = R.id.nav_home
         }
@@ -70,39 +74,45 @@ class MainActivity : AppCompatActivity() {
         checkFirstLaunch()
     }
 
-    // Parte 2 e 3: Primo avvio, reset volumi e suoneria
+    /**
+     * Forza l'invio del token FCM al server Hetzner all'avvio
+     */
+    private fun inviaTokenAlServerManuale(token: String) {
+        CoroutineScope(Dispatchers.IO).launch {
+            try {
+                val url = URL("${AriaFcmService.SERVER_URL}/fcm-token")
+                val conn = url.openConnection() as java.net.HttpURLConnection
+                conn.requestMethod = "POST"
+                conn.doOutput = true
+                conn.setRequestProperty("Content-Type", "application/json")
+                val body = """{"token":"$token"}"""
+                conn.outputStream.write(body.toByteArray())
+                android.util.Log.e("STOPPAI_FCM", "FCM: Token inviato manualmente (Response: ${conn.responseCode})")
+                conn.disconnect()
+            } catch (e: Exception) {
+                android.util.Log.e("STOPPAI_FCM", "FCM ERROR: Invio manuale fallito: $e")
+            }
+        }
+    }
+
     private fun checkFirstLaunch() {
         val prefs = getSharedPreferences("stoppai_prefs", Context.MODE_PRIVATE)
         val isFirst = prefs.getBoolean("first_launch", true)
-        android.util.Log.e("STOPPAI_DEBUG", "checkFirstLaunch: isFirst = $isFirst")
         if (!isFirst) return
 
         val audio = getSystemService(Context.AUDIO_SERVICE) as AudioManager
-        
-        // Reset volumi al 75%
-        fun set75(stream: Int, name: String) {
-            try {
-                val max = audio.getStreamMaxVolume(stream)
-                val target = (max * 0.75).toInt().coerceAtLeast(1)
-                audio.setStreamVolume(stream, target, 0)
-                android.util.Log.e("STOPPAI_DEBUG", "Set $name max=$max target=$target")
-            } catch (e: Exception) {
-                android.util.Log.e("STOPPAI_DEBUG", "Errore $name: ${e.message}")
-            }
-        }
+        try {
+            val max = audio.getStreamMaxVolume(AudioManager.STREAM_RING)
+            val target = (max * 0.75).toInt().coerceAtLeast(1)
+            audio.setStreamVolume(AudioManager.STREAM_RING, target, 0)
+        } catch (e: Exception) {}
 
-        set75(AudioManager.STREAM_RING, "RING")
-
-        // Se abbiamo il permesso, impostiamo la suoneria
-        android.util.Log.e("STOPPAI_DEBUG", "Calling setStoppAiRingtone")
         setStoppAiRingtone()
 
-        // Mostra popup informativo
         AlertDialog.Builder(this)
             .setTitle("StoppAI è attivo")
-            .setMessage("Per sicurezza abbiamo impostato tutti i volumi al 75% così non perdi notifiche importanti.\n\nPuoi modificarli quando vuoi dalle impostazioni del telefono.\nStoppAI gestirà solo la suoneria delle chiamate.")
+            .setMessage("Per sicurezza abbiamo impostato la suoneria al 75%.\n\nStoppAI gestirà le notifiche delle chiamate in tempo reale.")
             .setPositiveButton("HO CAPITO") { _, _ ->
-                android.util.Log.e("STOPPAI_DEBUG", "HO CAPITO Clicked")
                 prefs.edit().putBoolean("first_launch", false).apply()
             }
             .setCancelable(false)
@@ -110,26 +120,16 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun setStoppAiRingtone() {
-        // Su Android 6+ serve permesso speciale per scrivere settings di sistema
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M && !Settings.System.canWrite(this)) {
-            // Chiedi il permesso all'utente (opzionale o automatico se possibile)
-            // Per ora proviamo a settarla, se fallisce amen.
             val intent = Intent(Settings.ACTION_MANAGE_WRITE_SETTINGS)
             intent.data = Uri.parse("package:$packageName")
             startActivity(intent)
             return
         }
-        
         try {
             val uri = Uri.parse("android.resource://$packageName/${R.raw.stoppai_ring}")
             RingtoneManager.setActualDefaultRingtoneUri(this, RingtoneManager.TYPE_RINGTONE, uri)
-        } catch (e: Exception) {
-             android.util.Log.e("STOPPAI", "Errore setting ringtone: ${e.message}")
-        }
-    }
-
-    override fun onDestroy() {
-        super.onDestroy()
+        } catch (e: Exception) {}
     }
 
     override fun onResume() {

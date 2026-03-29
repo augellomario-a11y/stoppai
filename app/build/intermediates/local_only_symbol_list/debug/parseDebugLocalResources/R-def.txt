@@ -173,6 +173,12 @@ layout item_referral_stat
 menu bottom_nav_menu
 raw stoppai_ring
 string app_name
+string gcm_defaultSenderId
+string google_api_key
+string google_app_id
+string google_crash_reporting_api_key
+string google_storage_bucket
+string project_id
 style AppName
 style BottomSheetDialogTheme_Fullscreen
 style CustomDialogTheme

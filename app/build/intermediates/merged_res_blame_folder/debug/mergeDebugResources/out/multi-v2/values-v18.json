@@ -1,10 +1,10 @@
 {
     "logs": [
         {
-            "outputFile": "com.ifs.stoppai.app-mergeDebugResources-36:/values-v18/values-v18.xml",
+            "outputFile": "com.ifs.stoppai.app-mergeDebugResources-41:/values-v18/values-v18.xml",
             "map": [
                 {
-                    "source": "C:\\Users\\Utente\\.gradle\\caches\\8.14.3\\transforms\\374c56584161e83983d080e218c84194\\transformed\\appcompat-1.6.1\\res\\values-v18\\values-v18.xml",
+                    "source": "C:\\Users\\Utente\\.gradle\\caches\\8.14.3\\transforms\\eb9d53ec923654ae34b53a6595d39b53\\transformed\\appcompat-1.6.1\\res\\values-v18\\values-v18.xml",
                     "from": {
                         "startLines": "2",
                         "startColumns": "4",

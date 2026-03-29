@@ -2,6 +2,7 @@ plugins {
     id 'com.android.application'
     id 'org.jetbrains.kotlin.android'
     id 'com.google.devtools.ksp'
+    id 'com.google.gms.google-services'
 }
 
 android {
@@ -13,7 +14,7 @@ android {
         minSdk = 26
         targetSdk = 34
         versionCode = 67
-        versionName = "5.2.0-Voicemail-Aware"
+        versionName = "9.2.0-FCM-Integration"
     }
 
     compileOptions {
@@ -38,6 +39,10 @@ dependencies {
     implementation 'androidx.appcompat:appcompat:1.6.1'
     implementation 'com.google.android.material:material:1.11.0'
     implementation 'androidx.constraintlayout:constraintlayout:2.1.4'
+    
+    // Firebase
+    implementation platform('com.google.firebase:firebase-bom:33.0.0')
+    implementation 'com.google.firebase:firebase-messaging-ktx'
     
     def room_version = "2.6.1"
     implementation "androidx.room:room-runtime:$room_version"

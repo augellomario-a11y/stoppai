@@ -1,10 +1,10 @@
 {
     "logs": [
         {
-            "outputFile": "com.ifs.stoppai.app-mergeDebugResources-36:/values-w400dp-port-v13/values-w400dp-port-v13.xml",
+            "outputFile": "com.ifs.stoppai.app-mergeDebugResources-41:/values-w400dp-port-v13/values-w400dp-port-v13.xml",
             "map": [
                 {
-                    "source": "C:\\Users\\Utente\\.gradle\\caches\\8.14.3\\transforms\\1b6951a1123bc6a258a83ceb07a8c38b\\transformed\\material-1.11.0\\res\\values-w400dp-port-v13\\values-w400dp-port-v13.xml",
+                    "source": "C:\\Users\\Utente\\.gradle\\caches\\8.14.3\\transforms\\a29c2ec9e2cee68ad55afeb287181028\\transformed\\material-1.11.0\\res\\values-w400dp-port-v13\\values-w400dp-port-v13.xml",
                     "from": {
                         "startLines": "2,3,4,5,6,7,8,9",
                         "startColumns": "4,4,4,4,4,4,4,4",
