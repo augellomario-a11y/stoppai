@@ -1,9 +1,11 @@
+import json
 from flask import Flask, send_file, redirect
 import os, glob
 from datetime import datetime
 
 app = Flask(__name__)
 RECORDINGS_DIR = "/opt/stoppai/asterisk/recordings"
+TRANSCRIPTIONS_DIR = "/opt/stoppai/transcriptions"
 
 def parse_filename(filename):
     try:
@@ -27,6 +29,17 @@ def get_caller(filename):
         pass
     return "Numero sconosciuto"
 
+def get_trascrizione(wav_nome):
+    try:
+        json_file = os.path.join(TRANSCRIPTIONS_DIR, wav_nome.replace(".wav", ".json"))
+        if os.path.exists(json_file):
+            with open(json_file, 'r', encoding='utf-8') as f:
+                dati = json.load(f)
+                return dati.get("testo", "")
+    except:
+        pass
+    return None
+
 @app.route('/')
 def index():
     try:
@@ -38,6 +51,19 @@ def index():
             data = parse_filename(nome)
             numero = get_caller(nome)
             size = round(os.path.getsize(f)/1024, 1)
+            
+            testo = get_trascrizione(nome)
+            if testo:
+                trascrizione_html = f"""
+                <div style="margin-top:10px; padding:10px; background:#e8f5e9; border-radius:6px; font-size:13px; color:#2e7d32; font-style:italic;">
+                    💬 {testo}
+                </div>"""
+            else:
+                trascrizione_html = """
+                <div style="margin-top:10px; font-size:12px; color:#aaa;">
+                    ⏳ Trascrizione in corso...
+                </div>"""
+
             items += f"""
             <div style="margin:12px 0;padding:16px;
             background:#f9f9f9;border-radius:10px;
@@ -51,6 +77,7 @@ def index():
               </div>
               <audio controls src="/play/{nome}"
                 style="width:100%;margin-top:4px;"></audio>
+              {trascrizione_html}
               <div style="text-align:right;margin-top:8px;">
                 <a href="/delete/{nome}"
                   onclick="return confirm('Eliminare questo messaggio?')"
@@ -86,6 +113,9 @@ def index():
               onclick="location.reload()">Aggiorna</button>
           </div>
           {contenuto}
+          <div style="text-align:center;margin-top:40px;
+          font-size:11px;color:#ccc;">
+          Infrastruttura StoppAI ARIA-Core v5.2.0</div>
         </body></html>"""
     except Exception as e:
         return f"Errore: {str(e)}", 500
