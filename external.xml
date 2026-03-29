@@ -1,0 +1,25 @@
+<profile name="external">
+  <settings>
+    <param name="sip-ip" value="46.225.14.90"/>
+    <param name="rtp-ip" value="46.225.14.90"/>
+    <param name="ext-sip-ip" value="46.225.14.90"/>
+    <param name="ext-rtp-ip" value="46.225.14.90"/>
+    <param name="sip-port" value="5060"/>
+    <param name="codec-prefs" value="PCMA,PCMU"/>
+    <param name="inbound-bypass-media" value="false"/>
+    <param name="aggressive-nat-detection" value="true"/>
+    <param name="apply-nat-acl" value="rfc1918.auto"/>
+  </settings>
+  <gateways>
+    <gateway name="opensolution">
+      <param name="username" value="504211898065"/>
+      <param name="password" value="Ifs04211898065!pass"/>
+      <param name="realm" value="sip.opensolution.it"/>
+      <param name="proxy" value="sip.opensolution.it"/>
+      <param name="register" value="true"/>
+      <param name="retry-seconds" value="30"/>
+      <param name="expire-seconds" value="120"/>
+      <param name="codec-prefs" value="PCMA,PCMU"/>
+    </gateway>
+  </gateways>
+</profile>

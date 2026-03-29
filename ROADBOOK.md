@@ -1,5 +1,16 @@
 # 📔 ROADBOOK: StoppAI
 ---
+### 📅 2026-03-28 17:58 | Agente: Antigravity
+- **TASK**: [TASK-SA-076-SDP-FIX-FINAL] — FIX DEFINITIVO AUDIO ARIA
+- **STATUS**: ✅ COMPLETATO
+- **VERSIONE**: v5.2.0-Voicemail-Aware
+- **AZIONI**:
+  - **PJSIP**: Forzato `rtp_symmetric=yes` e aggiunto `rtp_keepalive=5` (Sveglia Carrier).
+  - **PJSIP**: Attivato `media_use_received_transport=yes` (Ignora SDP privato).
+  - **RTP**: Disattivato `strictrtp` e azzerata `probation` (Registrazione immediata).
+  - **DIALPLAN**: Playback `silence/1` post-Answer (Genera RTP outbound per bucare NAT).
+  - **TEST**: Pronto per verifica registrazione su 04211898065.
+
 ### 📅 2026-03-27 17:15 | Agente: Antigravity
 - **TASK**: [TASK-SA-071-ASTERISK] — ENGINE VOIP ARIA
 - **STATUS**: ✅ COMPLETATO

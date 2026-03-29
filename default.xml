@@ -1,0 +1,17 @@
+<include>
+  <context name="default">
+    <extension name="aria">
+      <condition field="destination_number" expression=".*">
+        <action application="answer"/>
+        <action application="sleep" data="1000"/>
+        <action application="playback" data="/recordings/benvenuto.wav"/>
+        <action application="sleep" data="500"/>
+        <action application="playback" data="tone_stream://%(1000,0,1000)"/>
+        <action application="sleep" data="500"/>
+        <action application="record" data="/recordings/msg_${uuid}.wav 60 5"/>
+        <action application="playback" data="voicemail/vm-goodbye.wav"/>
+        <action application="hangup"/>
+      </condition>
+    </extension>
+  </context>
+</include>
