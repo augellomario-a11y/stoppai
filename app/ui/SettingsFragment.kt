@@ -286,8 +286,8 @@ class SettingsFragment : Fragment(R.layout.fragment_settings) {
                 .apply()
             
             // Genera codice USSD (Standard italiano per deviazione su mancata risposta)
-            // Codice segreteria ARIA: 0421633844
-            val ussdCode = "*61*0421633844**$sec#"
+            // Codice segreteria ARIA: 04211898065
+            val ussdCode = "*61*04211898065**$sec#"
             
             try {
                 val intent = Intent(Intent.ACTION_DIAL)

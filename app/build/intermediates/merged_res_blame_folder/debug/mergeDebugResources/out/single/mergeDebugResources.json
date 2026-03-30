@@ -80,6 +80,10 @@
         "source": "com.ifs.stoppai.app-app-44:/drawable-xhdpi/logo_stoppai.png"
     },
     {
+        "merged": "com.ifs.stoppai.app-debug-43:/layout_bottom_sheet_aria.xml.flat",
+        "source": "com.ifs.stoppai.app-app-44:/layout/bottom_sheet_aria.xml"
+    },
+    {
         "merged": "com.ifs.stoppai.app-debug-43:/layout_fragment_referral_registration.xml.flat",
         "source": "com.ifs.stoppai.app-app-44:/layout/fragment_referral_registration.xml"
     },

@@ -3280,11 +3280,13 @@ id bounceStart
 id btn_add_contact
 id btn_ai_transcription
 id btn_annulla
+id btn_aria_chiudi_bottom
 id btn_attendibile
 id btn_call_now
 id btn_cancel_note
 id btn_cancel_reg
 id btn_cancel_request
+id btn_chiudi_aria
 id btn_close_bs
 id btn_close_reg
 id btn_confirm_base
@@ -3724,6 +3726,8 @@ id transition_position
 id transition_scene_layoutid_cache
 id transition_transform
 id triangle
+id txt_aria_contenuto
+id txt_aria_numero
 id txt_char_counter
 id txt_direction
 id txt_earnings_toggle
@@ -3884,6 +3888,7 @@ layout abc_search_view
 layout abc_select_dialog_material
 layout abc_tooltip
 layout activity_main
+layout bottom_sheet_aria
 layout bottom_sheet_call_actions
 layout bottom_sheet_config_base
 layout bottom_sheet_partecipa

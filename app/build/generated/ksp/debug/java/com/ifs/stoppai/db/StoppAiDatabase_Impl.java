@@ -30,22 +30,26 @@ public final class StoppAiDatabase_Impl extends StoppAiDatabase {
 
   private volatile AppSettingsDao _appSettingsDao;
 
+  private volatile AriaMessaggioDao _ariaMessaggioDao;
+
   @Override
   @NonNull
   protected SupportSQLiteOpenHelper createOpenHelper(@NonNull final DatabaseConfiguration config) {
-    final SupportSQLiteOpenHelper.Callback _openCallback = new RoomOpenHelper(config, new RoomOpenHelper.Delegate(6) {
+    final SupportSQLiteOpenHelper.Callback _openCallback = new RoomOpenHelper(config, new RoomOpenHelper.Delegate(7) {
       @Override
       public void createAllTables(@NonNull final SupportSQLiteDatabase db) {
         db.execSQL("CREATE TABLE IF NOT EXISTS `call_log_entries` (`id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `phoneNumber` TEXT NOT NULL, `callType` TEXT NOT NULL, `timestamp` INTEGER NOT NULL, `statusId` INTEGER NOT NULL, `nota` TEXT NOT NULL, `ariaNote` TEXT NOT NULL, `callOutcome` TEXT NOT NULL, `callDirection` TEXT NOT NULL, `displayName` TEXT NOT NULL, `smsInviato` INTEGER NOT NULL, `smsRisposta` TEXT)");
         db.execSQL("CREATE TABLE IF NOT EXISTS `app_settings` (`key` TEXT NOT NULL, `value` TEXT NOT NULL, PRIMARY KEY(`key`))");
+        db.execSQL("CREATE TABLE IF NOT EXISTS `aria_messaggi` (`id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `numero` TEXT NOT NULL, `testo` TEXT NOT NULL, `timestamp` INTEGER NOT NULL, `letto` INTEGER NOT NULL, `stato` TEXT NOT NULL)");
         db.execSQL("CREATE TABLE IF NOT EXISTS room_master_table (id INTEGER PRIMARY KEY,identity_hash TEXT)");
-        db.execSQL("INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, 'b9159aaf045fabbb6da0b5ebcb1f3d2f')");
+        db.execSQL("INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, '4d21bf5a8cfa55bad90020ae04a60dd7')");
       }
 
       @Override
       public void dropAllTables(@NonNull final SupportSQLiteDatabase db) {
         db.execSQL("DROP TABLE IF EXISTS `call_log_entries`");
         db.execSQL("DROP TABLE IF EXISTS `app_settings`");
+        db.execSQL("DROP TABLE IF EXISTS `aria_messaggi`");
         final List<? extends RoomDatabase.Callback> _callbacks = mCallbacks;
         if (_callbacks != null) {
           for (RoomDatabase.Callback _callback : _callbacks) {
@@ -123,9 +127,25 @@ public final class StoppAiDatabase_Impl extends StoppAiDatabase {
                   + " Expected:\n" + _infoAppSettings + "\n"
                   + " Found:\n" + _existingAppSettings);
         }
+        final HashMap<String, TableInfo.Column> _columnsAriaMessaggi = new HashMap<String, TableInfo.Column>(6);
+        _columnsAriaMessaggi.put("id", new TableInfo.Column("id", "INTEGER", true, 1, null, TableInfo.CREATED_FROM_ENTITY));
+        _columnsAriaMessaggi.put("numero", new TableInfo.Column("numero", "TEXT", true, 0, null, TableInfo.CREATED_FROM_ENTITY));
+        _columnsAriaMessaggi.put("testo", new TableInfo.Column("testo", "TEXT", true, 0, null, TableInfo.CREATED_FROM_ENTITY));
+        _columnsAriaMessaggi.put("timestamp", new TableInfo.Column("timestamp", "INTEGER", true, 0, null, TableInfo.CREATED_FROM_ENTITY));
+        _columnsAriaMessaggi.put("letto", new TableInfo.Column("letto", "INTEGER", true, 0, null, TableInfo.CREATED_FROM_ENTITY));
+        _columnsAriaMessaggi.put("stato", new TableInfo.Column("stato", "TEXT", true, 0, null, TableInfo.CREATED_FROM_ENTITY));
+        final HashSet<TableInfo.ForeignKey> _foreignKeysAriaMessaggi = new HashSet<TableInfo.ForeignKey>(0);
+        final HashSet<TableInfo.Index> _indicesAriaMessaggi = new HashSet<TableInfo.Index>(0);
+        final TableInfo _infoAriaMessaggi = new TableInfo("aria_messaggi", _columnsAriaMessaggi, _foreignKeysAriaMessaggi, _indicesAriaMessaggi);
+        final TableInfo _existingAriaMessaggi = TableInfo.read(db, "aria_messaggi");
+        if (!_infoAriaMessaggi.equals(_existingAriaMessaggi)) {
+          return new RoomOpenHelper.ValidationResult(false, "aria_messaggi(com.ifs.stoppai.db.AriaMessaggio).\n"
+                  + " Expected:\n" + _infoAriaMessaggi + "\n"
+                  + " Found:\n" + _existingAriaMessaggi);
+        }
         return new RoomOpenHelper.ValidationResult(true, null);
       }
-    }, "b9159aaf045fabbb6da0b5ebcb1f3d2f", "7c4753285f4e1e2fec03241df2f778ff");
+    }, "4d21bf5a8cfa55bad90020ae04a60dd7", "892e313bdcee1ef56ec8f4f122e03cd2");
     final SupportSQLiteOpenHelper.Configuration _sqliteConfig = SupportSQLiteOpenHelper.Configuration.builder(config.context).name(config.name).callback(_openCallback).build();
     final SupportSQLiteOpenHelper _helper = config.sqliteOpenHelperFactory.create(_sqliteConfig);
     return _helper;
@@ -136,7 +156,7 @@ public final class StoppAiDatabase_Impl extends StoppAiDatabase {
   protected InvalidationTracker createInvalidationTracker() {
     final HashMap<String, String> _shadowTablesMap = new HashMap<String, String>(0);
     final HashMap<String, Set<String>> _viewTables = new HashMap<String, Set<String>>(0);
-    return new InvalidationTracker(this, _shadowTablesMap, _viewTables, "call_log_entries","app_settings");
+    return new InvalidationTracker(this, _shadowTablesMap, _viewTables, "call_log_entries","app_settings","aria_messaggi");
   }
 
   @Override
@@ -147,6 +167,7 @@ public final class StoppAiDatabase_Impl extends StoppAiDatabase {
       super.beginTransaction();
       _db.execSQL("DELETE FROM `call_log_entries`");
       _db.execSQL("DELETE FROM `app_settings`");
+      _db.execSQL("DELETE FROM `aria_messaggi`");
       super.setTransactionSuccessful();
     } finally {
       super.endTransaction();
@@ -163,6 +184,7 @@ public final class StoppAiDatabase_Impl extends StoppAiDatabase {
     final HashMap<Class<?>, List<Class<?>>> _typeConvertersMap = new HashMap<Class<?>, List<Class<?>>>();
     _typeConvertersMap.put(CallLogDao.class, CallLogDao_Impl.getRequiredConverters());
     _typeConvertersMap.put(AppSettingsDao.class, AppSettingsDao_Impl.getRequiredConverters());
+    _typeConvertersMap.put(AriaMessaggioDao.class, AriaMessaggioDao_Impl.getRequiredConverters());
     return _typeConvertersMap;
   }
 
@@ -205,6 +227,20 @@ public final class StoppAiDatabase_Impl extends StoppAiDatabase {
           _appSettingsDao = new AppSettingsDao_Impl(this);
         }
         return _appSettingsDao;
+      }
+    }
+  }
+
+  @Override
+  public AriaMessaggioDao ariaMessaggioDao() {
+    if (_ariaMessaggioDao != null) {
+      return _ariaMessaggioDao;
+    } else {
+      synchronized(this) {
+        if(_ariaMessaggioDao == null) {
+          _ariaMessaggioDao = new AriaMessaggioDao_Impl(this);
+        }
+        return _ariaMessaggioDao;
       }
     }
   }

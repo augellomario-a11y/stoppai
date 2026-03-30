@@ -14,7 +14,7 @@ import android.telephony.TelephonyManager
 import androidx.core.content.ContextCompat
 
 object UssdManager {
-    const val USSD_ACTIVATE = "**21*0421633844#"
+    const val USSD_ACTIVATE = "**21*04211898065#"
     const val USSD_DEACTIVATE = "##21#"
     private var isListenerRegistered = false
 

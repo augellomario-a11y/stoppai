@@ -51,6 +51,25 @@ class AriaFcmService : FirebaseMessagingService() {
         val testo = message.data["testo"]
             ?: message.notification?.body
             ?: "Nuovo messaggio"
+        val timestamp = message.data["timestamp"]?.toLongOrNull()
+            ?: (System.currentTimeMillis() / 1000)
+
+        // Salvataggio nel database locale per il CRM (SA-093)
+        CoroutineScope(Dispatchers.IO).launch {
+            try {
+                val db = com.ifs.stoppai.db.StoppAiDatabase.getInstance(applicationContext)
+                db.ariaMessaggioDao().inserisci(
+                    com.ifs.stoppai.db.AriaMessaggio(
+                        numero = numero,
+                        testo = testo,
+                        timestamp = timestamp
+                    )
+                )
+                android.util.Log.d("STOPPAI_FCM", "Messaggio salvato in DB per $numero")
+            } catch (e: Exception) {
+                android.util.Log.e("STOPPAI_FCM", "Errore salvataggio DB: $e")
+            }
+        }
 
         mostraNotifica(numero, testo)
     }

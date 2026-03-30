@@ -1,5 +1,17 @@
 # 📔 ROADBOOK: StoppAI
 ---
+### 📅 2026-03-30 01:05 | Agente: Antigravity
+- **TASK**: [TASK-SA-093-ARIA-DB] — TRASCRIZIONI NEL MINI CRM (v5.3.0)
+- **STATUS**: ✅ COMPLETATO
+- **VERSIONE**: v5.3.0-ARIA-CRM (Build 68)
+- **AZIONI**:
+  - **DB**: Creata entità `AriaMessaggio` (Room) e relativo DAO. Database aggiornato alla **versione 7**.
+  - **FCM**: Aggiornato `AriaFcmService` per salvare automaticamente le trascrizioni nel database locale.
+  - **UI**: Attivata la sezione "Trascrizioni ARIA" nel Mini CRM (BottomSheet) con visualizzazione degli ultimi 3 messaggi per numero.
+  - **BACKEND**: Patchato `whisper_worker.py` con controllo stabilità file (delay 15s) per prevenire notifiche premature.
+  - **FIX**: Allineata versione visualizzata sulla Home (`v5.3.0-ARIA-CRM`) e numero segreteria ARIA (`04211898065`).
+  - **INSTALL**: Build 68 deployata con successo su Samsung S22.
+
 ### 📅 2026-03-28 17:58 | Agente: Antigravity
 - **TASK**: [TASK-SA-076-SDP-FIX-FINAL] — FIX DEFINITIVO AUDIO ARIA
 - **STATUS**: ✅ COMPLETATO

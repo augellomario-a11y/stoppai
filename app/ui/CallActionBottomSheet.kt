@@ -24,6 +24,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
+import kotlinx.coroutines.flow.first
 import android.provider.ContactsContract
 
 class CallActionBottomSheet(
@@ -67,13 +68,10 @@ class CallActionBottomSheet(
             txtSmsContent.setTextColor(android.graphics.Color.GRAY)
         }
 
-        // 1. TRASCRIZIONE AI
+        // 1. TRASCRIZIONE AI (SA-095) — BottomSheet dedicato e scrollabile
         root.findViewById<Button>(R.id.btn_ai_transcription).setOnClickListener {
-            AlertDialog.Builder(requireContext())
-                .setTitle("Trascrizione AI")
-                .setMessage("Funzionalità disponibile con StoppAI PRO — In arrivo con integrazione Opensolution ARIA")
-                .setPositiveButton("CHIUDI", null)
-                .show()
+            val sheet = AriaTranscriptionSheet.newInstance(entry.phoneNumber)
+            sheet.show(parentFragmentManager, "aria_transcription")
         }
 
         root.findViewById<Button>(R.id.btn_da_trattare).setOnClickListener { updateStatus(0) }

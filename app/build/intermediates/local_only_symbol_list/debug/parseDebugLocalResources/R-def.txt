@@ -68,11 +68,13 @@ id bottom_navigation
 id btn_add_contact
 id btn_ai_transcription
 id btn_annulla
+id btn_aria_chiudi_bottom
 id btn_attendibile
 id btn_call_now
 id btn_cancel_note
 id btn_cancel_reg
 id btn_cancel_request
+id btn_chiudi_aria
 id btn_close_bs
 id btn_close_reg
 id btn_confirm_base
@@ -134,6 +136,8 @@ id stat_active
 id stat_installed
 id stat_pending
 id switch_sms_reply
+id txt_aria_contenuto
+id txt_aria_numero
 id txt_char_counter
 id txt_direction
 id txt_earnings_toggle
@@ -155,6 +159,7 @@ id txt_title_number
 id view_current_status_badge
 id view_status_badge
 layout activity_main
+layout bottom_sheet_aria
 layout bottom_sheet_call_actions
 layout bottom_sheet_config_base
 layout bottom_sheet_partecipa
