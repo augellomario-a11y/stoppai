@@ -56,3 +56,8 @@ pip-delete-this-directory.txt
 nosetests.xml
 coverage.xml
 .hypothesis/
+
+# File audio ARIA (da non committare)
+*.mp3
+stoppai-femmina*
+stoppai-maschio*
