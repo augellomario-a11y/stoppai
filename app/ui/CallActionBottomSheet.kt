@@ -68,9 +68,9 @@ class CallActionBottomSheet(
             txtSmsContent.setTextColor(android.graphics.Color.GRAY)
         }
 
-        // 1. TRASCRIZIONE AI (SA-095) — BottomSheet dedicato e scrollabile
+        // 1. TRASCRIZIONE AI (SA-099) — BottomSheet dedicato con filtro chiamata specifica
         root.findViewById<Button>(R.id.btn_ai_transcription).setOnClickListener {
-            val sheet = AriaTranscriptionSheet.newInstance(entry.phoneNumber)
+            val sheet = AriaTranscriptionSheet.newInstance(entry.phoneNumber, entry.timestamp)
             sheet.show(parentFragmentManager, "aria_transcription")
         }
 

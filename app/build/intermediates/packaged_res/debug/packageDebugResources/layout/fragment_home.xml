@@ -37,7 +37,7 @@
         <TextView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="v5.3.2-ARIA-CRM — ARIA SYNC"
+            android:text="v5.3.3-ARIA-CRM — ARIA SYNC"
             android:textSize="10sp"
             android:textColor="#388E3C"
             android:gravity="center"

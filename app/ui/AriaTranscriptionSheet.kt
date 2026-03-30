@@ -31,14 +31,16 @@ class AriaTranscriptionSheet : BottomSheetDialogFragment() {
 
     companion object {
         private const val ARG_NUMERO = "phone_number"
+        private const val ARG_TIMESTAMP = "call_timestamp"
 
         /**
-         * Factory method — passa il numero del chiamante come argomento
+         * Factory method — passa il numero del chiamante e il timestamp della chiamata (ms)
          */
-        fun newInstance(phoneNumber: String): AriaTranscriptionSheet {
+        fun newInstance(phoneNumber: String, callTimestamp: Long): AriaTranscriptionSheet {
             return AriaTranscriptionSheet().apply {
                 arguments = Bundle().apply {
                     putString(ARG_NUMERO, phoneNumber)
+                    putLong(ARG_TIMESTAMP, callTimestamp)
                 }
             }
         }
@@ -54,8 +56,9 @@ class AriaTranscriptionSheet : BottomSheetDialogFragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        // Recupera il numero dagli argomenti
+        // Recupera numero e timestamp dagli argomenti
         val phoneNumber = arguments?.getString(ARG_NUMERO) ?: "Sconosciuto"
+        val callTimestamp = arguments?.getLong(ARG_TIMESTAMP) ?: 0L
 
         val txtNumero = view.findViewById<TextView>(R.id.txt_aria_numero)
         val txtContenuto = view.findViewById<TextView>(R.id.txt_aria_contenuto)
@@ -78,18 +81,19 @@ class AriaTranscriptionSheet : BottomSheetDialogFragment() {
             }
         }
 
-        // Carica i messaggi dal DB in background
-        caricaMessaggi(phoneNumber, txtContenuto)
+        // Carica i messaggi dal DB in background con filtro temporale
+        caricaMessaggi(phoneNumber, callTimestamp, txtContenuto)
     }
 
     /**
      * Interroga il DB Room e popola la TextView con le trascrizioni formattate.
-     * Normalizza il numero per gestire le differenze di formato tra backend (+39 vs senza).
+     * Filtra per numero (normalizzato) e per timestamp della chiamata specifica (finestra +3min).
      */
-    private fun caricaMessaggi(phoneNumber: String, txtContenuto: TextView) {
+    private fun caricaMessaggi(phoneNumber: String, callTimestamp: Long, txtContenuto: TextView) {
         CoroutineScope(Dispatchers.IO).launch {
             val testo = try {
                 val db = StoppAiDatabase.getInstance(requireContext())
+                val callTimeSec = callTimestamp / 1000
 
                 // Normalizzazione: rimuove +39, spazi e zeri iniziali
                 val numeroNormalizzato = phoneNumber
@@ -97,20 +101,26 @@ class AriaTranscriptionSheet : BottomSheetDialogFragment() {
                     .replace(" ", "")
                     .trimStart('0')
 
-                // Cerca prima senza prefisso, poi con +39 (doppia query per copertura totale)
+                // Finestra temporale: dal momento della chiamata fino ai 3 minuti successivi
                 val messaggi = db.ariaMessaggioDao()
                     .getPerNumero(numeroNormalizzato)
                     .first()
+                    .filter { msg ->
+                        msg.timestamp >= callTimeSec && msg.timestamp <= callTimeSec + 180
+                    }
                     .ifEmpty {
                         db.ariaMessaggioDao()
                             .getPerNumero("+39$numeroNormalizzato")
                             .first()
+                            .filter { msg ->
+                                msg.timestamp >= callTimeSec && msg.timestamp <= callTimeSec + 180
+                            }
                     }
 
                 if (messaggi.isEmpty()) {
-                    "Nessun messaggio ARIA per questo numero."
+                    "Nessun messaggio ARIA per questa specifica chiamata."
                 } else {
-                    val sdf = SimpleDateFormat("dd/MM HH:mm", Locale.ITALY)
+                    val sdf = SimpleDateFormat("HH:mm:ss", Locale.ITALY) // Più preciso per debug chiamate vicine
                     val sb = StringBuilder()
                     messaggi.forEach { msg ->
                         val data = sdf.format(Date(msg.timestamp * 1000))
