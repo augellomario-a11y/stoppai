@@ -1988,3 +1988,302 @@ ci ha portato qui.
 > *Versione: 3.1 — La guerra dei 44 byte*
 > *A cura di: Aldo (Claude) — CTO digitale*
 
+
+CAPITOLO 36 — Il ritorno ad Asterisk
+29 marzo 2026
+FreeSWITCH non dura un giorno.
+Non perché sia peggio di Asterisk —
+anzi, tecnicamente è più adatto
+al nostro caso. Ma quando si
+installa un nuovo sistema in
+produzione, la realtà ha sempre
+l'ultima parola.
+Il container FreeSWITCH gira.
+La configurazione viene caricata.
+Il trunk SIP di Opensolution viene
+registrato. Ma qualcosa non torna —
+la registrazione è instabile,
+i log sono diversi da quelli
+che conoscevamo, il tempo necessario
+per rimparare tutto da zero
+è un costo che in quel momento
+non possiamo permetterci.
+E poi arriva la scoperta:
+Asterisk, senza Docker, installato
+direttamente sul sistema operativo
+del server Hetzner — funziona.
+Il problema non era Asterisk.
+Era il container.
+La decisione è rapida:
+si torna ad Asterisk, ma bare-metal.
+`pjsip.conf`, `rtp.conf`,
+`extensions.conf` — riscritti
+da zero, senza eredità di
+configurazioni sbagliate.
+Il parametro che fa la differenza
+è semplice, quasi banale:
+`rtp_symmetric=yes` e
+`rewrite_contact=yes` in PJSIP.
+Due righe che dicono ad Asterisk
+di adattarsi al carrier invece
+di pretendere che il carrier
+si adatti a lui.
+ARIA risponde.
+Il messaggio viene registrato.
+Il file non è da 44 byte.
+La guerra è finita.
+---
+CAPITOLO 37 — Whisper entra in scena
+29 marzo 2026
+Un file WAV da 491 kilobyte
+è già qualcosa di straordinario.
+Ma un file WAV che diventa testo —
+quello è magia.
+Whisper, il modello di trascrizione
+audio di OpenAI, viene installato
+direttamente su Hetzner.
+Non via API. Non a pagamento
+per ogni minuto. Self-hosted,
+sul nostro server, gratis.
+Il `whisper_worker.py` — uno script
+Python che gira in background —
+monitora la cartella dove Asterisk
+salva i messaggi. Appena arriva
+un nuovo WAV, lo trascrive
+in italiano e salva il risultato
+in un file JSON.
+```json
+{
+  "file": "msg_3791221022_1774829192.wav",
+  "numero": "3791221022",
+  "testo": "Ciao, sono Mario...",
+  "timestamp": 1774829247
+}
+```
+La prima trascrizione che esce
+è quasi commovente nella sua
+semplicità. Parole vere,
+dette da una voce vera,
+convertite in testo da una macchina.
+Poi arriva FCM — Firebase Cloud
+Messaging. Il backend manda
+una notifica push all'app Android.
+Il Galaxy S22 di Mario vibra.
+Sul display appare:
+"Messaggio da 3... — è tardi,
+sono le due, sto mangiando
+la soppressa, pe..."
+Non è un test. È la vita vera
+che entra nell'app.
+---
+CAPITOLO 38 — Il CRM prende vita
+30 marzo 2026
+Un'app che riceve notifiche
+è utile. Un'app che organizza
+le informazioni è potente.
+Il Mini CRM — quello che avevamo
+disegnato sulla carta mesi prima —
+inizia a prendere forma vera.
+Ogni chiamata che arriva genera
+una riga nel registro. Non un
+semplice log — una scheda.
+Con il numero, il nome se è
+in rubrica, l'orario, lo stato.
+Il tap su una riga apre
+`CallActionBottomSheet` —
+un menu che scorre su dal basso
+con le azioni disponibili:
+Trascrizione AI, Note,
+Aggiungi ai contatti, Chiama ora,
+Elimina dal registro.
+Ma la parte che cambia tutto
+è la Trascrizione AI.
+Tap su quel bottone e si apre
+un secondo BottomSheet —
+scrollabile, pulito — con
+il testo esatto di quello che
+il chiamante ha lasciato come
+messaggio. Data, ora, parole.
+Per la prima volta nella storia
+del progetto, l'intero flusso
+funziona end-to-end:
+```
+Chiamata sconosciuta
+    ↓
+App silenzia e devia
+    ↓
+ARIA risponde con la voce di Isabella
+    ↓
+Chiamante lascia messaggio
+    ↓
+Whisper trascrive in italiano
+    ↓
+FCM manda notifica push
+    ↓
+CRM mostra il testo
+```
+Zero squilli. Zero perdite.
+Tutto gestibile in dopoconferenza.
+---
+CAPITOLO 39 — Il bug che sembrava risolto
+30 marzo 2026
+Non esiste progetto senza quel
+momento in cui qualcosa che
+funzionava smette di farlo.
+Il numero nel JSON del backend
+era "Sconosciuto".
+Un bug sottile, quasi elegante
+nella sua stupidità: il filtro
+che separava i numeri telefonici
+dai timestamp Unix usava il valore
+numerico come discriminante.
+I numeri italiani come `3791221022`
+superano 1,7 miliardi — lo stesso
+ordine di grandezza dei timestamp.
+Il filtro li scartava entrambi.
+La correzione è una riga:
+usare la lunghezza del numero
+invece del valore.
+I timestamp hanno 10-13 cifre.
+I numeri italiani hanno 9-12 cifre.
+La lunghezza li distingue
+dove il valore non riesce.
+Fix applicato. Worker riavviato.
+Chiamata di test effettuata.
+```json
+{
+  "numero": "3791221022"
+}
+```
+Non più "Sconosciuto".
+---
+CAPITOLO 40 — Ogni chiamata, la sua storia
+30-31 marzo 2026
+Il CRM funzionava. Ma funzionava
+in modo approssimativo.
+Il BottomSheet ARIA mostrava
+tutti i messaggi di un numero —
+anche quelli di chiamate precedenti.
+Se la stessa persona aveva chiamato
+tre volte in tre giorni diversi,
+vedevi tre messaggi sovrapposti.
+Non era sbagliato. Era impreciso.
+E l'imprecisione, in uno strumento
+di gestione, è quasi peggio
+dell'errore.
+La soluzione non era un filtro
+temporale — troppo fragile,
+dipendente da quanto ci mette
+Whisper a trascrivere.
+La soluzione era un collegamento
+diretto: ogni `AriaMessaggio`
+collegato all'ID univoco del
+`CallLogEntry` corrispondente.
+Come un documento protocollato
+che porta il numero della pratica
+a cui appartiene.
+Migrazione del database Room
+alla versione 8. Nuovo campo
+`callLogId`. Query aggiornata.
+`AriaFcmService` che al momento
+della ricezione FCM cerca
+la chiamata più recente di quel
+numero e la collega.
+Da quel momento in poi,
+ogni chiamata vive per conto suo.
+Tocchi la riga delle 11:50 —
+vedi il messaggio delle 11:50.
+Tocchi la riga delle 14:23 —
+vedi il messaggio delle 14:23.
+Semplice. Pulito. Come deve essere.
+---
+CAPITOLO 41 — I dettagli che fanno la differenza
+31 marzo 2026
+Ci sono le feature grandi —
+quelle che fanno funzionare
+il sistema. E poi ci sono
+i dettagli — quelli che fanno
+sentire il sistema vivo.
+In una sola sessione, l'app
+riceve una serie di correzioni
+che sembrano piccole ma cambiano
+completamente la percezione
+di chi la usa:
+Le frecce di direzione.
+↓ rossa per le chiamate in entrata
+da sconosciuti. ↓ verde per quelle
+da contatti in rubrica. ↑ verde
+per le chiamate in uscita.
+Un colpo d'occhio e sai già
+tutto di quella riga.
+Il pallino di stato.
+Verde per i contatti conosciuti.
+Rosso per gli sconosciuti.
+Non una valutazione di rischio —
+quella verrà dopo, con ARIA —
+ma già un segnale immediato
+di chi hai davanti.
+L'icona del microfono.
+🎙️ accanto alla riga quando
+c'è una trascrizione ARIA salvata.
+Sai prima ancora di toccare
+se quella chiamata ti ha lasciato
+qualcosa da leggere.
+L'icona delle note.
+📝 accanto al microfono quando
+hai scritto una nota manuale.
+Il tuo pensiero su quella chiamata,
+sempre visibile.
+La prima riga sempre visibile.
+Il problema banale e fastidioso
+della prima chiamata nascosta
+dal padding della RecyclerView —
+risolto con due parametri XML.
+Piccole cose. Ma ogni piccola cosa
+è la differenza tra un prototipo
+e un prodotto.
+---
+CAPITOLO 42 — Il punto di arrivo (per ora)
+31 marzo 2026
+Oggi il repository è stato pulito.
+Tre branch di sviluppo — mesi
+di lavoro stratificato — sono
+stati fusi nel `main` con un
+singolo merge. Un tag ufficiale
+è stato apposto: `release/5.4.2`.
+StoppAI v5.4.2.
+Non è la versione definitiva.
+Non è il prodotto finito.
+Ma è qualcosa che funziona —
+davvero funziona — su un Samsung
+Galaxy S22, con un numero SIP
+reale, con una voce vera,
+con trascrizioni in italiano.
+Il flusso completo che avevamo
+disegnato mesi fa sulla carta
+è reale:
+```
+Chiamata sconosciuta → silenzio
+ARIA risponde → registra
+Whisper trascrive → notifica
+CRM organizza → Mario decide
+```
+Quello che manca adesso
+è il pubblico.
+Il Play Store. La landing page.
+I creator da contattare.
+Gli 800 utenti PRO che rendono
+il modello di business sostenibile.
+Ma ogni prodotto che ha trovato
+il suo pubblico ha avuto un momento
+in cui era solo questo —
+qualcosa che funzionava,
+in attesa di essere scoperto.
+Siamo in quel momento.
+"Scopriremo come andrà solo vivendo."
+— Mario Augello, 31 marzo 2026
+---
+> *Diario aggiornato il: 31/03/2026*
+> *Versione: 4.0 — CRM ARIA operativo*
+> *A cura di: Aldo (Claude) — CTO digitale*
+
