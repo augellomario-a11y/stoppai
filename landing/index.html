@@ -1,0 +1,392 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>StoppAI — Il tuo bodyguard digitale</title>
+<meta name="description" content="StoppAI intercetta le chiamate indesiderate prima che squillino. Nessun disturbo. Nessuna perdita. Tutto sotto controllo.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;700;800&family=DM+Sans:ital,wght@0,300;0,400;0,500;1,300&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --nero:#0a0a0f;
+  --nero2:#0d0d12;
+  --bianco:#f5f3ee;
+  --oro:#c8a96e;
+  --oro-chiaro:#e8d5a3;
+  --rosso:#c0392b;
+  --verde:#27ae60;
+  --grigio:#888;
+  --bordo:#222;
+}
+html{scroll-behavior:smooth}
+body{font-family:'DM Sans',sans-serif;background:var(--nero);color:var(--bianco);line-height:1.6;overflow-x:hidden}
+
+/* NAV */
+nav{position:fixed;top:0;left:0;right:0;z-index:100;display:flex;align-items:center;justify-content:space-between;padding:1.2rem 3rem;background:rgba(10,10,15,0.92);backdrop-filter:blur(12px);border-bottom:1px solid #111}
+.nav-logo{font-family:'Syne',sans-serif;font-weight:800;font-size:1.2rem;color:var(--bianco);text-decoration:none}
+.nav-logo span{color:var(--oro)}
+.nav-links{display:flex;gap:2rem;list-style:none}
+.nav-links a{color:#aaa;text-decoration:none;font-size:0.85rem;transition:color 0.2s}
+.nav-links a:hover{color:var(--bianco)}
+.nav-cta{background:var(--oro);color:var(--nero);font-family:'Syne',sans-serif;font-weight:700;padding:0.55rem 1.4rem;border:none;border-radius:4px;font-size:0.82rem;cursor:pointer;text-transform:uppercase;letter-spacing:0.05em;text-decoration:none}
+
+/* HERO */
+.hero{min-height:100vh;display:flex;flex-direction:column;justify-content:center;align-items:center;text-align:center;padding:8rem 2rem 4rem;position:relative;overflow:hidden}
+.hero-bg{position:absolute;inset:0;background:radial-gradient(ellipse 80% 60% at 50% 40%,#1a1200 0%,transparent 70%);pointer-events:none}
+.hero-badge{display:inline-block;border:1px solid var(--oro);color:var(--oro);font-size:0.68rem;letter-spacing:0.2em;text-transform:uppercase;padding:0.3rem 1rem;border-radius:20px;margin-bottom:2rem;font-family:'Syne',sans-serif}
+.hero h1{font-family:'Syne',sans-serif;font-weight:800;font-size:clamp(2.5rem,6vw,5rem);line-height:1.05;margin-bottom:1.5rem;max-width:800px;position:relative}
+.hero h1 em{color:var(--oro);font-style:normal}
+.hero-sub{font-size:1.1rem;color:#aaa;max-width:500px;margin:0 auto 2.5rem;font-weight:300;position:relative}
+.cta-group{display:flex;gap:1rem;flex-wrap:wrap;justify-content:center;position:relative}
+.btn-primary{background:var(--oro);color:var(--nero);font-family:'Syne',sans-serif;font-weight:700;padding:0.9rem 2.2rem;border:none;border-radius:4px;font-size:0.95rem;cursor:pointer;letter-spacing:0.05em;text-transform:uppercase;transition:background 0.2s;text-decoration:none;display:inline-block}
+.btn-primary:hover{background:var(--oro-chiaro)}
+.btn-secondary{background:transparent;color:var(--bianco);font-family:'DM Sans',sans-serif;font-weight:400;padding:0.9rem 2.2rem;border:1px solid #444;border-radius:4px;font-size:0.95rem;cursor:pointer;text-decoration:none;display:inline-block;transition:border-color 0.2s}
+.btn-secondary:hover{border-color:#888}
+
+/* HERO IMAGE */
+.hero-image{width:100%;max-width:1000px;margin:4rem auto 0;position:relative;border-radius:12px;overflow:hidden;border:1px solid #222}
+.hero-image img{width:100%;display:block;height:480px;object-fit:cover}
+
+/* STATS */
+.stats-bar{display:grid;grid-template-columns:repeat(3,1fr);border-top:1px solid var(--bordo);border-bottom:1px solid var(--bordo);background:var(--nero2)}
+.stat{padding:2.5rem 1.5rem;text-align:center;border-right:1px solid var(--bordo)}
+.stat:last-child{border-right:none}
+.stat-num{font-family:'Syne',sans-serif;font-size:2.2rem;font-weight:800;color:var(--oro);display:block;line-height:1}
+.stat-label{font-size:0.75rem;color:#666;letter-spacing:0.08em;text-transform:uppercase;margin-top:0.5rem;line-height:1.4}
+
+/* SEZIONI */
+.sezione{padding:6rem 2rem;max-width:1100px;margin:0 auto}
+.sezione-tag{font-size:0.68rem;letter-spacing:0.25em;text-transform:uppercase;color:var(--oro);font-family:'Syne',sans-serif;margin-bottom:1rem}
+.sezione h2{font-family:'Syne',sans-serif;font-weight:800;font-size:clamp(2rem,4vw,3.2rem);line-height:1.1;margin-bottom:1rem}
+.sezione h2 em{color:var(--oro);font-style:normal}
+.sezione > p{color:#aaa;font-weight:300;max-width:560px;font-size:1rem;line-height:1.7}
+.divider{border:none;border-top:1px solid #1a1a1a}
+
+/* COME FUNZIONA */
+.come-funziona-grid{display:grid;grid-template-columns:1fr 1fr;gap:4rem;align-items:center;margin-top:3rem}
+.cf-immagine img{width:100%;border-radius:10px;display:block;border:1px solid #222}
+.cf-passi{display:flex;flex-direction:column;gap:0}
+.passo{padding:1.5rem 0;border-bottom:1px solid #1a1a1a;display:flex;gap:1.2rem;align-items:flex-start}
+.passo:first-child{padding-top:0}
+.passo-num{font-family:'Syne',sans-serif;font-size:0.6rem;letter-spacing:0.2em;color:var(--oro);text-transform:uppercase;min-width:24px;margin-top:0.2rem}
+.passo-testo h3{font-family:'Syne',sans-serif;font-size:0.95rem;font-weight:700;margin-bottom:0.3rem}
+.passo-testo p{font-size:0.83rem;color:#888;line-height:1.5}
+
+/* FEATURES */
+.features{display:grid;grid-template-columns:repeat(3,1fr);gap:1px;background:#1a1a1a;margin-top:4rem;border:1px solid #1a1a1a;border-radius:8px;overflow:hidden}
+.feat{background:var(--nero);padding:2rem}
+.feat-icon{font-size:1.5rem;margin-bottom:1rem;display:block;width:42px;height:42px;border:1px solid #222;border-radius:8px;display:flex;align-items:center;justify-content:center}
+.feat h3{font-family:'Syne',sans-serif;font-size:0.95rem;font-weight:700;margin-bottom:0.5rem}
+.feat p{font-size:0.83rem;color:#777;line-height:1.6}
+
+/* PRICING */
+.pricing{display:grid;grid-template-columns:repeat(3,1fr);gap:1.5rem;margin-top:4rem}
+.piano{border:1px solid #222;border-radius:10px;padding:2.5rem 2rem;position:relative;transition:border-color 0.2s}
+.piano.evidenziato{border-color:var(--oro)}
+.piano-badge{position:absolute;top:-13px;left:50%;transform:translateX(-50%);background:var(--oro);color:var(--nero);font-family:'Syne',sans-serif;font-size:0.62rem;font-weight:700;letter-spacing:0.15em;text-transform:uppercase;padding:0.28rem 1rem;border-radius:20px;white-space:nowrap}
+.piano-nome{font-family:'Syne',sans-serif;font-size:0.68rem;letter-spacing:0.25em;text-transform:uppercase;color:var(--oro);margin-bottom:1rem}
+.piano-prezzo{font-family:'Syne',sans-serif;font-size:3rem;font-weight:800;line-height:1;margin-bottom:0.3rem}
+.piano-prezzo sup{font-size:1.2rem;vertical-align:super}
+.piano-prezzo span{font-size:0.85rem;font-weight:400;color:#666}
+.piano-desc{font-size:0.82rem;color:#666;margin:0.8rem 0 2rem;line-height:1.5}
+.piano-divider{border:none;border-top:1px solid #1a1a1a;margin-bottom:1.5rem}
+.piano ul{list-style:none;font-size:0.83rem;display:flex;flex-direction:column;gap:0.7rem}
+.piano ul li{color:#ccc;display:flex;align-items:flex-start;gap:0.6rem;line-height:1.4}
+.piano ul li::before{content:'✓';color:var(--verde);font-weight:700;font-size:0.75rem;margin-top:0.15rem;flex-shrink:0}
+.piano ul li.no::before{content:'—';color:#333}
+.piano ul li.no{color:#444}
+.piano-btn{width:100%;margin-top:2rem;padding:0.8rem;font-family:'Syne',sans-serif;font-weight:700;font-size:0.82rem;text-transform:uppercase;letter-spacing:0.08em;border-radius:4px;cursor:pointer;transition:all 0.2s}
+.piano-btn-outline{background:transparent;color:var(--bianco);border:1px solid #333}
+.piano-btn-outline:hover{border-color:var(--oro);color:var(--oro)}
+.piano-btn-oro{background:var(--oro);color:var(--nero);border:none}
+.piano-btn-oro:hover{background:var(--oro-chiaro)}
+
+/* TESTIMONIAL */
+.testimonials{display:grid;grid-template-columns:repeat(3,1fr);gap:1.5rem;margin-top:4rem}
+.testi{background:var(--nero2);border:1px solid #1a1a1a;border-radius:10px;padding:2rem}
+.testi-stelle{color:var(--oro);font-size:0.85rem;margin-bottom:1rem;letter-spacing:0.1em}
+.testi-testo{font-size:0.88rem;color:#ccc;line-height:1.7;margin-bottom:1.5rem;font-style:italic}
+.testi-autore{font-size:0.78rem;color:#666}
+.testi-autore strong{color:#aaa;display:block;font-style:normal;font-weight:500}
+
+/* CTA FINALE */
+.cta-final{background:var(--nero2);border-top:1px solid #1a1a1a;border-bottom:1px solid #1a1a1a;padding:7rem 2rem;text-align:center}
+.cta-final h2{font-family:'Syne',sans-serif;font-weight:800;font-size:clamp(2rem,5vw,3.5rem);margin-bottom:1rem;line-height:1.1}
+.cta-final h2 em{color:var(--oro);font-style:normal}
+.cta-final p{color:#777;margin-bottom:2.5rem;font-size:0.95rem}
+.cta-note{margin-top:1.2rem;font-size:0.78rem;color:#555}
+
+/* FOOTER */
+footer{padding:3rem 2rem;border-top:1px solid #111}
+.footer-inner{max-width:1100px;margin:0 auto;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:1rem}
+.footer-logo{font-family:'Syne',sans-serif;font-weight:800;font-size:1rem;color:#555}
+.footer-logo span{color:var(--oro)}
+.footer-links{display:flex;gap:1.5rem}
+.footer-links a{font-size:0.78rem;color:#444;text-decoration:none;transition:color 0.2s}
+.footer-links a:hover{color:#888}
+.footer-copy{font-size:0.72rem;color:#333;width:100%;text-align:center;margin-top:1.5rem;padding-top:1.5rem;border-top:1px solid #111}
+
+/* RESPONSIVE */
+@media(max-width:900px){
+  nav{padding:1rem 1.5rem}
+  .nav-links{display:none}
+  .come-funziona-grid{grid-template-columns:1fr}
+  .features{grid-template-columns:1fr 1fr}
+  .pricing{grid-template-columns:1fr}
+  .testimonials{grid-template-columns:1fr}
+  .stats-bar{grid-template-columns:1fr}
+  .stat{border-right:none;border-bottom:1px solid var(--bordo)}
+  .stat:last-child{border-bottom:none}
+}
+@media(max-width:600px){
+  .features{grid-template-columns:1fr}
+  .cta-group{flex-direction:column;align-items:center}
+  .hero-image img{height:240px}
+}
+</style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav>
+  <a href="#" class="nav-logo">Stopp<span>AI</span></a>
+  <ul class="nav-links">
+    <li><a href="#come-funziona">Come funziona</a></li>
+    <li><a href="#funzionalita">Funzionalità</a></li>
+    <li><a href="#prezzi">Prezzi</a></li>
+  </ul>
+  <a href="#download" class="nav-cta">Scarica gratis</a>
+</nav>
+
+<!-- HERO -->
+<section class="hero">
+  <div class="hero-bg"></div>
+  <div class="hero-badge">Disponibile per Android — v5.4.2</div>
+  <h1>Il tuo telefono,<br><em>finalmente silenzioso.</em></h1>
+  <p class="hero-sub">StoppAI intercetta le chiamate indesiderate prima che squillino. Nessun disturbo. Nessuna perdita. Tutto sotto controllo.</p>
+  <div class="cta-group">
+    <a href="#download" class="btn-primary">Scarica gratis</a>
+    <a href="#come-funziona" class="btn-secondary">Scopri come funziona</a>
+  </div>
+  <div class="hero-image">
+    <img src="./img/hero.jpg" alt="StoppAI — Prima e dopo lo spam" onerror="this.style.background='#1a1a1a';this.style.minHeight='400px'">
+  </div>
+</section>
+
+<!-- STATS -->
+<div class="stats-bar">
+  <div class="stat">
+    <span class="stat-num">15 mld</span>
+    <span class="stat-label">Chiamate indesiderate<br>in Italia ogni anno</span>
+  </div>
+  <div class="stat">
+    <span class="stat-num">5–8</span>
+    <span class="stat-label">Telefonate spam a settimana<br>per ogni italiano</span>
+  </div>
+  <div class="stat">
+    <span class="stat-num">75%</span>
+    <span class="stat-label">Degli italiani subisce almeno<br>una chiamata molesta a settimana</span>
+  </div>
+</div>
+
+<!-- COME FUNZIONA -->
+<section class="sezione" id="come-funziona">
+  <div class="sezione-tag">Come funziona</div>
+  <h2>Da chiamata molesta<br>a <em>messaggio gestito.</em></h2>
+  <p>Mentre sei in riunione, al volante o semplicemente in pace, StoppAI lavora al posto tuo.</p>
+
+  <div class="come-funziona-grid">
+    <div class="cf-immagine">
+      <img src="./img/come-funziona.jpg" alt="ARIA — La segreteria AI di StoppAI">
+    </div>
+    <div class="cf-passi">
+      <div class="passo">
+        <div class="passo-num">01</div>
+        <div class="passo-testo">
+          <h3>Arriva una chiamata sconosciuta</h3>
+          <p>Da numero fisso, privato, spam o cellulare non in rubrica. Il tuo telefono non squilla.</p>
+        </div>
+      </div>
+      <div class="passo">
+        <div class="passo-num">02</div>
+        <div class="passo-testo">
+          <h3>StoppAI intercetta in silenzio</h3>
+          <p>La chiamata viene deviata automaticamente. Zero squilli, zero distrazioni, zero stress.</p>
+        </div>
+      </div>
+      <div class="passo">
+        <div class="passo-num">03</div>
+        <div class="passo-testo">
+          <h3>ARIA risponde al posto tuo</h3>
+          <p>La segreteria AI accoglie il chiamante in italiano, registra il messaggio e lo trascrive.</p>
+        </div>
+      </div>
+      <div class="passo">
+        <div class="passo-num">04</div>
+        <div class="passo-testo">
+          <h3>Tu decidi quando e come</h3>
+          <p>Leggi la trascrizione nel Mini CRM, valuta chi ha chiamato e agisci con calma.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<hr class="divider">
+
+<!-- FUNZIONALITA -->
+<section class="sezione" id="funzionalita">
+  <div class="sezione-tag">Funzionalità</div>
+  <h2>Protezione <em>intelligente</em>,<br>controllo totale.</h2>
+  <p>Due modalità di protezione, una segreteria AI e un mini CRM per gestire ogni chiamata ricevuta.</p>
+
+  <div class="features">
+    <div class="feat">
+      <div class="feat-icon">🛡️</div>
+      <h3>Protezione Base</h3>
+      <p>I tuoi contatti in rubrica squillano normalmente. Tutti gli altri vengono silenziati e deviati, senza che tu te ne accorga.</p>
+    </div>
+    <div class="feat">
+      <div class="feat-icon">⏱️</div>
+      <h3>Protezione Totale</h3>
+      <p>Attivi per X minuti e non squilla nessuno. Perfetto durante riunioni, pranzi o momenti importanti. Con countdown visibile.</p>
+    </div>
+    <div class="feat">
+      <div class="feat-icon">🎙️</div>
+      <h3>Segreteria ARIA</h3>
+      <p>Un agente vocale AI risponde al posto tuo, registra il messaggio e lo trascrive automaticamente in italiano.</p>
+    </div>
+    <div class="feat">
+      <div class="feat-icon">📋</div>
+      <h3>Mini CRM</h3>
+      <p>Ogni chiamata diventa una scheda. Leggi il messaggio, scrivi note, aggiungi alla rubrica o blocca definitivamente.</p>
+    </div>
+    <div class="feat">
+      <div class="feat-icon">🔔</div>
+      <h3>Notifiche intelligenti</h3>
+      <p>Ricevi una notifica silenziosa con la trascrizione del messaggio. Capisci chi ha chiamato senza aprire l'app.</p>
+    </div>
+    <div class="feat">
+      <div class="feat-icon">🔒</div>
+      <h3>Privacy totale</h3>
+      <p>Nessun dato condiviso con terze parti. La tua rubrica è la tua whitelist. Tutto sotto il tuo controllo, sempre.</p>
+    </div>
+  </div>
+</section>
+
+<hr class="divider">
+
+<!-- TESTIMONIAL -->
+<section class="sezione">
+  <div class="sezione-tag">Cosa dicono i beta tester</div>
+  <h2>Lo usano.<br><em>Lo amano.</em></h2>
+  <p>Le prime recensioni dai nostri tester — persone reali, problemi reali.</p>
+
+  <div class="testimonials">
+    <div class="testi">
+      <div class="testi-stelle">★★★★★</div>
+      <p class="testi-testo">"Finalmente durante le riunioni il telefono non mi interrompe più. ARIA gestisce tutto e io leggo i messaggi dopo."</p>
+      <div class="testi-autore"><strong>Marco, consulente aziendale</strong>Milano</div>
+    </div>
+    <div class="testi">
+      <div class="testi-stelle">★★★★★</div>
+      <p class="testi-testo">"Ricevevo 10 chiamate spam al giorno. Ora non le sento nemmeno. E se qualcuno di importante ha chiamato, lo vedo subito nella trascrizione."</p>
+      <div class="testi-autore"><strong>Giulia, libera professionista</strong>Roma</div>
+    </div>
+    <div class="testi">
+      <div class="testi-stelle">★★★★☆</div>
+      <p class="testi-testo">"L'ho installato per mio padre che era terrorizzato dalle truffe telefoniche. Ora è tranquillo e io posso monitorare chi gli chiama."</p>
+      <div class="testi-autore"><strong>Luca, figlio preoccupato</strong>Torino</div>
+    </div>
+  </div>
+</section>
+
+<hr class="divider">
+
+<!-- PRICING -->
+<section class="sezione" id="prezzi">
+  <div class="sezione-tag">Piani</div>
+  <h2>Inizia <em>gratis</em>,<br>potenzia quando vuoi.</h2>
+  <p>Nessun abbonamento obbligatorio. Passa al PRO solo se vuoi ARIA e le trascrizioni AI.</p>
+
+  <div class="pricing">
+    <div class="piano">
+      <div class="piano-nome">Free</div>
+      <div class="piano-prezzo"><sup>€</sup>0<span>/mese</span></div>
+      <p class="piano-desc">Per chi vuole il silenzio di base, subito. Senza carta di credito.</p>
+      <hr class="piano-divider">
+      <ul>
+        <li>Protezione Base attiva</li>
+        <li>Protezione Totale con timer</li>
+        <li>Registro chiamate</li>
+        <li class="no">Segreteria ARIA</li>
+        <li class="no">Trascrizioni AI</li>
+        <li class="no">Mini CRM completo</li>
+        <li class="no">Notifiche con trascrizione</li>
+      </ul>
+      <button class="piano-btn piano-btn-outline">Scarica gratis</button>
+    </div>
+
+    <div class="piano evidenziato">
+      <div class="piano-badge">Più scelto</div>
+      <div class="piano-nome">PRO</div>
+      <div class="piano-prezzo"><sup>€</sup>4,99<span>/mese</span></div>
+      <p class="piano-desc">La protezione completa con segreteria AI italiana. Il piano che cambia tutto.</p>
+      <hr class="piano-divider">
+      <ul>
+        <li>Tutto del piano Free</li>
+        <li>Segreteria ARIA attiva</li>
+        <li>Trascrizioni in italiano</li>
+        <li>Mini CRM completo</li>
+        <li>Notifiche con trascrizione</li>
+        <li>Note e gestione chiamate</li>
+        <li class="no">Funzioni avanzate Shield</li>
+      </ul>
+      <button class="piano-btn piano-btn-oro">Inizia il periodo di prova</button>
+    </div>
+
+    <div class="piano">
+      <div class="piano-nome">Shield</div>
+      <div class="piano-prezzo"><sup>€</sup>9,99<span>/mese</span></div>
+      <p class="piano-desc">Per chi vuole il massimo della protezione e supporto prioritario.</p>
+      <hr class="piano-divider">
+      <ul>
+        <li>Tutto del piano PRO</li>
+        <li>Supporto prioritario</li>
+        <li>Accesso anticipato novità</li>
+        <li>Dashboard analytics</li>
+        <li>Referral potenziato</li>
+        <li>Funzioni avanzate esclusive</li>
+        <li>Numero SIP dedicato</li>
+      </ul>
+      <button class="piano-btn piano-btn-outline">Scegli Shield</button>
+    </div>
+  </div>
+</section>
+
+<!-- CTA FINALE -->
+<div class="cta-final" id="download">
+  <h2>Smetti di subire.<br><em>Inizia a controllare.</em></h2>
+  <p>Gratuito. Nessuna carta richiesta. Disponibile per Android.</p>
+  <a href="#" class="btn-primary" style="font-size:1rem;padding:1rem 2.8rem">Scarica StoppAI — è gratis</a>
+  <p class="cta-note">Compatibile con Android 10 e superiori · Samsung, Xiaomi, OnePlus e altri</p>
+</div>
+
+<!-- FOOTER -->
+<footer>
+  <div class="footer-inner">
+    <div class="footer-logo">Stopp<span>AI</span></div>
+    <div class="footer-links">
+      <a href="#">Privacy Policy</a>
+      <a href="#">Termini di servizio</a>
+      <a href="#">Contatti</a>
+      <a href="#">Blog</a>
+    </div>
+    <p class="footer-copy">© 2026 IFS — Internet Full Service · stoppai.it · Partita IVA in corso di registrazione · Fatto con ❤️ a Trieste</p>
+  </div>
+</footer>
+
+</body>
+</html>
