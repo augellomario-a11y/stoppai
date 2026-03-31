@@ -3,12 +3,16 @@ const express = require('express');
 const cors = require('cors');
 const path = require('path');
 const db = require('./db/database');
+const testerRoutes = require('./routes/tester');
 
 const app = express();
 const PORT = process.env.PORT || 6002;
 
 app.use(cors());
 app.use(express.json());
+
+// Routes
+app.use('/api/tester', testerRoutes);
 
 // Serve landing page
 app.use(express.static(
