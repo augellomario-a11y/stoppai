@@ -2,6 +2,7 @@ require('dotenv').config();
 const express = require('express');
 const cors = require('cors');
 const path = require('path');
+const db = require('./db/database');
 
 const app = express();
 const PORT = process.env.PORT || 6002;
@@ -20,6 +21,17 @@ app.get('/api/health', (req, res) => {
     status: 'ok',
     version: '1.0.0',
     timestamp: new Date().toISOString()
+  });
+});
+
+// DB test check
+app.get('/api/db-test', (req, res) => {
+  const count = db.prepare(
+    'SELECT COUNT(*) as tot FROM testers'
+  ).get();
+  res.json({
+    status: 'ok',
+    testers: count.tot
   });
 });
 
