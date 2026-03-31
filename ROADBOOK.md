@@ -1,5 +1,39 @@
 # 📔 ROADBOOK: StoppAI
 ---
+### 📅 2026-03-31 22:40 | Agente: Antigravity
+- **TASK**: [TASK-SA-114-LANDING-REBUILD] — REBUILD COMPLETO v1.0
+- **STATUS**: ✅ COMPLETATO
+- **VERSIONE**: Landing v1.0 (Bodyguard) - 101 righe
+- **URL**: http://46.225.14.90:6001
+- **AZIONI**:
+  - **CODICE**: Ricostruito `index.html` da zero in un unico file.
+  - **DESIGN**: Implementato font Syne (titoli) e DM Sans (corpo).
+  - **DESIGN**: Seguita palette #0a0a0f / #c8a96e / #f5f3ee.
+  - **MEDIA**: Ottimizzato layout per hero.jpg e come-funziona.jpg.
+  - **DEPLOY**: Pushato su main e ricaricato Nginx su Hetzner.
+
+### 📅 2026-03-31 22:20 | Agente: Antigravity
+- **TASK**: [TASK-SA-114-LANDING-SETUP] — LANDING PAGE v1.0
+- **STATUS**: ✅ COMPLETATO
+- **VERSIONE**: Landing v1.0 (StoppAI Bodyguard)
+- **PORTA**: 6001 (Configurata con server_name)
+- **AZIONI**:
+  - **GITHUB**: Sincronizzato `landing/` con `index.html` (20KB).
+  - **SERVER**: Deploy su Hetzner (46.225.14.90) tramite `git pull`.
+  - **NGINX**: Aggiornata configurazione con `server_name` e reload.
+  - **TEST**: Verifica porta 6001 esterna -> HTTP 200 OK.
+
+### 📅 2026-03-31 21:20 | Agente: Antigravity
+- **TASK**: [TASK-SA-113-LANDING-DEPLOY] — LANDING PAGE ONLINE
+- **STATUS**: ✅ COMPLETATO
+- **URL**: http://46.225.14.90:6001
+- **AZIONI**:
+  - **GIT**: Aggiunta cartella `landing/` al repository e pushato su `main`.
+  - **SERVER**: Eseguito `git pull` su Hetzner (46.225.14.90).
+  - **NGINX**: Creata e attivata configurazione `stoppai-landing` su porta **6001**.
+  - **UFW**: Aperta porta **6001/tcp** nel firewall del server.
+  - **TEST**: Verifica HTTP 200 OK via curl esterna.
+
 ### 📅 2026-03-31 12:16 | Agente: Antigravity
 - **TASK**: [TASK-SA-110-ICONA-NOTE-LISTA] — INDICATORE NOTE 📝
 - **STATUS**: ✅ COMPLETATO
