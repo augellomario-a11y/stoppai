@@ -19,10 +19,10 @@ nav { position: fixed; top: 0; width: 100%; background: rgba(10,10,15,0.9); back
 .logo { font-size: 1.5rem; font-weight: 800; font-family: 'Syne'; }
 .nav-links { display: flex; gap: 2rem; }
 .nav-links a { color: var(--bianco); text-decoration: none; font-size: 0.9rem; }
-header { position: relative; height: 100vh; display: flex; align-items: center; padding: 0 5%; overflow: hidden; }
+header { position: relative; height: 100vh; display: flex; align-items: center; justify-content: center; text-align: center; padding: 0 5%; overflow: hidden; }
 .hero-img { position: absolute; top: 0; left: 0; width: 100%; height: 100%; object-fit: cover; z-index: -1; }
-.hero-overlay { position: absolute; bottom: 0; left: 0; width: 100%; height: 100%; background: linear-gradient(0deg, var(--nero) 0%, transparent 60%); z-index: 0; }
-.hero-content { position: relative; z-index: 10; max-width: 800px; }
+.hero-overlay { position: absolute; bottom: 0; left: 0; width: 100%; height: 100%; background: linear-gradient(0deg, var(--nero) 0%, rgba(10,10,15,0.4) 100%); z-index: 0; }
+.hero-content { position: relative; z-index: 10; max-width: 900px; display: flex; flex-direction: column; align-items: center; }
 .hero-content h1 { font-size: 4rem; margin-bottom: 1.5rem; }
 .stats { display: flex; padding: 4rem 5%; background: var(--nero2); border-bottom: 1px solid var(--bordo); text-align: center; }
 .stat-item { flex: 1; }
@@ -53,8 +53,8 @@ footer { padding: 4rem 5%; background: var(--nero2); border-top: 1px solid var(-
   <div class="hero-overlay"></div>
   <div class="hero-content">
     <h1>IL TUO <span class="gold">BODYGUARD</span> DIGITALE</h1>
-    <p style="font-size: 1.2rem; margin-bottom: 2rem; max-width: 600px;">StoppAI intercetta le chiamate indesiderate prima che squillino. Nessun disturbo. Nessuna perdita. Tutto sotto controllo.</p>
-    <div style="display:flex; gap:1rem;"><a href="#" class="btn btn-p">Scarica Gratis</a><a href="#how" class="btn btn-s">Vedi come funziona</a></div>
+    <p style="font-size: 1.2rem; margin-bottom: 2rem; max-width: 700px; margin-left: auto; margin-right: auto;">StoppAI intercetta le chiamate indesiderate prima che squillino. Nessun disturbo. Nessuna perdita. Tutto sotto controllo.</p>
+    <div style="display:flex; gap:1rem; justify-content: center;"><a href="#" class="btn btn-p">Scarica Gratis</a><a href="#how" class="btn btn-s">Vedi come funziona</a></div>
   </div>
 </header>
 <section class="stats"><div class="stat-item"><h3>800M</h3><p>Chiamate spam/anno in Italia</p></div><div class="stat-item"><h3>99%</h3><p>Precisione del segugio ARIA</p></div><div class="stat-item"><h3>100%</h3><p>Privacy garantita</p></div></section>
