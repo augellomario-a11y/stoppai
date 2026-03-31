@@ -51,13 +51,7 @@
             android:background="?attr/selectableItemBackgroundBorderless" />
     </RelativeLayout>
 
-    <TextView
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="Valutazione utilizzata anche da ARIA per qualificare il numero"
-        android:textSize="11sp"
-        android:textColor="#888888"
-        android:layout_marginBottom="12dp" />
+
 
     <!-- SEZIONE RISPOSTA SMS (SA-057) -->
     <LinearLayout
@@ -101,38 +95,7 @@
         android:textColor="#333333"
         android:layout_marginBottom="8dp" />
 
-    <Button
-        android:id="@+id/btn_da_trattare"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="🔴 DA TRATTARE"
-        android:gravity="start|center_vertical"
-        android:paddingStart="16dp"
-        android:backgroundTint="#FFEBEE"
-        android:textColor="#D32F2F"
-        android:layout_marginBottom="8dp" />
 
-    <Button
-        android:id="@+id/btn_spam"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="⚫ SPAM"
-        android:gravity="start|center_vertical"
-        android:paddingStart="16dp"
-        android:backgroundTint="#F5F5F5"
-        android:textColor="#616161"
-        android:layout_marginBottom="8dp" />
-
-    <Button
-        android:id="@+id/btn_attendibile"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="✅ ATTENDIBILE"
-        android:gravity="start|center_vertical"
-        android:paddingStart="16dp"
-        android:backgroundTint="#E8F5E9"
-        android:textColor="#388E3C"
-        android:layout_marginBottom="8dp" />
 
     <Button
         android:id="@+id/btn_note"

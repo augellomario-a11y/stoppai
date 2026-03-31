@@ -31,16 +31,16 @@ class AriaTranscriptionSheet : BottomSheetDialogFragment() {
 
     companion object {
         private const val ARG_NUMERO = "phone_number"
-        private const val ARG_TIMESTAMP = "call_timestamp"
+        private const val ARG_CALL_ID = "call_log_id"
 
         /**
-         * Factory method — passa il numero del chiamante e il timestamp della chiamata (ms)
+         * Factory method — passa il numero del chiamante e l'ID della chiamata (Long)
          */
-        fun newInstance(phoneNumber: String, callTimestamp: Long): AriaTranscriptionSheet {
+        fun newInstance(phoneNumber: String, callLogId: Long): AriaTranscriptionSheet {
             return AriaTranscriptionSheet().apply {
                 arguments = Bundle().apply {
                     putString(ARG_NUMERO, phoneNumber)
-                    putLong(ARG_TIMESTAMP, callTimestamp)
+                    putLong(ARG_CALL_ID, callLogId)
                 }
             }
         }
@@ -56,9 +56,9 @@ class AriaTranscriptionSheet : BottomSheetDialogFragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        // Recupera numero e timestamp dagli argomenti
+        // Recupera numero e ID chiamata dagli argomenti
         val phoneNumber = arguments?.getString(ARG_NUMERO) ?: "Sconosciuto"
-        val callTimestamp = arguments?.getLong(ARG_TIMESTAMP) ?: 0L
+        val callLogId = arguments?.getLong(ARG_CALL_ID) ?: 0L
 
         val txtNumero = view.findViewById<TextView>(R.id.txt_aria_numero)
         val txtContenuto = view.findViewById<TextView>(R.id.txt_aria_contenuto)
@@ -81,50 +81,35 @@ class AriaTranscriptionSheet : BottomSheetDialogFragment() {
             }
         }
 
-        // Carica i messaggi dal DB in background con filtro temporale
-        caricaMessaggi(phoneNumber, callTimestamp, txtContenuto)
+        // Carica i messaggi dal DB in background con link ID specifico
+        caricaMessaggi(phoneNumber, callLogId, txtContenuto)
     }
 
     /**
      * Interroga il DB Room e popola la TextView con le trascrizioni formattate.
-     * Filtra per numero (normalizzato) e per timestamp della chiamata specifica (finestra +3min).
+     * Cerca i messaggi legati direttamente al callLogId fornito.
      */
-    private fun caricaMessaggi(phoneNumber: String, callTimestamp: Long, txtContenuto: TextView) {
+    private fun caricaMessaggi(phoneNumber: String, callLogId: Long, txtContenuto: TextView) {
         CoroutineScope(Dispatchers.IO).launch {
             val testo = try {
                 val db = StoppAiDatabase.getInstance(requireContext())
-                val callTimeSec = callTimestamp / 1000
 
-                // Normalizzazione: rimuove +39, spazi e zeri iniziali
-                val numeroNormalizzato = phoneNumber
-                    .replace("+39", "")
-                    .replace(" ", "")
-                    .trimStart('0')
-
-                // Finestra temporale: dal momento della chiamata fino ai 3 minuti successivi
+                // Recupera messaggi collegati a questo ID specifico
                 val messaggi = db.ariaMessaggioDao()
-                    .getPerNumero(numeroNormalizzato)
+                    .getPerCallLogId(callLogId)
                     .first()
-                    .filter { msg ->
-                        msg.timestamp >= callTimeSec && msg.timestamp <= callTimeSec + 180
-                    }
-                    .ifEmpty {
-                        db.ariaMessaggioDao()
-                            .getPerNumero("+39$numeroNormalizzato")
-                            .first()
-                            .filter { msg ->
-                                msg.timestamp >= callTimeSec && msg.timestamp <= callTimeSec + 180
-                            }
-                    }
 
                 if (messaggi.isEmpty()) {
-                    "Nessun messaggio ARIA per questa specifica chiamata."
+                    "Nessun messaggio ARIA collegato a questa specifica chiamata."
                 } else {
-                    val sdf = SimpleDateFormat("HH:mm:ss", Locale.ITALY) // Più preciso per debug chiamate vicine
+                    // Recupera il timestamp dalla chiamata originale (SA-107)
+                    val entry = db.callLogDao().getCallById(callLogId)
+                    val sdf = SimpleDateFormat("dd/MM HH:mm:ss", Locale.ITALY)
+                    val data = if (entry != null) sdf.format(Date(entry.timestamp)) else "Orario sconosciuto"
+                    
                     val sb = StringBuilder()
+                    sb.append("📅  $data\n\n")
                     messaggi.forEach { msg ->
-                        val data = sdf.format(Date(msg.timestamp * 1000))
-                        sb.append("📅  $data\n")
                         sb.append("💬  ${msg.testo}\n")
                         sb.append("\n─────────────────────\n\n")
                     }

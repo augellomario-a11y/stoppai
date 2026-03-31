@@ -17,6 +17,7 @@ data class AriaMessaggio(
     val numero: String,
     val testo: String,
     val timestamp: Long,
+    val callLogId: Long = 0L,
     val letto: Boolean = false,
     val stato: String = "DA_TRATTARE"
 )

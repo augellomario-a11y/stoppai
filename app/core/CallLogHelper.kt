@@ -44,7 +44,7 @@ object CallLogHelper {
         }
     }
 
-    private fun getContactName(context: Context, phoneNumber: String): String {
+    fun getContactName(context: Context, phoneNumber: String): String {
         if (phoneNumber.isBlank()) return ""
         val uri = Uri.withAppendedPath(ContactsContract.PhoneLookup.CONTENT_FILTER_URI, Uri.encode(phoneNumber))
         return try {

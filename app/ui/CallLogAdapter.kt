@@ -14,6 +14,13 @@ import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
 import com.ifs.stoppai.db.CallLogCrmItem
 import com.ifs.stoppai.R
+import com.ifs.stoppai.db.StoppAiDatabase
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.flow.collectLatest
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
@@ -28,18 +35,38 @@ class CallLogAdapter(
         val timeLabel: TextView = view.findViewById(R.id.txt_time)
         val badgeStatus: View = view.findViewById(R.id.view_status_badge)
         val root: View = view.findViewById(R.id.root_item_log)
-        val txtDirection: TextView = view.findViewById(R.id.txt_direction)
         val txtSmsSent: TextView = view.findViewById(R.id.txt_sms_sent)
         val txtSmsReplied: TextView = view.findViewById(R.id.txt_sms_replied)
+        val iconAria: TextView = view.findViewById(R.id.txt_aria_indicator)
+        val iconNote: TextView = view.findViewById(R.id.txt_note_indicator)
+        val imgDirection: android.widget.ImageView = view.findViewById(R.id.img_direction)
+        private var jobAria: Job? = null
         
         fun bind(item: CallLogCrmItem, onClick: (CallLogCrmItem) -> Unit) {
             val entry = item.entry
             val baseName = if (entry.displayName.isNotEmpty()) entry.displayName else entry.phoneNumber
-            nameNumber.text = "$baseName (${item.count})"
+            nameNumber.text = baseName
 
-            // DIREZIONE
-            txtDirection.text = if (entry.callDirection == "USCITA") "↗" else "↙"
-            txtDirection.setTextColor(if (entry.callDirection == "USCITA") android.graphics.Color.GRAY else android.graphics.Color.parseColor("#4CAF50"))
+            val isContact = entry.displayName.isNotEmpty()
+
+            // DIREZIONE & COLORI (SA-109)
+            if (entry.callDirection == "USCITA") {
+                imgDirection.setImageResource(R.drawable.ic_arrow_up)
+                imgDirection.setColorFilter(android.graphics.Color.parseColor("#4CAF50")) // VERDE
+            } else {
+                imgDirection.setImageResource(R.drawable.ic_arrow_down)
+                when {
+                    entry.callType == "MANCATA" || entry.callType == "DEVIATA" -> {
+                        imgDirection.setColorFilter(android.graphics.Color.GRAY)
+                    }
+                    isContact -> {
+                        imgDirection.setColorFilter(android.graphics.Color.parseColor("#4CAF50")) // VERDE
+                    }
+                    else -> {
+                        imgDirection.setColorFilter(android.graphics.Color.RED)
+                    }
+                }
+            }
 
             // STATO SMS
             txtSmsSent.visibility = if (entry.smsInviato) View.VISIBLE else View.GONE
@@ -54,16 +81,27 @@ class CallLogAdapter(
             val sdf = SimpleDateFormat("HH:mm", Locale.ITALY)
             timeLabel.text = sdf.format(Date(entry.timestamp))
 
-            if (entry.nota.isNotEmpty()) {
-                badgeStatus.setBackgroundResource(R.drawable.shape_badge_status_blue)
+            // PALLINO (SA-109)
+            if (isContact) {
+                badgeStatus.setBackgroundResource(R.drawable.shape_badge_status_green)
             } else {
-                when (entry.statusId) {
-                    1 -> badgeStatus.setBackgroundResource(R.drawable.shape_badge_status_green)
-                    2 -> badgeStatus.setBackgroundResource(R.drawable.shape_badge_status_gray)
-                    else -> badgeStatus.setBackgroundResource(R.drawable.shape_badge_status_red)
+                badgeStatus.setBackgroundResource(R.drawable.shape_badge_status_red)
+            }
+
+            // INDICATORE NOTE (SA-110)
+            iconNote.visibility = if (entry.nota.isNotEmpty()) View.VISIBLE else View.GONE
+            root.setOnClickListener { onClick(item) }
+
+            // INDICATORE ARIA IN TEMPO REALE (SA-106)
+            jobAria?.cancel()
+            jobAria = CoroutineScope(Dispatchers.IO).launch {
+                val db = StoppAiDatabase.getInstance(itemView.context)
+                db.ariaMessaggioDao().getPerCallLogId(entry.id).collectLatest { list ->
+                    withContext(Dispatchers.Main) {
+                        iconAria.visibility = if (list.isNotEmpty()) View.VISIBLE else View.GONE
+                    }
                 }
             }
-            root.setOnClickListener { onClick(item) }
         }
     }
 

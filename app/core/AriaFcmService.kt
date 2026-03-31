@@ -14,6 +14,9 @@ import androidx.core.app.NotificationCompat
 import com.google.firebase.messaging.FirebaseMessagingService
 import com.google.firebase.messaging.RemoteMessage
 import com.ifs.stoppai.R
+import com.ifs.stoppai.db.AriaMessaggio
+import com.ifs.stoppai.db.CallLogEntry
+import com.ifs.stoppai.db.StoppAiDatabase
 import com.ifs.stoppai.ui.MainActivity
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -54,20 +57,47 @@ class AriaFcmService : FirebaseMessagingService() {
         val timestamp = message.data["timestamp"]?.toLongOrNull()
             ?: (System.currentTimeMillis() / 1000)
 
-        // Salvataggio nel database locale per il CRM (SA-093)
+        // Salvataggio nel database locale per il CRM (SA-105)
         CoroutineScope(Dispatchers.IO).launch {
             try {
-                val db = com.ifs.stoppai.db.StoppAiDatabase.getInstance(applicationContext)
-                db.ariaMessaggioDao().inserisci(
-                    com.ifs.stoppai.db.AriaMessaggio(
-                        numero = numero,
-                        testo = testo,
-                        timestamp = timestamp
+                val db = StoppAiDatabase.getInstance(applicationContext)
+                
+                val numeroNorm = PhoneNumberUtils.normalizeNumber(numero)
+                val dieciMinutiFA = System.currentTimeMillis() - (10 * 60 * 1000)
+
+                // Cerca CallLogEntry recente
+                val entryEsistente = db.callLogDao().getMostRecentByNumber(numeroNorm)
+
+                val callLogId: Long = if (entryEsistente != null && entryEsistente.timestamp >= dieciMinutiFA) {
+                    // Esiste già → usa quello
+                    entryEsistente.id
+                } else {
+                    // Non esiste → crea riga MANCATA nel CRM
+                    val nuovaEntry = CallLogEntry(
+                        phoneNumber = numeroNorm,
+                        callType = NumberClassifier.getTipoNumero(numeroNorm),
+                        timestamp = System.currentTimeMillis(),
+                        callOutcome = "DEVIATA",
+                        displayName = CallLogHelper.getContactName(applicationContext, numeroNorm)
                     )
+                    db.callLogDao().insertCallLog(nuovaEntry)
+                }
+
+                // Salva AriaMessaggio con callLogId corretto
+                val messaggio = AriaMessaggio(
+                    numero = numeroNorm,
+                    testo = testo,
+                    timestamp = timestamp * 1000, // Portiamolo in ms se era in secondi
+                    callLogId = callLogId
                 )
-                android.util.Log.d("STOPPAI_FCM", "Messaggio salvato in DB per $numero")
+                db.ariaMessaggioDao().inserisci(messaggio)
+                
+                // Invia broadcast per aggiornare la UI
+                sendBroadcast(Intent("com.ifs.stoppai.CALL_LOGGED"))
+                
+                android.util.Log.d("STOPPAI_FCM", "Messaggio salvato in DB per $numero (Link Call ID: $callLogId)")
             } catch (e: Exception) {
-                android.util.Log.e("STOPPAI_FCM", "Errore salvataggio DB: $e")
+                android.util.Log.e("STOPPAI_FCM", "Errore salvataggio DB SA-105: $e")
             }
         }
 

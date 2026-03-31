@@ -35,14 +35,14 @@ public final class StoppAiDatabase_Impl extends StoppAiDatabase {
   @Override
   @NonNull
   protected SupportSQLiteOpenHelper createOpenHelper(@NonNull final DatabaseConfiguration config) {
-    final SupportSQLiteOpenHelper.Callback _openCallback = new RoomOpenHelper(config, new RoomOpenHelper.Delegate(7) {
+    final SupportSQLiteOpenHelper.Callback _openCallback = new RoomOpenHelper(config, new RoomOpenHelper.Delegate(8) {
       @Override
       public void createAllTables(@NonNull final SupportSQLiteDatabase db) {
         db.execSQL("CREATE TABLE IF NOT EXISTS `call_log_entries` (`id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `phoneNumber` TEXT NOT NULL, `callType` TEXT NOT NULL, `timestamp` INTEGER NOT NULL, `statusId` INTEGER NOT NULL, `nota` TEXT NOT NULL, `ariaNote` TEXT NOT NULL, `callOutcome` TEXT NOT NULL, `callDirection` TEXT NOT NULL, `displayName` TEXT NOT NULL, `smsInviato` INTEGER NOT NULL, `smsRisposta` TEXT)");
         db.execSQL("CREATE TABLE IF NOT EXISTS `app_settings` (`key` TEXT NOT NULL, `value` TEXT NOT NULL, PRIMARY KEY(`key`))");
-        db.execSQL("CREATE TABLE IF NOT EXISTS `aria_messaggi` (`id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `numero` TEXT NOT NULL, `testo` TEXT NOT NULL, `timestamp` INTEGER NOT NULL, `letto` INTEGER NOT NULL, `stato` TEXT NOT NULL)");
+        db.execSQL("CREATE TABLE IF NOT EXISTS `aria_messaggi` (`id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `numero` TEXT NOT NULL, `testo` TEXT NOT NULL, `timestamp` INTEGER NOT NULL, `callLogId` INTEGER NOT NULL, `letto` INTEGER NOT NULL, `stato` TEXT NOT NULL)");
         db.execSQL("CREATE TABLE IF NOT EXISTS room_master_table (id INTEGER PRIMARY KEY,identity_hash TEXT)");
-        db.execSQL("INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, '4d21bf5a8cfa55bad90020ae04a60dd7')");
+        db.execSQL("INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, '990964d7dca057c7a38fd8fe9978ff5b')");
       }
 
       @Override
@@ -127,11 +127,12 @@ public final class StoppAiDatabase_Impl extends StoppAiDatabase {
                   + " Expected:\n" + _infoAppSettings + "\n"
                   + " Found:\n" + _existingAppSettings);
         }
-        final HashMap<String, TableInfo.Column> _columnsAriaMessaggi = new HashMap<String, TableInfo.Column>(6);
+        final HashMap<String, TableInfo.Column> _columnsAriaMessaggi = new HashMap<String, TableInfo.Column>(7);
         _columnsAriaMessaggi.put("id", new TableInfo.Column("id", "INTEGER", true, 1, null, TableInfo.CREATED_FROM_ENTITY));
         _columnsAriaMessaggi.put("numero", new TableInfo.Column("numero", "TEXT", true, 0, null, TableInfo.CREATED_FROM_ENTITY));
         _columnsAriaMessaggi.put("testo", new TableInfo.Column("testo", "TEXT", true, 0, null, TableInfo.CREATED_FROM_ENTITY));
         _columnsAriaMessaggi.put("timestamp", new TableInfo.Column("timestamp", "INTEGER", true, 0, null, TableInfo.CREATED_FROM_ENTITY));
+        _columnsAriaMessaggi.put("callLogId", new TableInfo.Column("callLogId", "INTEGER", true, 0, null, TableInfo.CREATED_FROM_ENTITY));
         _columnsAriaMessaggi.put("letto", new TableInfo.Column("letto", "INTEGER", true, 0, null, TableInfo.CREATED_FROM_ENTITY));
         _columnsAriaMessaggi.put("stato", new TableInfo.Column("stato", "TEXT", true, 0, null, TableInfo.CREATED_FROM_ENTITY));
         final HashSet<TableInfo.ForeignKey> _foreignKeysAriaMessaggi = new HashSet<TableInfo.ForeignKey>(0);
@@ -145,7 +146,7 @@ public final class StoppAiDatabase_Impl extends StoppAiDatabase {
         }
         return new RoomOpenHelper.ValidationResult(true, null);
       }
-    }, "4d21bf5a8cfa55bad90020ae04a60dd7", "892e313bdcee1ef56ec8f4f122e03cd2");
+    }, "990964d7dca057c7a38fd8fe9978ff5b", "218a5aa6abe562ef08a2ad22a773bbf0");
     final SupportSQLiteOpenHelper.Configuration _sqliteConfig = SupportSQLiteOpenHelper.Configuration.builder(config.context).name(config.name).callback(_openCallback).build();
     final SupportSQLiteOpenHelper _helper = config.sqliteOpenHelperFactory.create(_sqliteConfig);
     return _helper;

@@ -13,7 +13,7 @@ import kotlinx.coroutines.flow.Flow
 @Dao
 interface CallLogDao {
     @Insert
-    suspend fun insertCallLog(callLog: CallLogEntry)
+    suspend fun insertCallLog(callLog: CallLogEntry): Long
 
     @Query("SELECT * FROM call_log_entries ORDER BY timestamp DESC")
     fun getAllCalls(): kotlinx.coroutines.flow.Flow<List<CallLogEntry>>
@@ -59,4 +59,9 @@ interface CallLogDao {
 
     @Query("DELETE FROM call_log_entries WHERE timestamp >= :since")
     suspend fun deleteCallsSince(since: Long)
+    @Query("SELECT * FROM call_log_entries WHERE phoneNumber LIKE '%' || :numero ORDER BY timestamp DESC LIMIT 1")
+    suspend fun getMostRecentByNumber(numero: String): CallLogEntry?
+
+    @Query("SELECT * FROM call_log_entries WHERE id = :id")
+    suspend fun getCallById(id: Long): CallLogEntry?
 }

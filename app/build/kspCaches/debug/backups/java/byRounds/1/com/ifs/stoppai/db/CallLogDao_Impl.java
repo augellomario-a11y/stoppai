@@ -15,6 +15,7 @@ import androidx.sqlite.db.SupportSQLiteStatement;
 import java.lang.Class;
 import java.lang.Exception;
 import java.lang.Integer;
+import java.lang.Long;
 import java.lang.Object;
 import java.lang.Override;
 import java.lang.String;
@@ -140,16 +141,16 @@ public final class CallLogDao_Impl implements CallLogDao {
 
   @Override
   public Object insertCallLog(final CallLogEntry callLog,
-      final Continuation<? super Unit> $completion) {
-    return CoroutinesRoom.execute(__db, true, new Callable<Unit>() {
+      final Continuation<? super Long> $completion) {
+    return CoroutinesRoom.execute(__db, true, new Callable<Long>() {
       @Override
       @NonNull
-      public Unit call() throws Exception {
+      public Long call() throws Exception {
         __db.beginTransaction();
         try {
-          __insertionAdapterOfCallLogEntry.insert(callLog);
+          final Long _result = __insertionAdapterOfCallLogEntry.insertAndReturnId(callLog);
           __db.setTransactionSuccessful();
-          return Unit.INSTANCE;
+          return _result;
         } finally {
           __db.endTransaction();
         }
@@ -657,6 +658,147 @@ public final class CallLogDao_Impl implements CallLogDao {
     final RoomSQLiteQuery _statement = RoomSQLiteQuery.acquire(_sql, 1);
     int _argIndex = 1;
     _statement.bindString(_argIndex, number);
+    final CancellationSignal _cancellationSignal = DBUtil.createCancellationSignal();
+    return CoroutinesRoom.execute(__db, false, _cancellationSignal, new Callable<CallLogEntry>() {
+      @Override
+      @Nullable
+      public CallLogEntry call() throws Exception {
+        final Cursor _cursor = DBUtil.query(__db, _statement, false, null);
+        try {
+          final int _cursorIndexOfId = CursorUtil.getColumnIndexOrThrow(_cursor, "id");
+          final int _cursorIndexOfPhoneNumber = CursorUtil.getColumnIndexOrThrow(_cursor, "phoneNumber");
+          final int _cursorIndexOfCallType = CursorUtil.getColumnIndexOrThrow(_cursor, "callType");
+          final int _cursorIndexOfTimestamp = CursorUtil.getColumnIndexOrThrow(_cursor, "timestamp");
+          final int _cursorIndexOfStatusId = CursorUtil.getColumnIndexOrThrow(_cursor, "statusId");
+          final int _cursorIndexOfNota = CursorUtil.getColumnIndexOrThrow(_cursor, "nota");
+          final int _cursorIndexOfAriaNote = CursorUtil.getColumnIndexOrThrow(_cursor, "ariaNote");
+          final int _cursorIndexOfCallOutcome = CursorUtil.getColumnIndexOrThrow(_cursor, "callOutcome");
+          final int _cursorIndexOfCallDirection = CursorUtil.getColumnIndexOrThrow(_cursor, "callDirection");
+          final int _cursorIndexOfDisplayName = CursorUtil.getColumnIndexOrThrow(_cursor, "displayName");
+          final int _cursorIndexOfSmsInviato = CursorUtil.getColumnIndexOrThrow(_cursor, "smsInviato");
+          final int _cursorIndexOfSmsRisposta = CursorUtil.getColumnIndexOrThrow(_cursor, "smsRisposta");
+          final CallLogEntry _result;
+          if (_cursor.moveToFirst()) {
+            final long _tmpId;
+            _tmpId = _cursor.getLong(_cursorIndexOfId);
+            final String _tmpPhoneNumber;
+            _tmpPhoneNumber = _cursor.getString(_cursorIndexOfPhoneNumber);
+            final String _tmpCallType;
+            _tmpCallType = _cursor.getString(_cursorIndexOfCallType);
+            final long _tmpTimestamp;
+            _tmpTimestamp = _cursor.getLong(_cursorIndexOfTimestamp);
+            final int _tmpStatusId;
+            _tmpStatusId = _cursor.getInt(_cursorIndexOfStatusId);
+            final String _tmpNota;
+            _tmpNota = _cursor.getString(_cursorIndexOfNota);
+            final String _tmpAriaNote;
+            _tmpAriaNote = _cursor.getString(_cursorIndexOfAriaNote);
+            final String _tmpCallOutcome;
+            _tmpCallOutcome = _cursor.getString(_cursorIndexOfCallOutcome);
+            final String _tmpCallDirection;
+            _tmpCallDirection = _cursor.getString(_cursorIndexOfCallDirection);
+            final String _tmpDisplayName;
+            _tmpDisplayName = _cursor.getString(_cursorIndexOfDisplayName);
+            final boolean _tmpSmsInviato;
+            final int _tmp;
+            _tmp = _cursor.getInt(_cursorIndexOfSmsInviato);
+            _tmpSmsInviato = _tmp != 0;
+            final String _tmpSmsRisposta;
+            if (_cursor.isNull(_cursorIndexOfSmsRisposta)) {
+              _tmpSmsRisposta = null;
+            } else {
+              _tmpSmsRisposta = _cursor.getString(_cursorIndexOfSmsRisposta);
+            }
+            _result = new CallLogEntry(_tmpId,_tmpPhoneNumber,_tmpCallType,_tmpTimestamp,_tmpStatusId,_tmpNota,_tmpAriaNote,_tmpCallOutcome,_tmpCallDirection,_tmpDisplayName,_tmpSmsInviato,_tmpSmsRisposta);
+          } else {
+            _result = null;
+          }
+          return _result;
+        } finally {
+          _cursor.close();
+          _statement.release();
+        }
+      }
+    }, $completion);
+  }
+
+  @Override
+  public Object getMostRecentByNumber(final String numero,
+      final Continuation<? super CallLogEntry> $completion) {
+    final String _sql = "SELECT * FROM call_log_entries WHERE phoneNumber LIKE '%' || ? ORDER BY timestamp DESC LIMIT 1";
+    final RoomSQLiteQuery _statement = RoomSQLiteQuery.acquire(_sql, 1);
+    int _argIndex = 1;
+    _statement.bindString(_argIndex, numero);
+    final CancellationSignal _cancellationSignal = DBUtil.createCancellationSignal();
+    return CoroutinesRoom.execute(__db, false, _cancellationSignal, new Callable<CallLogEntry>() {
+      @Override
+      @Nullable
+      public CallLogEntry call() throws Exception {
+        final Cursor _cursor = DBUtil.query(__db, _statement, false, null);
+        try {
+          final int _cursorIndexOfId = CursorUtil.getColumnIndexOrThrow(_cursor, "id");
+          final int _cursorIndexOfPhoneNumber = CursorUtil.getColumnIndexOrThrow(_cursor, "phoneNumber");
+          final int _cursorIndexOfCallType = CursorUtil.getColumnIndexOrThrow(_cursor, "callType");
+          final int _cursorIndexOfTimestamp = CursorUtil.getColumnIndexOrThrow(_cursor, "timestamp");
+          final int _cursorIndexOfStatusId = CursorUtil.getColumnIndexOrThrow(_cursor, "statusId");
+          final int _cursorIndexOfNota = CursorUtil.getColumnIndexOrThrow(_cursor, "nota");
+          final int _cursorIndexOfAriaNote = CursorUtil.getColumnIndexOrThrow(_cursor, "ariaNote");
+          final int _cursorIndexOfCallOutcome = CursorUtil.getColumnIndexOrThrow(_cursor, "callOutcome");
+          final int _cursorIndexOfCallDirection = CursorUtil.getColumnIndexOrThrow(_cursor, "callDirection");
+          final int _cursorIndexOfDisplayName = CursorUtil.getColumnIndexOrThrow(_cursor, "displayName");
+          final int _cursorIndexOfSmsInviato = CursorUtil.getColumnIndexOrThrow(_cursor, "smsInviato");
+          final int _cursorIndexOfSmsRisposta = CursorUtil.getColumnIndexOrThrow(_cursor, "smsRisposta");
+          final CallLogEntry _result;
+          if (_cursor.moveToFirst()) {
+            final long _tmpId;
+            _tmpId = _cursor.getLong(_cursorIndexOfId);
+            final String _tmpPhoneNumber;
+            _tmpPhoneNumber = _cursor.getString(_cursorIndexOfPhoneNumber);
+            final String _tmpCallType;
+            _tmpCallType = _cursor.getString(_cursorIndexOfCallType);
+            final long _tmpTimestamp;
+            _tmpTimestamp = _cursor.getLong(_cursorIndexOfTimestamp);
+            final int _tmpStatusId;
+            _tmpStatusId = _cursor.getInt(_cursorIndexOfStatusId);
+            final String _tmpNota;
+            _tmpNota = _cursor.getString(_cursorIndexOfNota);
+            final String _tmpAriaNote;
+            _tmpAriaNote = _cursor.getString(_cursorIndexOfAriaNote);
+            final String _tmpCallOutcome;
+            _tmpCallOutcome = _cursor.getString(_cursorIndexOfCallOutcome);
+            final String _tmpCallDirection;
+            _tmpCallDirection = _cursor.getString(_cursorIndexOfCallDirection);
+            final String _tmpDisplayName;
+            _tmpDisplayName = _cursor.getString(_cursorIndexOfDisplayName);
+            final boolean _tmpSmsInviato;
+            final int _tmp;
+            _tmp = _cursor.getInt(_cursorIndexOfSmsInviato);
+            _tmpSmsInviato = _tmp != 0;
+            final String _tmpSmsRisposta;
+            if (_cursor.isNull(_cursorIndexOfSmsRisposta)) {
+              _tmpSmsRisposta = null;
+            } else {
+              _tmpSmsRisposta = _cursor.getString(_cursorIndexOfSmsRisposta);
+            }
+            _result = new CallLogEntry(_tmpId,_tmpPhoneNumber,_tmpCallType,_tmpTimestamp,_tmpStatusId,_tmpNota,_tmpAriaNote,_tmpCallOutcome,_tmpCallDirection,_tmpDisplayName,_tmpSmsInviato,_tmpSmsRisposta);
+          } else {
+            _result = null;
+          }
+          return _result;
+        } finally {
+          _cursor.close();
+          _statement.release();
+        }
+      }
+    }, $completion);
+  }
+
+  @Override
+  public Object getCallById(final long id, final Continuation<? super CallLogEntry> $completion) {
+    final String _sql = "SELECT * FROM call_log_entries WHERE id = ?";
+    final RoomSQLiteQuery _statement = RoomSQLiteQuery.acquire(_sql, 1);
+    int _argIndex = 1;
+    _statement.bindLong(_argIndex, id);
     final CancellationSignal _cancellationSignal = DBUtil.createCancellationSignal();
     return CoroutinesRoom.execute(__db, false, _cancellationSignal, new Callable<CallLogEntry>() {
       @Override

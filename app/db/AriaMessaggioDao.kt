@@ -19,6 +19,9 @@ interface AriaMessaggioDao {
     @Query("SELECT * FROM aria_messaggi WHERE numero = :numero ORDER BY timestamp DESC")
     fun getPerNumero(numero: String): Flow<List<AriaMessaggio>>
 
+    @Query("SELECT * FROM aria_messaggi WHERE callLogId = :callId ORDER BY timestamp DESC")
+    fun getPerCallLogId(callId: Long): Flow<List<AriaMessaggio>>
+
     @Query("SELECT * FROM aria_messaggi ORDER BY timestamp DESC")
     fun getTutti(): Flow<List<AriaMessaggio>>
 

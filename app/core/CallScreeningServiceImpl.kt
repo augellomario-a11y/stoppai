@@ -7,6 +7,9 @@ package com.ifs.stoppai.core
 import android.content.Context
 import android.net.Uri
 import android.os.Build
+import android.media.AudioManager
+import android.os.Handler
+import android.os.Looper
 import android.provider.ContactsContract
 import android.telecom.Call
 import android.telecom.CallScreeningService
@@ -51,14 +54,17 @@ class CallScreeningServiceImpl : CallScreeningService() {
             Decisione.SQUILLA -> {
                 AudioHelper.alzaVolume(context)
                 respondToCall(callDetails, CallResponse.Builder().setDisallowCall(false).build())
+                CallLogHelper.saveCallLog(context, normalizedNumber, "ENTRATA", false)
             }
             Decisione.ARIA -> {
                 AudioHelper.abbassaVolume(context)
+                applySilentVibrationLogic(context)
                 respondToCall(callDetails, CallResponse.Builder().setDisallowCall(false).build())
                 CallLogHelper.saveCallLog(context, normalizedNumber, "DEVIATA", false)
             }
             Decisione.BLOCCA_E_SMS -> {
                 AudioHelper.abbassaVolume(context)
+                applySilentVibrationLogic(context)
                 respondToCall(callDetails, CallResponse.Builder()
                     .setDisallowCall(true)
                     .setRejectCall(true)
@@ -95,6 +101,28 @@ class CallScreeningServiceImpl : CallScreeningService() {
                     if (state == TelephonyManager.CALL_STATE_IDLE) AudioHelper.alzaVolume(applicationContext)
                 }
             }, PhoneStateListener.LISTEN_CALL_STATE)
+        }
+    }
+
+    private fun applySilentVibrationLogic(context: Context) {
+        try {
+            val audioManager = context.getSystemService(Context.AUDIO_SERVICE) as AudioManager
+            val originalRingerMode = audioManager.ringerMode
+            audioManager.ringerMode = AudioManager.RINGER_MODE_SILENT
+            Log.d("STOPPAI", "Ringer mode SILENT attivato (per 30s)")
+
+            Handler(Looper.getMainLooper()).postDelayed({
+                try {
+                    audioManager.ringerMode = originalRingerMode
+                    Log.d("STOPPAI", "Ringer mode ripristinato a: $originalRingerMode")
+                } catch (e: Exception) {
+                    Log.e("STOPPAI", "Errore nel ripristino ringerMode", e)
+                }
+            }, 30000)
+        } catch (e: SecurityException) {
+            Log.e("STOPPAI", "Permesso Do Not Disturb mancante per RINGER_MODE_SILENT", e)
+        } catch (e: Exception) {
+            Log.e("STOPPAI", "Errore nel setting di RINGER_MODE_SILENT", e)
         }
     }
 }

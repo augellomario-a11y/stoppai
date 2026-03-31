@@ -1,5 +1,84 @@
 # 📔 ROADBOOK: StoppAI
 ---
+### 📅 2026-03-31 12:16 | Agente: Antigravity
+- **TASK**: [TASK-SA-110-ICONA-NOTE-LISTA] — INDICATORE NOTE 📝
+- **STATUS**: ✅ COMPLETATO
+- **VERSIONE**: v5.4.2 (Build 80)
+- **AZIONI**:
+  - **CRM UI**: Aggiunta icona 📝 nella riga della chiamata se è presente una nota.
+  - **LAYOUT**: Inserito `txt_note_indicator` in `item_call_log.xml`.
+  - **ADAPTER**: Gestita visibilità dinamica dell'icona note in `CallLogAdapter`.
+
+### 📅 2026-03-31 12:13 | Agente: Antigravity
+- **TASK**: [TASK-SA-109-FIX-COLORI-LISTA] — LOGICA COLORI PALLINO & FRECCE
+- **STATUS**: ✅ COMPLETATO
+- **VERSIONE**: v5.4.1 (Build 79)
+- **AZIONI**:
+  - **CRM UI**: Nuova logica cromatica:
+    - **PALLINO**: Verde (Contatto) / Rosso (Sconosciuto).
+    - **FRECCE**:
+      - ↑ (USCITA) → **VERDE**.
+      - ↓ (ENTRATA + Contatto) → **VERDE**.
+      - ↓ (ENTRATA + Sconosciuto) → **ROSSA**.
+      - ↓ (MANCATA/DEVIATA) → **GRIGIA**.
+
+### 📅 2026-03-31 12:10 | Agente: Antigravity
+- **TASK**: [TASK-SA-108-FIX-FRECCE-DIREZIONE] — COLORI FRECCE REGISTRO
+- **STATUS**: ✅ COMPLETATO
+- **VERSIONE**: v5.4.0 (Build 78)
+- **AZIONI**:
+  - **UI**: Corretta logica colori frecce:
+    - ↑ (USCITA) → **VERDE**
+    - ↓ (ENTRATA) → **ROSSA**
+    - ↓ (ALTRO: MANCATA/DEVIATA) → **GRIGIA**
+  - **LOGICA**: Modificata discriminazione `callType` in `CallLogAdapter`.
+
+### 📅 2026-03-31 12:05 | Agente: Antigravity
+- **TASK**: [TASK-SA-107-UX-PULIZIA-CRM] — PULIZIA UI & TIMESTAMP
+- **STATUS**: ✅ COMPLETATO
+- **VERSIONE**: v5.3.9 (Build 77)
+- **AZIONI**:
+  - **UI**: Sostituite frecce testuali con icone vettoriali (↓ Rossa per MANCATA, ↓/↑ Grigia per altre).
+  - **UI**: Rimosso contatore `(N)` dal registro CRM.
+  - **CRM**: Pulito menu azioni (rimossi bottoni qualifica Rosso/Nero/Verde).
+  - **ARIA**: Corretto orario nel BottomSheet prendendolo dalla chiamata originale (`dd/MM HH:mm:ss`).
+  - **DB**: Aggiunto `getCallById` nel DAO.
+
+### 📅 2026-03-31 11:45 | Agente: Antigravity
+- **TASK**: [TASK-SA-106-UNIFORMA-FLUSSI-CRM] — REAL-TIME & LOG TOTALE
+- **STATUS**: ✅ COMPLETATO
+- **VERSIONE**: v5.3.8 (Build 76)
+- **AZIONI**:
+  - **UI**: L'icona 🎙️ (ARIA) ora appare in tempo reale via Flow/collectLatest senza reload.
+  - **SERVICE**: Ogni chiamata corretta (`SQUILLA`) viene ora salvata come `ENTRATA` nel CRM.
+  - **FIX**: Resa pubblica `getContactName` per uso in `AriaFcmService`.
+
+### 📅 2026-03-31 11:20 | Agente: Antigravity
+- **TASK**: [TASK-SA-105-FCM-CREA-CALLLOG] — ARIA CREA CRM
+- **STATUS**: ✅ COMPLETATO
+- **VERSIONE**: v5.3.7 (Build 75)
+- **AZIONI**:
+  - **FCM**: Se arriva un messaggio push e non esiste una chiamata recente (10m), ARIA crea da sola la voce CRM.
+  - **LINK**: Collegamento biunivoco tra Messaggio Aria e CallLogEntry tramite ID.
+  - **DB**: Modificato `insertCallLog` per restituire l'ID generato.
+
+### 📅 2026-03-31 10:45 | Agente: Antigravity
+- **TASK**: [TASK-SA-104-FIX-VIBRAZIONE] — SILENZIO FORZATO 30s
+- **STATUS**: ✅ COMPLETATO
+- **VERSIONE**: v5.3.6 (Build 74)
+- **AZIONI**:
+  - **AUDIO**: Implementato `applySilentVibrationLogic` in `CallScreeningService`.
+  - **MUTE**: Imposta `RINGER_MODE_SILENT` all'arrivo di spam/deviate con ripristino automatico dopo 30 secondi.
+
+### 📅 2026-03-31 10:20 | Agente: Antigravity
+- **TASK**: [TASK-SA-103-MISSED-CALL-CRM] — MONITOR CHIAMATE PERSE
+- **STATUS**: ✅ COMPLETATO
+- **VERSIONE**: v5.3.6 (Build 74)
+- **AZIONI**:
+  - **OBSERVER**: Creato `MissedCallObserver.kt` per intercettare chiamate `MISSED` da contatti.
+  - **MANIFEST**: Aggiunto permesso `READ_CALL_LOG`.
+  - **BOOT**: Registrazione observer in `StoppAiApp.kt`.
+
 ### 📅 2026-03-30 01:05 | Agente: Antigravity
 - **TASK**: [TASK-SA-093-ARIA-DB] — TRASCRIZIONI NEL MINI CRM (v5.3.0)
 - **STATUS**: ✅ COMPLETATO

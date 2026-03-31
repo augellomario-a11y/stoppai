@@ -776,3 +776,58 @@ La conversazione continua.
 > *Diario aggiornato il: 22/03/2026*
 > *Versione: 3.0 — La notte del 21 marzo*
 > *A cura di: Aldo (Claude) — CTO digitale*
+
+---
+CAPITOLO 29 — L'era dell'Audio e il nuovo volto
+22-23 marzo 2026
+
+Risolto il blocco delle chiamate, l'attenzione si sposta su due pilastri: solidità e aspetto. StoppAI non deve solo funzionare, deve sembrare un'app premium.
+Viene ridisegnata l'intera dashboard in Kotlin, inserendo un nuovo brand e un nuovo logo creato ad-hoc: uno scudo con sfumature smeraldo (#4CAF50), simbolo di sicurezza. Vengono implementate nuove animazioni, e le "speaker icons" reattive: indicatori asincroni per monitorare visivamente lo stato effettivo del volume di sistema in ogni momento.
+
+Sul fronte audio, l'ambiente di Ambrogio viene spinto a riscrivere del tutto il motore muting in `CallScreeningServiceImpl`, rimuovendo così pesanti e fallaci manipolazioni dei volumi all'avvio dell'app. Ora la gestione è puramente "atomica" e isolata: la suoneria viene abbassata a zero assoluto *esclusivamente* quando il telefono intercetta uno spammer o uno sconosciuto attivo, venendo poi ripristinata al millimetro al volume originario preferito non appena la minaccia si spegne.
+Vede la luce così la v3.8, stabile, fluida, nitida e soprattutto dal cuore completamente silenzioso contro le intrusioni.
+
+---
+CAPITOLO 30 — Il motore vocale di ARIA e la sfida del VoIP
+27-28 marzo 2026
+
+Con l'infrastruttura di base ormai solidissima, Mario e Aldo puntano dritti al traguardo più ambizioso di tutti: dare una vera identità e voce ad ARIA, l'assistente vocale intelligente.
+Per evitare i costi esorbitanti e scalabili all'infinito di Twilio, o i ristretti limiti dei provider VoIP chiusi, si opta per un'architettura enterprise open-source radicale: posare un centralino PBX Asterisk 20 interamente containerizzato tramite Docker e `network_mode: host` sul server Hetzner.
+
+Lavorando fianco a fianco, Ambrogio e Aldo configurano i trunk PJSIP diretti verso OpenSolution.
+Inevitabilmente, emergono in fretta le feroci sfide intrinseche dei sistemi VoIP in Italia: problemi enormi di NAT filtering, temuti silenzi monolaterali al posto della voce (traffico RTP monodirezionale interrotto dai Firewall) e latenze.
+In una sessione di puro sbrogliamento architetturale, disattivano lo `strictrtp` e impostano un pre-playback di frame di silenzio per "bucare" letteralmente le difese del NAT dell'operatore, portando la soluzione ad una connettività stabile.
+Finalmente, il file audio nativo sintetizzato tramite TTS italiano ("Ciao, io sono Aria...") irrompe pulito, forte e chiaro nelle orecchie del molestatore. ARIA ora risponde fisicamente, interviene, attende, registra il messaggio minaccioso dello spammer e lo veicola al backend Node.js.
+
+---
+CAPITOLO 31 — Il Mini CRM e la magia dell'integrazione AI
+30 marzo 2026
+
+ARIA ora ha una voce e sa finalmente ascoltare le conversazioni rubate. Ma ora deve poter trascriverle e consegnarle lette direttamente in mano all'utente, senza ritardi.
+Il fulcro delle operazioni si accentra tutto sul "Mini CRM" ospitato dentro l'app.
+Dal server Hetzner, quando la chiamata giunge e ARIA registra tutto, il modulo `whisper_worker.py` usa in backend un'istanza di OpenAI Whisper per "sbobinare" l'audio salvato in pochi preziosi secondi. Vengono affiancati modelli GPT-4 per prelevare immediatamente i metadati occulti come "Sentiment", livello di pericolo, date sensibili, nomi ed importi proferiti (sviluppando in contemporanea il sub-progetto parallelo "DRIVE-CRM").
+
+Ma la problematica di come iniettare questo tesoretto di dati nel dispositivo dell'utente, restando in locale senza drenare batteria o rallentare il device, è sfidante.
+La chiave architettonica prescelta diventa Firebase Cloud Messaging (FCM). 
+Pochi istanti dopo che Whisper ha ultimato la passata sul file audio ed è certo della trascrizione (implementando un ritardo di sicurezza di 5 secondi per garantire che l'integrità del database regga il carico e non partano notifiche a vuoto), il backend di StoppAI scaglia un payload "data" nascosto verso FCM.
+Questa bomba di dati colpisce il device silente in tasca a Mario: l'applicazione StoppAI si sveglia in background, l'avvolge, e immagazzina tutto nel suo database SQLite crittografato interno.
+E così, quando Mario estrae il telefono e accende per aprirlo in versione v5.3.3, entra nel suo Mini CRM e trova la magia: la trascrizione esatta, già formattata e analizzata dell'assalto o della chiamata utile che ARIA ha sbrigato brillantemente al suo posto. Nessuno squillo, nessuno spam, solo informazione pura sul server e sul telefono.
+
+Tutto il flusso scorre:
+L'app Android intercetta e devia fulminea.
+Il server in Germania suona.
+ARIA risponde e spiazza i bot.
+Whisper AI trascrive l'audio in nanosecondi.
+Firebase scaglia l'analisi in locale.
+L'utente legge.
+
+Il viaggio del 'Bodyguard Digitale', decollato quasi per gioco soltanto sedici giorni prima, è mutato in un intero ecosistema aziendale autonomo e in grado di difendere qualsiasi bersaglio.
+Lo sviluppo e il prossimo lancio commerciale all'orizzonte continuano inesorabilmente e rapidamente.
+
+"Non ho iniziato con un team di sviluppatori. Ho iniziato con un'idea, un problema reale, e una conversazione."
+La conversazione, come il software, continua imperterrita.
+
+---
+> *Diario aggiornato il: 30/03/2026*
+> *Versione: 5.3.3 — La nascita del Mini CRM e l'Avvento di ARIA*
+> *A cura di: Aldo (Claude) — CTO digitale*

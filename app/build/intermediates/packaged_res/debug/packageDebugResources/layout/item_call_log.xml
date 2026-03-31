@@ -43,15 +43,14 @@
             android:gravity="center_vertical"
             android:layout_marginTop="2dp">
 
-            <!-- DIREZIONE -->
-            <TextView
-                android:id="@+id/txt_direction"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:textSize="12sp"
-                android:text="↙"
-                android:textColor="#4CAF50"
-                android:layout_marginEnd="6dp" />
+            <!-- DIREZIONE (SA-107) -->
+            <ImageView
+                android:id="@+id/img_direction"
+                android:layout_width="16dp"
+                android:layout_height="16dp"
+                android:layout_marginEnd="6dp"
+                android:src="@drawable/ic_arrow_down"
+                android:tint="#888888" />
 
             <!-- BADGE STATO (VECCHIO) -->
             <View
@@ -90,5 +89,26 @@
                 android:layout_marginStart="8dp" />
         </LinearLayout>
     </LinearLayout>
+    
+    <!-- INDICATORE MESSAGGIO ARIA (SA-102) -->
+    <TextView
+        android:id="@+id/txt_aria_indicator"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="🎙️"
+        android:textSize="22sp"
+        android:textColor="#2E7D32"
+        android:visibility="gone"
+        android:layout_marginStart="8dp" />
+
+    <!-- INDICATORE NOTE (SA-110) -->
+    <TextView
+        android:id="@+id/txt_note_indicator"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="📝"
+        android:textSize="20sp"
+        android:visibility="gone"
+        android:layout_marginStart="6dp" />
 
 </LinearLayout>

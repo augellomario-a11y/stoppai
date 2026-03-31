@@ -3021,6 +3021,8 @@ drawable design_snackbar_background
 drawable googleg_disabled_color_18
 drawable googleg_standard_color_18
 drawable ic_arrow_back_black_24
+drawable ic_arrow_down
+drawable ic_arrow_up
 drawable ic_call_answer
 drawable ic_call_answer_low
 drawable ic_call_answer_video
@@ -3281,7 +3283,6 @@ id btn_add_contact
 id btn_ai_transcription
 id btn_annulla
 id btn_aria_chiudi_bottom
-id btn_attendibile
 id btn_call_now
 id btn_cancel_note
 id btn_cancel_reg
@@ -3291,7 +3292,6 @@ id btn_close_bs
 id btn_close_reg
 id btn_confirm_base
 id btn_copy_link
-id btn_da_trattare
 id btn_delete_call
 id btn_how_it_works
 id btn_invia
@@ -3301,7 +3301,6 @@ id btn_request_payment
 id btn_save_note
 id btn_send_request
 id btn_send_request_premium
-id btn_spam
 id btn_stripe_mgmt
 id buttonPanel
 id cache_measures
@@ -3459,6 +3458,7 @@ id ifRoom
 id ignore
 id ignoreRequest
 id image
+id img_direction
 id immediateStop
 id included
 id indeterminate
@@ -3727,12 +3727,13 @@ id transition_scene_layoutid_cache
 id transition_transform
 id triangle
 id txt_aria_contenuto
+id txt_aria_indicator
 id txt_aria_numero
 id txt_char_counter
-id txt_direction
 id txt_earnings_toggle
 id txt_icon_type
 id txt_name_number
+id txt_note_indicator
 id txt_preferiti_status
 id txt_referral_label
 id txt_referral_link

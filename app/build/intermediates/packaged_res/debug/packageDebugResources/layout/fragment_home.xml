@@ -37,7 +37,7 @@
         <TextView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="v5.3.3-ARIA-CRM — ARIA SYNC"
+            android:text="v5.4.2-ARIA — Build 80"
             android:textSize="10sp"
             android:textColor="#388E3C"
             android:gravity="center"
@@ -296,6 +296,8 @@
             android:id="@+id/ID_HOME_012"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
+            android:paddingTop="8dp"
+            android:clipToPadding="false"
             android:scrollbars="vertical" />
 
         <TextView

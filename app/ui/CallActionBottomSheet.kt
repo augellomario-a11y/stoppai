@@ -68,17 +68,13 @@ class CallActionBottomSheet(
             txtSmsContent.setTextColor(android.graphics.Color.GRAY)
         }
 
-        // 1. TRASCRIZIONE AI (SA-099) — BottomSheet dedicato con filtro chiamata specifica
+        // 1. TRASCRIZIONE AI (SA-101) — BottomSheet dedicato con link ID chiamata
         root.findViewById<Button>(R.id.btn_ai_transcription).setOnClickListener {
-            val sheet = AriaTranscriptionSheet.newInstance(entry.phoneNumber, entry.timestamp)
+            val sheet = AriaTranscriptionSheet.newInstance(entry.phoneNumber, entry.id)
             sheet.show(parentFragmentManager, "aria_transcription")
         }
 
-        root.findViewById<Button>(R.id.btn_da_trattare).setOnClickListener { updateStatus(0) }
-        root.findViewById<Button>(R.id.btn_spam).setOnClickListener { updateStatus(2) }
-        root.findViewById<Button>(R.id.btn_attendibile).setOnClickListener { updateStatus(1) }
-
-        // 5. NOTE (Premium Dialog)
+        // 5. NOTE (Premium Dialog) (SA-107)
         root.findViewById<Button>(R.id.btn_note).setOnClickListener {
             showNoteDialogV2()
         }
