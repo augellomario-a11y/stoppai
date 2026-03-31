@@ -1,5 +1,15 @@
 # 📔 ROADBOOK: StoppAI
 ---
+### 📅 2026-03-31 23:30 | Agente: Antigravity
+- **TASK**: [TASK-SA-115-LANDING-FORM-E-POPUP] — LANDING v1.1
+- **STATUS**: ✅ COMPLETATO
+- **VERSIONE**: Landing v1.1 (Tester Form + Popup)
+- **MODIFICHE**:
+  - **POPUP**: Aggiunto popup "A breve disponibile" per Android e iOS.
+  - **FORM**: Nuova sezione "Partecipa ai test" con ID `iscriviti`.
+  - **LOGICA**: Implementato scroll smooth al form e feedback invio.
+  - **PULIZIA**: Sostituiti tutti i pulsanti download con la logica popup.
+
 ### 📅 2026-03-31 22:40 | Agente: Antigravity
 - **TASK**: [TASK-SA-114-LANDING-REBUILD] — REBUILD COMPLETO v1.0
 - **STATUS**: ✅ COMPLETATO
