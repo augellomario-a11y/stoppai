@@ -289,37 +289,61 @@ async function switchTab(tab,id){
     const sr=await fetch(API+'/testers/'+id+'/stats');
     const s=sr.ok?await sr.json():{};
     const has=s.ultimo_sync;
-    panel.innerHTML=`
-      <div style="padding:8px 0">
-        <h3 style="color:var(--oro);margin-bottom:16px;font-size:14px">Info dispositivo</h3>
-        <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:20px">
-          <div class="field"><label>Telefono</label><div class="field-val">${s.modello_telefono||t.modello_telefono||'—'}</div></div>
-          <div class="field"><label>Android</label><div class="field-val">${s.versione_android||'—'}</div></div>
-          <div class="field"><label>Versione app</label><div class="field-val">${s.versione_app||t.versione_app||'—'}</div></div>
-          <div class="field"><label>Ultimo sync</label><div class="field-val">${s.ultimo_sync?.replace('T',' ').slice(0,16)||'Mai'}</div></div>
+    const sc=v=>v||0;
+    function miniCard(icon,label,value,color){return `<div style="background:var(--card);border:1px solid var(--bordo);border-radius:10px;padding:16px;text-align:center;min-width:100px;flex:1"><div style="font-size:20px;margin-bottom:6px">${icon}</div><div style="font-size:26px;font-weight:bold;color:${color||'var(--oro)'}">${value}</div><div style="font-size:10px;color:var(--grigio);margin-top:4px;text-transform:uppercase;letter-spacing:.5px">${label}</div></div>`}
+    function statRow(label,value,icon,color){return `<div style="display:flex;justify-content:space-between;align-items:center;padding:10px 0;border-bottom:1px solid var(--bordo)"><div style="display:flex;align-items:center;gap:8px"><span style="font-size:16px">${icon||''}</span><span style="font-size:13px;color:#ccc">${label}</span></div><div style="font-size:15px;font-weight:bold;color:${color||'var(--bianco)'}">${value}</div></div>`}
+    panel.innerHTML=`<div style="padding:8px 0">
+      <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:24px">
+        <div style="background:var(--card);border:1px solid var(--bordo);border-radius:10px;padding:14px"><div style="font-size:10px;color:var(--grigio);text-transform:uppercase;margin-bottom:4px">Dispositivo</div><div style="font-size:13px;font-weight:600">${s.modello_telefono||t.modello_telefono||'—'}</div></div>
+        <div style="background:var(--card);border:1px solid var(--bordo);border-radius:10px;padding:14px"><div style="font-size:10px;color:var(--grigio);text-transform:uppercase;margin-bottom:4px">Android</div><div style="font-size:13px;font-weight:600">${s.versione_android||'—'}</div></div>
+        <div style="background:var(--card);border:1px solid var(--bordo);border-radius:10px;padding:14px"><div style="font-size:10px;color:var(--grigio);text-transform:uppercase;margin-bottom:4px">App</div><div style="font-size:13px;font-weight:600">${s.versione_app||t.versione_app||'—'}</div></div>
+        <div style="background:var(--card);border:1px solid var(--bordo);border-radius:10px;padding:14px"><div style="font-size:10px;color:var(--grigio);text-transform:uppercase;margin-bottom:4px">Ultimo sync</div><div style="font-size:13px;font-weight:600">${s.ultimo_sync?.replace('T',' ').slice(0,16)||'Mai'}</div></div>
+      </div>
+      ${has?`
+      <div style="display:flex;gap:12px;margin-bottom:28px">
+        ${miniCard('📞','Chiamate totali',sc(s.chiamate_totali),'var(--oro)')}
+        ${miniCard('📅','Oggi',sc(s.chiamate_oggi),'var(--bianco)')}
+        ${miniCard('👤','Conosciuti NR',sc(s.conosciuti_non_risposti),'var(--verde)')}
+      </div>
+      <div style="background:var(--card);border:1px solid var(--bordo);border-radius:12px;overflow:hidden;margin-bottom:16px">
+        <div style="background:linear-gradient(135deg,#1a1a2e,#12121a);padding:14px 16px;border-bottom:1px solid var(--bordo)">
+          <span style="font-size:14px;font-weight:600;color:var(--oro)">📱 Sconosciuti Mobile</span>
         </div>
-        ${has?`
-        <h3 style="color:var(--oro);margin-bottom:12px;font-size:14px">Chiamate</h3>
-        <div style="display:flex;gap:12px;margin-bottom:20px">
-          <div class="stat" style="min-width:80px"><div class="n">${s.chiamate_totali||0}</div><div class="label">Totali</div></div>
-          <div class="stat" style="min-width:80px"><div class="n">${s.chiamate_oggi||0}</div><div class="label">Oggi</div></div>
+        <div style="padding:4px 16px">
+          ${statRow('Non risposti',sc(s.sconosciuti_mobile_non_risposti),'🚫','#ff9800')}
+          ${statRow('SMS inviato',sc(s.sconosciuti_mobile_sms),'✉️','#42a5f5')}
+          ${statRow('Inoltro segreteria',sc(s.sconosciuti_mobile_segreteria),'🎙️','var(--viola)')}
+          ${statRow('Messaggio lasciato',sc(s.sconosciuti_mobile_msg_lasciato),'💬','var(--verde)')}
+          ${statRow('Nessun messaggio',sc(s.sconosciuti_mobile_msg_non_lasciato),'—','var(--grigio)')}
         </div>
-        <h3 style="color:var(--oro);margin-bottom:12px;font-size:14px">Dettaglio oggi</h3>
-        <div style="background:var(--card2);border:1px solid var(--bordo);border-radius:8px;padding:16px;font-size:13px;line-height:2">
-          <div><strong style="color:var(--verde)">Conosciuti</strong> non risposti: ${s.conosciuti_non_risposti||0}</div>
-          <div style="margin-top:8px"><strong style="color:var(--oro)">Sconosciuti Mobile</strong></div>
-          <div style="padding-left:12px">Non risposti: ${s.sconosciuti_mobile_non_risposti||0} | SMS: ${s.sconosciuti_mobile_sms||0} | Segreteria: ${s.sconosciuti_mobile_segreteria||0}</div>
-          <div style="padding-left:12px">Msg lasciato: ${s.sconosciuti_mobile_msg_lasciato||0} | Non lasciato: ${s.sconosciuti_mobile_msg_non_lasciato||0}</div>
-          <div style="margin-top:8px"><strong style="color:var(--oro)">Sconosciuti Fisso</strong></div>
-          <div style="padding-left:12px">Non risposti: ${s.sconosciuti_fissi_non_risposti||0} | Segreteria: ${s.sconosciuti_fissi_segreteria||0}</div>
-          <div style="padding-left:12px">Msg lasciato: ${s.sconosciuti_fissi_msg_lasciato||0} | Non lasciato: ${s.sconosciuti_fissi_msg_non_lasciato||0}</div>
-          <div style="margin-top:8px"><strong style="color:var(--rosso)">Privati</strong></div>
-          <div style="padding-left:12px">Non risposti: ${s.privati_non_risposti||0} | Segreteria: ${s.privati_segreteria||0}</div>
-          <div style="padding-left:12px">Msg lasciato: ${s.privati_msg_lasciato||0} | Non lasciato: ${s.privati_msg_non_lasciato||0}</div>
-        </div>`:`<div style="background:var(--card2);border:1px solid var(--bordo);border-radius:8px;padding:16px;margin-top:12px">
-          <p style="color:var(--grigio);font-size:12px">Statistiche non ancora sincronizzate. L'app inviera' i dati automaticamente.</p>
-        </div>`}
-      </div>`;
+      </div>
+      <div style="background:var(--card);border:1px solid var(--bordo);border-radius:12px;overflow:hidden;margin-bottom:16px">
+        <div style="background:linear-gradient(135deg,#1a1a2e,#12121a);padding:14px 16px;border-bottom:1px solid var(--bordo)">
+          <span style="font-size:14px;font-weight:600;color:var(--oro)">☎️ Sconosciuti Fisso</span>
+        </div>
+        <div style="padding:4px 16px">
+          ${statRow('Non risposti',sc(s.sconosciuti_fissi_non_risposti),'🚫','#ff9800')}
+          ${statRow('Inoltro segreteria',sc(s.sconosciuti_fissi_segreteria),'🎙️','var(--viola)')}
+          ${statRow('Messaggio lasciato',sc(s.sconosciuti_fissi_msg_lasciato),'💬','var(--verde)')}
+          ${statRow('Nessun messaggio',sc(s.sconosciuti_fissi_msg_non_lasciato),'—','var(--grigio)')}
+        </div>
+      </div>
+      <div style="background:var(--card);border:1px solid var(--bordo);border-radius:12px;overflow:hidden">
+        <div style="background:linear-gradient(135deg,#2a0a0a,#12121a);padding:14px 16px;border-bottom:1px solid var(--bordo)">
+          <span style="font-size:14px;font-weight:600;color:var(--rosso)">🕵️ Numeri Privati</span>
+        </div>
+        <div style="padding:4px 16px">
+          ${statRow('Non risposti',sc(s.privati_non_risposti),'🚫','#ff9800')}
+          ${statRow('Inoltro segreteria',sc(s.privati_segreteria),'🎙️','var(--viola)')}
+          ${statRow('Messaggio lasciato',sc(s.privati_msg_lasciato),'💬','var(--verde)')}
+          ${statRow('Nessun messaggio',sc(s.privati_msg_non_lasciato),'—','var(--grigio)')}
+        </div>
+      </div>
+      `:`<div style="background:var(--card);border:1px solid var(--bordo);border-radius:12px;padding:32px;text-align:center;margin-top:12px">
+        <div style="font-size:32px;margin-bottom:12px">📊</div>
+        <p style="color:var(--grigio);font-size:13px">Statistiche non ancora sincronizzate.<br>L'app inviera' i dati automaticamente alla prossima apertura.</p>
+      </div>`}
+    </div>`;
   } else if(tab==='notes'){
     if(ci)ci.style.display='none';
     const notes=await(await fetch(API+'/testers/'+id+'/notes')).json();
