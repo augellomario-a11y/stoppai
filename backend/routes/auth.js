@@ -102,21 +102,25 @@ router.post('/verify', (req, res) => {
   });
 });
 
-// Invio push FCM con codice tramite bridge locale (porta 3000)
+// Invio push FCM con codice tramite bridge FCM (porta 3000 sul host Docker)
 async function inviaFcmCodice(fcmToken, codice) {
   try {
     const http = require('http');
     const data = JSON.stringify({ token: fcmToken, tipo: 'magic_code', codice: codice });
     const options = {
-      hostname: '127.0.0.1',
+      hostname: '172.17.0.1',
       port: 3000,
       path: '/api/push',
       method: 'POST',
-      headers: { 'Content-Type': 'application/json', 'Content-Length': data.length }
+      headers: { 'Content-Type': 'application/json', 'Content-Length': data.length },
+      timeout: 5000
     };
     return new Promise((resolve) => {
-      const req = http.request(options, (res) => { resolve(res.statusCode); });
-      req.on('error', () => resolve(null));
+      const req = http.request(options, (res) => {
+        console.log('FCM push codice risposta:', res.statusCode);
+        resolve(res.statusCode);
+      });
+      req.on('error', (e) => { console.error('FCM push errore:', e.message); resolve(null); });
       req.write(data);
       req.end();
     });
