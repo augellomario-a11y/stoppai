@@ -126,7 +126,9 @@ body{font-family:-apple-system,sans-serif;background:var(--bg);color:var(--bianc
       <div class="sb-nav">
         <div class="sb-item active" onclick="showView('dashboard')">📊 Dashboard</div>
         <div class="sb-item" onclick="showView('testers')">👥 Tester</div>
+        <div class="sb-item" onclick="showView('broadcast')">📢 Comunicazioni</div>
         <div class="sb-item" onclick="showView('referral')">🔗 Referral</div>
+        <div class="sb-item" onclick="showView('links')">🛡️ Link pericolosi</div>
       </div>
       <div class="sb-footer">StoppAI Admin v1.0</div>
     </div>
@@ -155,12 +157,14 @@ fetch(API+'/stats').then(r=>{if(r.ok){document.getElementById('login').style.dis
 
 // --- VIEWS ---
 function showView(v){
-  document.querySelectorAll('.sb-item').forEach((el,i)=>{el.classList.toggle('active',['dashboard','testers','referral'][i]===v)});
+  document.querySelectorAll('.sb-item').forEach((el,i)=>{el.classList.toggle('active',['dashboard','testers','broadcast','referral','links'][i]===v)});
   currentTester=null;
   if(v==='dashboard')loadDashboard();
   else if(v==='testers')loadTesterList();
+  else if(v==='broadcast')loadBroadcast();
   else if(v==='referral')document.getElementById('viewContent').innerHTML='<p style="color:var(--grigio);padding:40px;text-align:center">Gestione Referral — in arrivo</p>';
-  document.getElementById('viewTitle').textContent={dashboard:'Dashboard',testers:'Tester',referral:'Referral'}[v];
+  else if(v==='links')document.getElementById('viewContent').innerHTML='<p style="color:var(--grigio);padding:40px;text-align:center">Gestione Link e messaggi pericolosi — in arrivo</p>';
+  document.getElementById('viewTitle').textContent={dashboard:'Dashboard',testers:'Tester',broadcast:'Comunicazioni',referral:'Referral',links:'Link pericolosi'}[v];
 }
 
 // --- DASHBOARD ---
@@ -230,6 +234,7 @@ async function openTester(id){
     <div class="detail-right">
       <div class="tabs">
         <div class="tab active" onclick="switchTab('chat',${t.id})">💬 Chat</div>
+        <div class="tab" onclick="switchTab('stats',${t.id})">📊 Statistiche</div>
         <div class="tab" onclick="switchTab('notes',${t.id})">📝 Note</div>
         <div class="tab" onclick="switchTab('todos',${t.id})">✅ To-Do</div>
       </div>
@@ -252,6 +257,18 @@ async function switchTab(tab,id){
     const msgs=await(await fetch(API+'/testers/'+id+'/messaggi')).json();
     panel.innerHTML='<div class="chat-msgs">'+msgs.map(m=>`<div class="msg msg-${m.mittente}"><div>${m.testo}</div><div class="msg-time">${m.timestamp?.slice(0,16).replace('T',' ')||''}</div></div>`).join('')+'</div>';
     panel.scrollTop=panel.scrollHeight;
+  } else if(tab==='stats'){
+    if(ci)ci.style.display='none';
+    const t=currentTester;
+    panel.innerHTML=`
+      <div style="padding:8px 0">
+        <h3 style="color:var(--oro);margin-bottom:16px;font-size:14px">Statistiche utente</h3>
+        <div class="field"><label>Modello telefono</label><div class="field-val">${t.modello_telefono||'Non ancora sincronizzato'}</div></div>
+        <div class="field"><label>Versione app</label><div class="field-val">${t.versione_app||'Non ancora sincronizzato'}</div></div>
+        <div style="background:var(--card2);border:1px solid var(--bordo);border-radius:8px;padding:16px;margin-top:12px">
+          <p style="color:var(--grigio);font-size:12px">Le statistiche dettagliate (chiamate, blocchi, segreteria) verranno sincronizzate automaticamente dall'app.</p>
+        </div>
+      </div>`;
   } else if(tab==='notes'){
     if(ci)ci.style.display='none';
     const notes=await(await fetch(API+'/testers/'+id+'/notes')).json();
@@ -279,6 +296,31 @@ async function delNote(noteId,testerId){await fetch(API+'/notes/'+noteId,{method
 async function addTodo(id){const inp=document.getElementById('newTodo');const t=inp.value.trim();if(!t)return;await fetch(API+'/testers/'+id+'/todos',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({testo:t})});switchTab('todos',id)}
 async function toggleTodo(todoId,testerId){await fetch(API+'/todos/'+todoId+'/toggle',{method:'POST'});switchTab('todos',testerId)}
 async function delTodo(todoId,testerId){await fetch(API+'/todos/'+todoId,{method:'DELETE'});switchTab('todos',testerId)}
+
+// BROADCAST
+function loadBroadcast(){
+  document.getElementById('viewContent').innerHTML=`
+    <div style="max-width:600px">
+      <h3 style="color:var(--oro);margin-bottom:16px">Invia comunicazione a tutti i tester</h3>
+      <div class="field"><label>Oggetto (visibile nella notifica push)</label>
+        <input id="bcSubject" style="width:100%;background:#1a1a24;color:var(--bianco);border:1px solid var(--bordo);padding:10px;border-radius:4px;font-size:14px" placeholder="Es: Aggiornamento importante"></div>
+      <div class="field"><label>Messaggio</label>
+        <textarea id="bcBody" rows="6" style="width:100%;background:#1a1a24;color:var(--bianco);border:1px solid var(--bordo);padding:10px;border-radius:4px;font-size:14px;resize:vertical" placeholder="Scrivi il messaggio che riceveranno tutti i tester..."></textarea></div>
+      <div style="display:flex;gap:8px;margin-top:12px">
+        <button class="btn btn-oro" onclick="sendBroadcast()">Invia a tutti</button>
+        <span id="bcStatus" style="color:var(--verde);font-size:13px;align-self:center"></span>
+      </div>
+    </div>`;
+}
+async function sendBroadcast(){
+  const subject=document.getElementById('bcSubject').value.trim();
+  const body=document.getElementById('bcBody').value.trim();
+  if(!subject||!body){alert('Compila oggetto e messaggio');return}
+  if(!confirm('Inviare a TUTTI i tester?'))return;
+  const r=await fetch(API+'/broadcast',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({oggetto:subject,testo:body})});
+  const d=await r.json();
+  document.getElementById('bcStatus').textContent=d.success?'Inviato a '+d.count+' tester':'Errore: '+d.error;
+}
 </script>
 </body>
 </html>

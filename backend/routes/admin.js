@@ -235,4 +235,22 @@ router.delete('/todos/:todoId', authAdmin, (req, res) => {
   res.json({ success: true });
 });
 
+// POST /api/admin/broadcast — messaggio a tutti i tester
+router.post('/broadcast', authAdmin, (req, res) => {
+  const { oggetto, testo } = req.body;
+  if (!oggetto?.trim() || !testo?.trim()) {
+    return res.status(400).json({ error: 'Oggetto e testo obbligatori' });
+  }
+
+  const testers = db.prepare("SELECT id FROM testers WHERE stato = 'accettato'").all();
+
+  testers.forEach(t => {
+    db.prepare(
+      'INSERT INTO messaggi_chat (tester_id, mittente, testo) VALUES (?, ?, ?)'
+    ).run(t.id, 'admin', `[${oggetto}] ${testo}`);
+  });
+
+  res.json({ success: true, count: testers.length });
+});
+
 module.exports = router;

@@ -85,4 +85,38 @@ router.get('/piano/:email', (req, res) => {
   res.json({ piano: tester.piano, stato: tester.stato });
 });
 
+// GET /api/tester/:id/messaggi — chat messaggi per l'app
+router.get('/:id/messaggi', (req, res) => {
+  const msgs = db.prepare(
+    'SELECT * FROM messaggi_chat WHERE tester_id = ? ORDER BY timestamp ASC'
+  ).all(req.params.id);
+  res.json(msgs);
+});
+
+// POST /api/tester/:id/messaggi — tester invia messaggio
+router.post('/:id/messaggi', (req, res) => {
+  const { testo, mittente } = req.body;
+  if (!testo?.trim()) return res.status(400).json({ error: 'Testo vuoto' });
+  db.prepare(
+    'INSERT INTO messaggi_chat (tester_id, mittente, testo) VALUES (?, ?, ?)'
+  ).run(req.params.id, mittente || 'tester', testo.trim());
+  res.json({ success: true });
+});
+
+// POST /api/tester/stats — l'app invia le statistiche
+router.post('/stats', (req, res) => {
+  const { email, stats } = req.body;
+  if (!email || !stats) return res.status(400).json({ error: 'Dati mancanti' });
+
+  const tester = db.prepare('SELECT id FROM testers WHERE email = ?').get(email);
+  if (!tester) return res.status(404).json({ error: 'Tester non trovato' });
+
+  // Salva stats come JSON nelle note (per ora)
+  // In futuro avremo tabella dedicata
+  db.prepare('UPDATE testers SET versione_app = ?, modello_telefono = ? WHERE id = ?')
+    .run(stats.versione_app || null, stats.modello_telefono || null, tester.id);
+
+  res.json({ success: true });
+});
+
 module.exports = router;

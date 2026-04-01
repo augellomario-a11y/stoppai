@@ -48,19 +48,23 @@ class MainActivity : AppCompatActivity() {
         bottomNav.setOnItemSelectedListener { item ->
             when (item.itemId) {
                 R.id.nav_home -> {
-                    supportFragmentManager.beginTransaction().replace(R.id.fragment_container, com.ifs.stoppai.ui.HomeFragment()).commit()
+                    supportFragmentManager.beginTransaction().replace(R.id.fragment_container, HomeFragment()).commit()
                     true
                 }
                 R.id.nav_referral -> {
-                    supportFragmentManager.beginTransaction().replace(R.id.fragment_container, com.ifs.stoppai.ui.InvitaFragment()).commit()
+                    supportFragmentManager.beginTransaction().replace(R.id.fragment_container, InvitaFragment()).commit()
                     true
                 }
                 R.id.nav_settings -> {
-                    supportFragmentManager.beginTransaction().replace(R.id.fragment_container, com.ifs.stoppai.ui.SettingsFragment()).commit()
+                    supportFragmentManager.beginTransaction().replace(R.id.fragment_container, SettingsFragment()).commit()
                     true
                 }
-                R.id.nav_help -> {
-                    supportFragmentManager.beginTransaction().replace(R.id.fragment_container, com.ifs.stoppai.ui.HelpFragment()).commit()
+                R.id.nav_info -> {
+                    supportFragmentManager.beginTransaction().replace(R.id.fragment_container, InfoFragment()).commit()
+                    true
+                }
+                R.id.nav_chat -> {
+                    supportFragmentManager.beginTransaction().replace(R.id.fragment_container, ChatFragment()).commit()
                     true
                 }
                 else -> false
