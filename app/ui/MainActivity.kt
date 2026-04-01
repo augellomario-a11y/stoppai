@@ -72,7 +72,17 @@ class MainActivity : AppCompatActivity() {
         }
         
         if (savedInstanceState == null) {
-            bottomNav.selectedItemId = R.id.nav_home
+            val prefs = getSharedPreferences("stoppai_prefs", Context.MODE_PRIVATE)
+            val loggedIn = prefs.getBoolean("logged_in", false)
+            val skipped = prefs.getBoolean("login_skipped", false)
+            if (!loggedIn && !skipped) {
+                bottomNav.visibility = android.view.View.GONE
+                supportFragmentManager.beginTransaction()
+                    .replace(R.id.fragment_container, LoginFragment())
+                    .commit()
+            } else {
+                bottomNav.selectedItemId = R.id.nav_home
+            }
         }
 
         checkFirstLaunch()

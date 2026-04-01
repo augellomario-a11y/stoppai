@@ -6,6 +6,7 @@ const path = require('path');
 const db = require('./db/database');
 const testerRoutes = require('./routes/tester');
 const adminRoutes = require('./routes/admin');
+const authRoutes = require('./routes/auth');
 
 const app = express();
 const PORT = process.env.PORT || 6002;
@@ -16,6 +17,7 @@ app.use(cookieParser());
 
 // Routes
 app.use('/api/tester', testerRoutes);
+app.use('/api/tester/auth', authRoutes);
 app.use('/api/admin', adminRoutes);
 
 // Serve admin panel

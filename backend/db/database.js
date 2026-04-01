@@ -55,6 +55,15 @@ db.exec(`
     completato INTEGER DEFAULT 0,
     timestamp TEXT DEFAULT (datetime('now'))
   );
+
+  CREATE TABLE IF NOT EXISTS auth_codes (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    email TEXT NOT NULL,
+    codice TEXT NOT NULL,
+    creato_at TEXT DEFAULT (datetime('now')),
+    scade_at TEXT NOT NULL,
+    usato INTEGER DEFAULT 0
+  );
 `);
 
 // Migrazione: aggiunge colonna piano se non esiste
