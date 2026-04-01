@@ -374,6 +374,11 @@ class HomeFragment : Fragment(R.layout.fragment_home) {
         aggiornaStatusFlags()
         caricaStatistiche()
         syncContactNames()
+
+        // Sync backend (SA-123) — ogni volta che si apre la Home
+        lifecycleScope.launch {
+            com.ifs.stoppai.core.BackendSyncService.sync(requireContext())
+        }
         if (prefs.getBoolean("protezione_totale", false)) {
             startCountdown()
         }

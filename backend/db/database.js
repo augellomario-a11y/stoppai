@@ -64,6 +64,31 @@ db.exec(`
     scade_at TEXT NOT NULL,
     usato INTEGER DEFAULT 0
   );
+
+  CREATE TABLE IF NOT EXISTS tester_stats (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    tester_id INTEGER NOT NULL,
+    modello_telefono TEXT,
+    versione_android TEXT,
+    versione_app TEXT,
+    chiamate_totali INTEGER DEFAULT 0,
+    chiamate_oggi INTEGER DEFAULT 0,
+    conosciuti_non_risposti INTEGER DEFAULT 0,
+    sconosciuti_mobile_non_risposti INTEGER DEFAULT 0,
+    sconosciuti_mobile_sms INTEGER DEFAULT 0,
+    sconosciuti_mobile_segreteria INTEGER DEFAULT 0,
+    sconosciuti_mobile_msg_lasciato INTEGER DEFAULT 0,
+    sconosciuti_mobile_msg_non_lasciato INTEGER DEFAULT 0,
+    sconosciuti_fissi_non_risposti INTEGER DEFAULT 0,
+    sconosciuti_fissi_segreteria INTEGER DEFAULT 0,
+    sconosciuti_fissi_msg_lasciato INTEGER DEFAULT 0,
+    sconosciuti_fissi_msg_non_lasciato INTEGER DEFAULT 0,
+    privati_non_risposti INTEGER DEFAULT 0,
+    privati_segreteria INTEGER DEFAULT 0,
+    privati_msg_lasciato INTEGER DEFAULT 0,
+    privati_msg_non_lasciato INTEGER DEFAULT 0,
+    ultimo_sync TEXT DEFAULT (datetime('now'))
+  );
 `);
 
 // Migrazione: aggiunge colonna piano se non esiste

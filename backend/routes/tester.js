@@ -103,18 +103,75 @@ router.post('/:id/messaggi', (req, res) => {
   res.json({ success: true });
 });
 
-// POST /api/tester/stats — l'app invia le statistiche
-router.post('/stats', (req, res) => {
-  const { email, stats } = req.body;
-  if (!email || !stats) return res.status(400).json({ error: 'Dati mancanti' });
+// POST /api/tester/sync — l'app invia device info + statistiche
+router.post('/sync', (req, res) => {
+  const { tester_id, device, stats } = req.body;
+  if (!tester_id) return res.status(400).json({ error: 'tester_id mancante' });
 
-  const tester = db.prepare('SELECT id FROM testers WHERE email = ?').get(email);
+  const tester = db.prepare('SELECT id FROM testers WHERE id = ?').get(tester_id);
   if (!tester) return res.status(404).json({ error: 'Tester non trovato' });
 
-  // Salva stats come JSON nelle note (per ora)
-  // In futuro avremo tabella dedicata
-  db.prepare('UPDATE testers SET versione_app = ?, modello_telefono = ? WHERE id = ?')
-    .run(stats.versione_app || null, stats.modello_telefono || null, tester.id);
+  // Aggiorna info device nella tabella testers
+  if (device) {
+    db.prepare('UPDATE testers SET modello_telefono = ?, versione_app = ? WHERE id = ?')
+      .run(device.modello || null, device.versione_app || null, tester.id);
+  }
+
+  // Upsert statistiche
+  if (stats) {
+    const existing = db.prepare('SELECT id FROM tester_stats WHERE tester_id = ?').get(tester.id);
+    if (existing) {
+      db.prepare(`UPDATE tester_stats SET
+        modello_telefono = ?, versione_android = ?, versione_app = ?,
+        chiamate_totali = ?, chiamate_oggi = ?,
+        conosciuti_non_risposti = ?,
+        sconosciuti_mobile_non_risposti = ?, sconosciuti_mobile_sms = ?,
+        sconosciuti_mobile_segreteria = ?, sconosciuti_mobile_msg_lasciato = ?,
+        sconosciuti_mobile_msg_non_lasciato = ?,
+        sconosciuti_fissi_non_risposti = ?, sconosciuti_fissi_segreteria = ?,
+        sconosciuti_fissi_msg_lasciato = ?, sconosciuti_fissi_msg_non_lasciato = ?,
+        privati_non_risposti = ?, privati_segreteria = ?,
+        privati_msg_lasciato = ?, privati_msg_non_lasciato = ?,
+        ultimo_sync = datetime('now')
+        WHERE tester_id = ?`).run(
+        device?.modello || null, device?.versione_android || null, device?.versione_app || null,
+        stats.chiamate_totali || 0, stats.chiamate_oggi || 0,
+        stats.conosciuti_non_risposti || 0,
+        stats.sconosciuti_mobile_non_risposti || 0, stats.sconosciuti_mobile_sms || 0,
+        stats.sconosciuti_mobile_segreteria || 0, stats.sconosciuti_mobile_msg_lasciato || 0,
+        stats.sconosciuti_mobile_msg_non_lasciato || 0,
+        stats.sconosciuti_fissi_non_risposti || 0, stats.sconosciuti_fissi_segreteria || 0,
+        stats.sconosciuti_fissi_msg_lasciato || 0, stats.sconosciuti_fissi_msg_non_lasciato || 0,
+        stats.privati_non_risposti || 0, stats.privati_segreteria || 0,
+        stats.privati_msg_lasciato || 0, stats.privati_msg_non_lasciato || 0,
+        tester.id
+      );
+    } else {
+      db.prepare(`INSERT INTO tester_stats (
+        tester_id, modello_telefono, versione_android, versione_app,
+        chiamate_totali, chiamate_oggi,
+        conosciuti_non_risposti,
+        sconosciuti_mobile_non_risposti, sconosciuti_mobile_sms,
+        sconosciuti_mobile_segreteria, sconosciuti_mobile_msg_lasciato,
+        sconosciuti_mobile_msg_non_lasciato,
+        sconosciuti_fissi_non_risposti, sconosciuti_fissi_segreteria,
+        sconosciuti_fissi_msg_lasciato, sconosciuti_fissi_msg_non_lasciato,
+        privati_non_risposti, privati_segreteria,
+        privati_msg_lasciato, privati_msg_non_lasciato
+      ) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)`).run(
+        tester.id, device?.modello || null, device?.versione_android || null, device?.versione_app || null,
+        stats.chiamate_totali || 0, stats.chiamate_oggi || 0,
+        stats.conosciuti_non_risposti || 0,
+        stats.sconosciuti_mobile_non_risposti || 0, stats.sconosciuti_mobile_sms || 0,
+        stats.sconosciuti_mobile_segreteria || 0, stats.sconosciuti_mobile_msg_lasciato || 0,
+        stats.sconosciuti_mobile_msg_non_lasciato || 0,
+        stats.sconosciuti_fissi_non_risposti || 0, stats.sconosciuti_fissi_segreteria || 0,
+        stats.sconosciuti_fissi_msg_lasciato || 0, stats.sconosciuti_fissi_msg_non_lasciato || 0,
+        stats.privati_non_risposti || 0, stats.privati_segreteria || 0,
+        stats.privati_msg_lasciato || 0, stats.privati_msg_non_lasciato || 0
+      );
+    }
+  }
 
   res.json({ success: true });
 });

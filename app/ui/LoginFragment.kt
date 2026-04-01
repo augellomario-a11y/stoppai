@@ -169,6 +169,8 @@ class LoginFragment : Fragment(R.layout.fragment_login) {
                             .apply()
 
                         android.util.Log.d("STOPPAI_LOGIN", "Login OK: tester_id=${json.getInt("tester_id")} piano=${json.getString("piano")}")
+                        // Sync immediato dopo login
+                        com.ifs.stoppai.core.BackendSyncService.sync(requireContext())
                         navigateToHome()
                     } else {
                         showError(json.optString("error", "Codice non valido"))

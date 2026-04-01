@@ -286,14 +286,39 @@ async function switchTab(tab,id){
   } else if(tab==='stats'){
     if(ci)ci.style.display='none';
     const t=currentTester;
+    const sr=await fetch(API+'/testers/'+id+'/stats');
+    const s=sr.ok?await sr.json():{};
+    const has=s.ultimo_sync;
     panel.innerHTML=`
       <div style="padding:8px 0">
-        <h3 style="color:var(--oro);margin-bottom:16px;font-size:14px">Statistiche utente</h3>
-        <div class="field"><label>Modello telefono</label><div class="field-val">${t.modello_telefono||'Non ancora sincronizzato'}</div></div>
-        <div class="field"><label>Versione app</label><div class="field-val">${t.versione_app||'Non ancora sincronizzato'}</div></div>
-        <div style="background:var(--card2);border:1px solid var(--bordo);border-radius:8px;padding:16px;margin-top:12px">
-          <p style="color:var(--grigio);font-size:12px">Le statistiche dettagliate (chiamate, blocchi, segreteria) verranno sincronizzate automaticamente dall'app.</p>
+        <h3 style="color:var(--oro);margin-bottom:16px;font-size:14px">Info dispositivo</h3>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:20px">
+          <div class="field"><label>Telefono</label><div class="field-val">${s.modello_telefono||t.modello_telefono||'—'}</div></div>
+          <div class="field"><label>Android</label><div class="field-val">${s.versione_android||'—'}</div></div>
+          <div class="field"><label>Versione app</label><div class="field-val">${s.versione_app||t.versione_app||'—'}</div></div>
+          <div class="field"><label>Ultimo sync</label><div class="field-val">${s.ultimo_sync?.replace('T',' ').slice(0,16)||'Mai'}</div></div>
         </div>
+        ${has?`
+        <h3 style="color:var(--oro);margin-bottom:12px;font-size:14px">Chiamate</h3>
+        <div style="display:flex;gap:12px;margin-bottom:20px">
+          <div class="stat" style="min-width:80px"><div class="n">${s.chiamate_totali||0}</div><div class="label">Totali</div></div>
+          <div class="stat" style="min-width:80px"><div class="n">${s.chiamate_oggi||0}</div><div class="label">Oggi</div></div>
+        </div>
+        <h3 style="color:var(--oro);margin-bottom:12px;font-size:14px">Dettaglio oggi</h3>
+        <div style="background:var(--card2);border:1px solid var(--bordo);border-radius:8px;padding:16px;font-size:13px;line-height:2">
+          <div><strong style="color:var(--verde)">Conosciuti</strong> non risposti: ${s.conosciuti_non_risposti||0}</div>
+          <div style="margin-top:8px"><strong style="color:var(--oro)">Sconosciuti Mobile</strong></div>
+          <div style="padding-left:12px">Non risposti: ${s.sconosciuti_mobile_non_risposti||0} | SMS: ${s.sconosciuti_mobile_sms||0} | Segreteria: ${s.sconosciuti_mobile_segreteria||0}</div>
+          <div style="padding-left:12px">Msg lasciato: ${s.sconosciuti_mobile_msg_lasciato||0} | Non lasciato: ${s.sconosciuti_mobile_msg_non_lasciato||0}</div>
+          <div style="margin-top:8px"><strong style="color:var(--oro)">Sconosciuti Fisso</strong></div>
+          <div style="padding-left:12px">Non risposti: ${s.sconosciuti_fissi_non_risposti||0} | Segreteria: ${s.sconosciuti_fissi_segreteria||0}</div>
+          <div style="padding-left:12px">Msg lasciato: ${s.sconosciuti_fissi_msg_lasciato||0} | Non lasciato: ${s.sconosciuti_fissi_msg_non_lasciato||0}</div>
+          <div style="margin-top:8px"><strong style="color:var(--rosso)">Privati</strong></div>
+          <div style="padding-left:12px">Non risposti: ${s.privati_non_risposti||0} | Segreteria: ${s.privati_segreteria||0}</div>
+          <div style="padding-left:12px">Msg lasciato: ${s.privati_msg_lasciato||0} | Non lasciato: ${s.privati_msg_non_lasciato||0}</div>
+        </div>`:`<div style="background:var(--card2);border:1px solid var(--bordo);border-radius:8px;padding:16px;margin-top:12px">
+          <p style="color:var(--grigio);font-size:12px">Statistiche non ancora sincronizzate. L'app inviera' i dati automaticamente.</p>
+        </div>`}
       </div>`;
   } else if(tab==='notes'){
     if(ci)ci.style.display='none';

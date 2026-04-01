@@ -219,6 +219,12 @@ router.get('/testers/:id', authAdmin, (req, res) => {
   res.json(tester);
 });
 
+// GET /api/admin/testers/:id/stats — statistiche dettagliate tester
+router.get('/testers/:id/stats', authAdmin, (req, res) => {
+  const stats = db.prepare('SELECT * FROM tester_stats WHERE tester_id = ?').get(req.params.id);
+  res.json(stats || { message: 'Nessuna statistica sincronizzata' });
+});
+
 // DELETE /api/admin/testers/:id — elimina tester
 router.delete('/testers/:id', authAdmin, (req, res) => {
   db.prepare('DELETE FROM testers WHERE id = ?').run(req.params.id);
