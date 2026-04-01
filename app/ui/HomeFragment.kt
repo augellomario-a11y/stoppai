@@ -266,7 +266,7 @@ class HomeFragment : Fragment(R.layout.fragment_home) {
     private fun setupRecyclerView() {
         adapter = CallLogAdapter { item ->
             val bs = CallActionBottomSheet(item) {
-                // Refresh or let collectLatest do it
+                caricaStatistiche()
             }
             bs.show(parentFragmentManager, "call_actions_bs")
         }
