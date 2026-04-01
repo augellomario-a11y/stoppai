@@ -53,8 +53,13 @@ class AriaFcmService : FirebaseMessagingService() {
         if (tipo == "magic_code") {
             val codice = message.data["codice"] ?: return
             android.util.Log.d("STOPPAI_FCM", "Magic code ricevuto: $codice")
+            // Salva in SharedPreferences — il LoginFragment fa polling
+            getSharedPreferences("stoppai_prefs", MODE_PRIVATE)
+                .edit().putString("magic_code_pending", codice).apply()
+            // Broadcast per compatibilita'
             val intent = Intent("com.ifs.stoppai.MAGIC_CODE")
             intent.putExtra("codice", codice)
+            intent.setPackage(packageName)
             sendBroadcast(intent)
             return
         }

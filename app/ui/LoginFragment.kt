@@ -2,10 +2,8 @@
 // SCOPO: Login Magic Link con auto-fill da notifica push (SA-122)
 package com.ifs.stoppai.ui
 
-import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
-import android.content.IntentFilter
 import android.os.Bundle
 import android.view.View
 import android.widget.*
@@ -27,20 +25,7 @@ class LoginFragment : Fragment(R.layout.fragment_login) {
 
     private var email = ""
     private var fcmToken = ""
-
-    // Receiver per il magic code da FCM
-    private val magicCodeReceiver = object : BroadcastReceiver() {
-        override fun onReceive(context: Context?, intent: Intent?) {
-            val codice = intent?.getStringExtra("codice") ?: return
-            android.util.Log.d("STOPPAI_LOGIN", "Magic code auto-ricevuto: $codice")
-
-            view?.findViewById<EditText>(R.id.edt_code)?.setText(codice)
-            view?.findViewById<TextView>(R.id.txt_code_info)?.text = "Codice ricevuto automaticamente!"
-
-            // Auto-verifica dopo 500ms
-            view?.postDelayed({ verificaCodice() }, 500)
-        }
-    }
+    private var pollingActive = false
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
@@ -79,18 +64,31 @@ class LoginFragment : Fragment(R.layout.fragment_login) {
         }
     }
 
-    override fun onResume() {
-        super.onResume()
-        requireContext().registerReceiver(
-            magicCodeReceiver,
-            IntentFilter("com.ifs.stoppai.MAGIC_CODE"),
-            Context.RECEIVER_NOT_EXPORTED
-        )
-    }
-
     override fun onPause() {
         super.onPause()
-        try { requireContext().unregisterReceiver(magicCodeReceiver) } catch (_: Exception) {}
+        pollingActive = false
+    }
+
+    private fun startPollingMagicCode() {
+        pollingActive = true
+        val prefs = requireContext().getSharedPreferences("stoppai_prefs", Context.MODE_PRIVATE)
+        // Pulisci eventuali codici vecchi
+        prefs.edit().remove("magic_code_pending").apply()
+
+        fun poll() {
+            if (!pollingActive || !isAdded) return
+            val codice = prefs.getString("magic_code_pending", null)
+            if (codice != null && codice.length == 6) {
+                prefs.edit().remove("magic_code_pending").apply()
+                android.util.Log.d("STOPPAI_LOGIN", "Magic code auto-ricevuto via polling: $codice")
+                view?.findViewById<EditText>(R.id.edt_code)?.setText(codice)
+                view?.findViewById<TextView>(R.id.txt_code_info)?.text = "Codice ricevuto automaticamente!"
+                view?.postDelayed({ verificaCodice() }, 500)
+            } else {
+                view?.postDelayed({ poll() }, 1000) // Controlla ogni secondo
+            }
+        }
+        poll()
     }
 
     private fun richiediCodice() {
@@ -117,6 +115,7 @@ class LoginFragment : Fragment(R.layout.fragment_login) {
                         view?.findViewById<TextView>(R.id.txt_code_info)?.text =
                             "Codice inviato a $email\nAttendi la compilazione automatica..."
                         hideError()
+                        startPollingMagicCode()
                     } else {
                         view?.findViewById<Button>(R.id.btn_request_code)?.isEnabled = true
                         view?.findViewById<Button>(R.id.btn_request_code)?.text = "INVIA CODICE"
