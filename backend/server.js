@@ -5,6 +5,7 @@ const cookieParser = require('cookie-parser');
 const path = require('path');
 const db = require('./db/database');
 const testerRoutes = require('./routes/tester');
+const adminRoutes = require('./routes/admin');
 
 const app = express();
 const PORT = process.env.PORT || 6002;
@@ -15,6 +16,10 @@ app.use(cookieParser());
 
 // Routes
 app.use('/api/tester', testerRoutes);
+app.use('/api/admin', adminRoutes);
+
+// Serve admin panel
+app.use(express.static(path.join(__dirname, 'public')));
 
 // Serve landing page
 app.use(express.static(

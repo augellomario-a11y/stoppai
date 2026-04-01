@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>StoppAI Admin</title>
+<style>
+:root { --bg: #0a0a0f; --card: #12121a; --oro: #c8a96e; --verde: #4CAF50; --rosso: #e53935; --grigio: #888; --bianco: #f5f3ee; --bordo: #1e1e1e; }
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { font-family: -apple-system, sans-serif; background: var(--bg); color: var(--bianco); padding: 20px; max-width: 960px; margin: 0 auto; }
+h1 { color: var(--oro); margin-bottom: 8px; }
+.subtitle { color: var(--grigio); margin-bottom: 24px; font-size: 14px; }
+.stats { display: flex; gap: 12px; margin-bottom: 24px; flex-wrap: wrap; }
+.stat { background: var(--card); border: 1px solid var(--bordo); border-radius: 8px; padding: 16px 20px; text-align: center; min-width: 100px; }
+.stat .n { font-size: 28px; font-weight: bold; color: var(--oro); }
+.stat .label { font-size: 11px; color: var(--grigio); margin-top: 4px; }
+table { width: 100%; border-collapse: collapse; margin-top: 16px; }
+th { text-align: left; padding: 10px 8px; border-bottom: 2px solid var(--oro); color: var(--oro); font-size: 12px; text-transform: uppercase; }
+td { padding: 10px 8px; border-bottom: 1px solid var(--bordo); font-size: 13px; }
+tr:hover { background: rgba(200,169,110,0.05); }
+.badge { padding: 3px 8px; border-radius: 4px; font-size: 11px; font-weight: bold; text-transform: uppercase; }
+.badge-attesa { background: #ff980020; color: #ff9800; }
+.badge-accettato { background: #4caf5020; color: #4caf50; }
+.badge-rifiutato { background: #e5393520; color: #e53935; }
+.badge-free { background: #78909c20; color: #78909c; }
+.badge-pro { background: #c8a96e20; color: var(--oro); }
+.badge-shield { background: #7c4dff20; color: #7c4dff; }
+select { background: #1a1a24; color: var(--bianco); border: 1px solid var(--bordo); padding: 4px 8px; border-radius: 4px; font-size: 12px; cursor: pointer; }
+.btn-del { background: none; border: 1px solid var(--rosso); color: var(--rosso); padding: 4px 10px; border-radius: 4px; cursor: pointer; font-size: 11px; }
+.btn-del:hover { background: var(--rosso); color: white; }
+#login { background: var(--card); border: 1px solid var(--bordo); border-radius: 12px; padding: 40px; max-width: 360px; margin: 100px auto; text-align: center; }
+#login h2 { color: var(--oro); margin-bottom: 20px; }
+#login input { width: 100%; padding: 12px; background: #1a1a24; border: 1px solid var(--bordo); color: var(--bianco); border-radius: 6px; margin-bottom: 12px; }
+#login button { width: 100%; padding: 12px; background: var(--oro); color: var(--bg); border: none; border-radius: 6px; font-weight: bold; cursor: pointer; }
+#dashboard { display: none; }
+.actions { display: flex; gap: 6px; align-items: center; }
+</style>
+</head>
+<body>
+
+<div id="login">
+  <h2>STOPP<span style="color:var(--bianco)">AI</span> Admin</h2>
+  <input type="password" id="pwd" placeholder="Password admin">
+  <button onclick="doLogin()">ACCEDI</button>
+  <p id="loginErr" style="color:var(--rosso);margin-top:10px;font-size:13px;display:none"></p>
+</div>
+
+<div id="dashboard">
+  <h1>STOPP<span style="color:var(--bianco)">AI</span> Admin</h1>
+  <p class="subtitle">Gestione tester e piani</p>
+  <div class="stats" id="statsBar"></div>
+  <table>
+    <thead><tr><th>Nome</th><th>Email</th><th>Tel</th><th>Stato</th><th>Piano</th><th>Data</th><th>Azioni</th></tr></thead>
+    <tbody id="tBody"></tbody>
+  </table>
+</div>
+
+<script>
+const API = '/api/admin';
+
+async function doLogin() {
+  const pwd = document.getElementById('pwd').value;
+  const r = await fetch(API + '/login', { method: 'POST', headers: {'Content-Type':'application/json'}, body: JSON.stringify({password: pwd}) });
+  if (r.ok) { document.getElementById('login').style.display='none'; document.getElementById('dashboard').style.display='block'; loadAll(); }
+  else { const e = document.getElementById('loginErr'); e.textContent='Password errata'; e.style.display='block'; }
+}
+
+async function loadAll() { await Promise.all([loadStats(), loadTesters()]); }
+
+async function loadStats() {
+  const r = await fetch(API + '/stats');
+  if (!r.ok) return;
+  const s = await r.json();
+  document.getElementById('statsBar').innerHTML = `
+    <div class="stat"><div class="n">${s.totale}</div><div class="label">Totale</div></div>
+    <div class="stat"><div class="n">${s.inAttesa}</div><div class="label">In attesa</div></div>
+    <div class="stat"><div class="n">${s.accettati}</div><div class="label">Accettati</div></div>
+    <div class="stat"><div class="n">${s.piani.shield}</div><div class="label">Shield</div></div>
+    <div class="stat"><div class="n">${s.piani.pro}</div><div class="label">Pro</div></div>
+    <div class="stat"><div class="n">${s.piani.free}</div><div class="label">Free</div></div>`;
+}
+
+async function loadTesters() {
+  const r = await fetch(API + '/testers');
+  if (!r.ok) return;
+  const list = await r.json();
+  document.getElementById('tBody').innerHTML = list.map(t => `<tr>
+    <td><strong>${t.nome} ${t.cognome}</strong></td>
+    <td>${t.email}</td>
+    <td>${t.telefono}</td>
+    <td><span class="badge badge-${t.stato}">${t.stato}</span></td>
+    <td><select onchange="setPiano(${t.id}, this.value)">
+      <option value="free" ${t.piano==='free'?'selected':''}>Free</option>
+      <option value="pro" ${t.piano==='pro'?'selected':''}>Pro</option>
+      <option value="shield" ${t.piano==='shield'?'selected':''}>Shield</option>
+    </select></td>
+    <td style="font-size:11px;color:var(--grigio)">${t.data_iscrizione?.slice(0,10) || '-'}</td>
+    <td><div class="actions">
+      <select onchange="setStato(${t.id}, this.value)" style="width:100px">
+        <option value="in_attesa" ${t.stato==='in_attesa'?'selected':''}>In attesa</option>
+        <option value="accettato" ${t.stato==='accettato'?'selected':''}>Accettato</option>
+        <option value="rifiutato" ${t.stato==='rifiutato'?'selected':''}>Rifiutato</option>
+      </select>
+      <button class="btn-del" onclick="delTester(${t.id})">X</button>
+    </div></td>
+  </tr>`).join('');
+}
+
+async function setPiano(id, piano) {
+  await fetch(API + '/testers/' + id + '/piano', { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({piano}) });
+  loadAll();
+}
+
+async function setStato(id, stato) {
+  await fetch(API + '/testers/' + id + '/stato', { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({stato}) });
+  loadAll();
+}
+
+async function delTester(id) {
+  if (!confirm('Eliminare questo tester?')) return;
+  await fetch(API + '/testers/' + id, { method: 'DELETE' });
+  loadAll();
+}
+
+// Auto-check se gia' loggato
+fetch(API + '/stats').then(r => { if (r.ok) { document.getElementById('login').style.display='none'; document.getElementById('dashboard').style.display='block'; loadAll(); }});
+</script>
+</body>
+</html>

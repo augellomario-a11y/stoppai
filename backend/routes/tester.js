@@ -69,4 +69,20 @@ router.post('/iscriviti', async (req, res) => {
   });
 });
 
+// GET /api/tester/piano/:email — l'app chiede che piano ha
+router.get('/piano/:email', (req, res) => {
+  const email = decodeURIComponent(req.params.email);
+  const tester = db.prepare(
+    "SELECT piano, stato FROM testers WHERE email = ?"
+  ).get(email);
+
+  if (!tester) {
+    return res.json({ piano: 'free', stato: 'non_registrato' });
+  }
+  if (tester.stato !== 'accettato') {
+    return res.json({ piano: 'free', stato: tester.stato });
+  }
+  res.json({ piano: tester.piano, stato: tester.stato });
+});
+
 module.exports = router;

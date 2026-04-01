@@ -16,6 +16,7 @@ db.exec(`
     email TEXT NOT NULL UNIQUE,
     consenso INTEGER DEFAULT 1,
     stato TEXT DEFAULT 'in_attesa',
+    piano TEXT DEFAULT 'free',
     modello_telefono TEXT,
     versione_app TEXT,
     data_iscrizione TEXT DEFAULT (datetime('now')),
@@ -31,5 +32,12 @@ db.exec(`
     scade_at TEXT NOT NULL
   );
 `);
+
+// Migrazione: aggiunge colonna piano se non esiste
+try {
+  db.prepare("SELECT piano FROM testers LIMIT 1").get();
+} catch (e) {
+  db.exec("ALTER TABLE testers ADD COLUMN piano TEXT DEFAULT 'free'");
+}
 
 module.exports = db;
