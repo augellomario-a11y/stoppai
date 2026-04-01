@@ -4,6 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>StoppAI Admin CRM</title>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.7/dist/chart.umd.min.js"></script>
 <style>
 :root{--bg:#0a0a0f;--card:#12121a;--card2:#16161f;--oro:#c8a96e;--verde:#4CAF50;--rosso:#e53935;--grigio:#888;--bianco:#f5f3ee;--bordo:#1e1e1e;--viola:#7c4dff}
 *{box-sizing:border-box;margin:0;padding:0}
@@ -300,11 +301,22 @@ async function switchTab(tab,id){
         <div style="background:var(--card);border:1px solid var(--bordo);border-radius:10px;padding:14px"><div style="font-size:10px;color:var(--grigio);text-transform:uppercase;margin-bottom:4px">Ultimo sync</div><div style="font-size:13px;font-weight:600">${s.ultimo_sync?.replace('T',' ').slice(0,16)||'Mai'}</div></div>
       </div>
       ${has?`
-      <div style="display:flex;gap:12px;margin-bottom:28px">
+      <div style="display:flex;gap:12px;margin-bottom:24px">
         ${miniCard('📞','Chiamate totali',sc(s.chiamate_totali),'var(--oro)')}
         ${miniCard('📅','Oggi',sc(s.chiamate_oggi),'var(--bianco)')}
         ${miniCard('👤','Conosciuti NR',sc(s.conosciuti_non_risposti),'var(--verde)')}
       </div>
+
+      <div style="display:flex;gap:8px;margin-bottom:20px">
+        <button class="btn btn-ghost" style="font-size:11px" onclick="showChartView('pie',${id})">🥧 Torta</button>
+        <button class="btn btn-ghost" style="font-size:11px" onclick="showChartView('bar',${id})">📊 Barre</button>
+        <button class="btn btn-ghost" style="font-size:11px" onclick="showChartView('table',${id})">📋 Tabella</button>
+      </div>
+      <div id="chartArea" style="background:var(--card);border:1px solid var(--bordo);border-radius:12px;padding:24px;margin-bottom:20px">
+        <canvas id="statsChart" style="max-height:320px"></canvas>
+      </div>
+
+      <div id="tableArea" style="display:none">
       <div style="background:var(--card);border:1px solid var(--bordo);border-radius:12px;overflow:hidden;margin-bottom:16px">
         <div style="background:linear-gradient(135deg,#1a1a2e,#12121a);padding:14px 16px;border-bottom:1px solid var(--bordo)">
           <span style="font-size:14px;font-weight:600;color:var(--oro)">📱 Sconosciuti Mobile</span>
@@ -339,6 +351,7 @@ async function switchTab(tab,id){
           ${statRow('Nessun messaggio',sc(s.privati_msg_non_lasciato),'—','var(--grigio)')}
         </div>
       </div>
+      </div>
       `:`<div style="background:var(--card);border:1px solid var(--bordo);border-radius:12px;padding:32px;text-align:center;margin-top:12px">
         <div style="font-size:32px;margin-bottom:12px">📊</div>
         <p style="color:var(--grigio);font-size:13px">Statistiche non ancora sincronizzate.<br>L'app inviera' i dati automaticamente alla prossima apertura.</p>
@@ -371,6 +384,48 @@ async function delNote(noteId,testerId){await fetch(API+'/notes/'+noteId,{method
 async function addTodo(id){const inp=document.getElementById('newTodo');const t=inp.value.trim();if(!t)return;await fetch(API+'/testers/'+id+'/todos',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({testo:t})});switchTab('todos',id)}
 async function toggleTodo(todoId,testerId){await fetch(API+'/todos/'+todoId+'/toggle',{method:'POST'});switchTab('todos',testerId)}
 async function delTodo(todoId,testerId){await fetch(API+'/todos/'+todoId,{method:'DELETE'});switchTab('todos',testerId)}
+
+// GRAFICI STATISTICHE
+let currentChart=null;
+let cachedStats={};
+async function showChartView(type,id){
+  if(!cachedStats[id]){const r=await fetch(API+'/testers/'+id+'/stats');cachedStats[id]=r.ok?await r.json():{}}
+  const s=cachedStats[id];const sc=v=>v||0;
+  const chartArea=document.getElementById('chartArea');
+  const tableArea=document.getElementById('tableArea');
+  if(type==='table'){chartArea.style.display='none';tableArea.style.display='block';return}
+  chartArea.style.display='block';tableArea.style.display='none';
+  if(currentChart){currentChart.destroy();currentChart=null}
+  const canvas=document.getElementById('statsChart');
+  const ctx=canvas.getContext('2d');
+  Chart.defaults.color='#888';
+  if(type==='pie'){
+    currentChart=new Chart(ctx,{type:'doughnut',data:{
+      labels:['Conosciuti','Scon. Mobile','Scon. Fisso','Privati'],
+      datasets:[{data:[sc(s.conosciuti_non_risposti),sc(s.sconosciuti_mobile_non_risposti),sc(s.sconosciuti_fissi_non_risposti),sc(s.privati_non_risposti)],
+        backgroundColor:['#4CAF50','#c8a96e','#42a5f5','#e53935'],
+        borderColor:'#0a0a0f',borderWidth:3}]
+    },options:{responsive:true,plugins:{legend:{position:'bottom',labels:{padding:16,font:{size:12},usePointStyle:true,pointStyle:'circle'}},
+      title:{display:true,text:'Distribuzione chiamate non risposte oggi',color:'#c8a96e',font:{size:14}}},
+      cutout:'55%'}})
+  } else if(type==='bar'){
+    currentChart=new Chart(ctx,{type:'bar',data:{
+      labels:['Non risposti','SMS','Segreteria','Msg lasciato','Nessun msg'],
+      datasets:[
+        {label:'Mobile',data:[sc(s.sconosciuti_mobile_non_risposti),sc(s.sconosciuti_mobile_sms),sc(s.sconosciuti_mobile_segreteria),sc(s.sconosciuti_mobile_msg_lasciato),sc(s.sconosciuti_mobile_msg_non_lasciato)],
+          backgroundColor:'#c8a96e',borderRadius:4},
+        {label:'Fisso',data:[sc(s.sconosciuti_fissi_non_risposti),0,sc(s.sconosciuti_fissi_segreteria),sc(s.sconosciuti_fissi_msg_lasciato),sc(s.sconosciuti_fissi_msg_non_lasciato)],
+          backgroundColor:'#42a5f5',borderRadius:4},
+        {label:'Privati',data:[sc(s.privati_non_risposti),0,sc(s.privati_segreteria),sc(s.privati_msg_lasciato),sc(s.privati_msg_non_lasciato)],
+          backgroundColor:'#e53935',borderRadius:4}
+      ]},options:{responsive:true,plugins:{legend:{position:'bottom',labels:{padding:16,font:{size:12},usePointStyle:true,pointStyle:'rect'}},
+        title:{display:true,text:'Dettaglio azioni per tipo',color:'#c8a96e',font:{size:14}}},
+        scales:{x:{grid:{color:'#1e1e1e'}},y:{grid:{color:'#1e1e1e'},beginAtZero:true}}}})
+  }
+}
+// Auto-mostra torta quando si apre stats
+const origSwitchTab=switchTab;
+switchTab=async function(tab,id){await origSwitchTab(tab,id);if(tab==='stats'&&document.getElementById('statsChart')){cachedStats={};showChartView('pie',id)}}
 
 // BROADCAST
 function loadBroadcast(){
