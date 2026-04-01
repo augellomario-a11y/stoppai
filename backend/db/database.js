@@ -31,6 +31,30 @@ db.exec(`
     creato_at TEXT DEFAULT (datetime('now')),
     scade_at TEXT NOT NULL
   );
+
+  CREATE TABLE IF NOT EXISTS messaggi_chat (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    tester_id INTEGER NOT NULL,
+    mittente TEXT NOT NULL,
+    testo TEXT NOT NULL,
+    timestamp TEXT DEFAULT (datetime('now')),
+    letto INTEGER DEFAULT 0
+  );
+
+  CREATE TABLE IF NOT EXISTS admin_notes (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    tester_id INTEGER NOT NULL,
+    testo TEXT NOT NULL,
+    timestamp TEXT DEFAULT (datetime('now'))
+  );
+
+  CREATE TABLE IF NOT EXISTS admin_todos (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    tester_id INTEGER NOT NULL,
+    testo TEXT NOT NULL,
+    completato INTEGER DEFAULT 0,
+    timestamp TEXT DEFAULT (datetime('now'))
+  );
 `);
 
 // Migrazione: aggiunge colonna piano se non esiste

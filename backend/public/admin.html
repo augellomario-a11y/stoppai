@@ -3,127 +3,282 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>StoppAI Admin</title>
+<title>StoppAI Admin CRM</title>
 <style>
-:root { --bg: #0a0a0f; --card: #12121a; --oro: #c8a96e; --verde: #4CAF50; --rosso: #e53935; --grigio: #888; --bianco: #f5f3ee; --bordo: #1e1e1e; }
-* { box-sizing: border-box; margin: 0; padding: 0; }
-body { font-family: -apple-system, sans-serif; background: var(--bg); color: var(--bianco); padding: 20px; max-width: 960px; margin: 0 auto; }
-h1 { color: var(--oro); margin-bottom: 8px; }
-.subtitle { color: var(--grigio); margin-bottom: 24px; font-size: 14px; }
-.stats { display: flex; gap: 12px; margin-bottom: 24px; flex-wrap: wrap; }
-.stat { background: var(--card); border: 1px solid var(--bordo); border-radius: 8px; padding: 16px 20px; text-align: center; min-width: 100px; }
-.stat .n { font-size: 28px; font-weight: bold; color: var(--oro); }
-.stat .label { font-size: 11px; color: var(--grigio); margin-top: 4px; }
-table { width: 100%; border-collapse: collapse; margin-top: 16px; }
-th { text-align: left; padding: 10px 8px; border-bottom: 2px solid var(--oro); color: var(--oro); font-size: 12px; text-transform: uppercase; }
-td { padding: 10px 8px; border-bottom: 1px solid var(--bordo); font-size: 13px; }
-tr:hover { background: rgba(200,169,110,0.05); }
-.badge { padding: 3px 8px; border-radius: 4px; font-size: 11px; font-weight: bold; text-transform: uppercase; }
-.badge-attesa { background: #ff980020; color: #ff9800; }
-.badge-accettato { background: #4caf5020; color: #4caf50; }
-.badge-rifiutato { background: #e5393520; color: #e53935; }
-.badge-free { background: #78909c20; color: #78909c; }
-.badge-pro { background: #c8a96e20; color: var(--oro); }
-.badge-shield { background: #7c4dff20; color: #7c4dff; }
-select { background: #1a1a24; color: var(--bianco); border: 1px solid var(--bordo); padding: 4px 8px; border-radius: 4px; font-size: 12px; cursor: pointer; }
-.btn-del { background: none; border: 1px solid var(--rosso); color: var(--rosso); padding: 4px 10px; border-radius: 4px; cursor: pointer; font-size: 11px; }
-.btn-del:hover { background: var(--rosso); color: white; }
-#login { background: var(--card); border: 1px solid var(--bordo); border-radius: 12px; padding: 40px; max-width: 360px; margin: 100px auto; text-align: center; }
-#login h2 { color: var(--oro); margin-bottom: 20px; }
-#login input { width: 100%; padding: 12px; background: #1a1a24; border: 1px solid var(--bordo); color: var(--bianco); border-radius: 6px; margin-bottom: 12px; }
-#login button { width: 100%; padding: 12px; background: var(--oro); color: var(--bg); border: none; border-radius: 6px; font-weight: bold; cursor: pointer; }
-#dashboard { display: none; }
-.actions { display: flex; gap: 6px; align-items: center; }
+:root{--bg:#0a0a0f;--card:#12121a;--card2:#16161f;--oro:#c8a96e;--verde:#4CAF50;--rosso:#e53935;--grigio:#888;--bianco:#f5f3ee;--bordo:#1e1e1e;--viola:#7c4dff}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:-apple-system,sans-serif;background:var(--bg);color:var(--bianco);overflow:hidden;height:100vh}
+
+/* LOGIN */
+#login{position:fixed;inset:0;display:flex;align-items:center;justify-content:center;background:var(--bg);z-index:999}
+.login-box{background:var(--card);border:1px solid var(--bordo);border-radius:12px;padding:40px;width:340px;text-align:center}
+.login-box h2{color:var(--oro);margin-bottom:20px;font-size:22px;letter-spacing:2px}
+.login-box input{width:100%;padding:12px;background:#1a1a24;border:1px solid var(--bordo);color:var(--bianco);border-radius:6px;margin-bottom:12px}
+.login-box button{width:100%;padding:12px;background:var(--oro);color:var(--bg);border:none;border-radius:6px;font-weight:bold;cursor:pointer}
+#loginErr{color:var(--rosso);margin-top:10px;font-size:13px;display:none}
+
+/* LAYOUT CRM */
+#app{display:none;height:100vh}
+.layout{display:flex;height:100%}
+
+/* SIDEBAR */
+.sidebar{width:200px;background:var(--card);border-right:1px solid var(--bordo);display:flex;flex-direction:column;flex-shrink:0}
+.sb-logo{padding:20px 16px;border-bottom:1px solid var(--bordo);font-size:16px;font-weight:800;letter-spacing:2px}
+.sb-logo span{color:var(--oro)}
+.sb-nav{flex:1;padding:12px 0}
+.sb-item{display:flex;align-items:center;gap:10px;padding:10px 16px;cursor:pointer;font-size:13px;color:var(--grigio);transition:.2s}
+.sb-item:hover,.sb-item.active{color:var(--bianco);background:rgba(200,169,110,.08)}
+.sb-item.active{border-left:3px solid var(--oro);color:var(--oro)}
+.sb-footer{padding:16px;border-top:1px solid var(--bordo);font-size:11px;color:#444}
+
+/* AREA PRINCIPALE */
+.main{flex:1;display:flex;flex-direction:column;overflow:hidden}
+.topbar{padding:16px 24px;border-bottom:1px solid var(--bordo);display:flex;align-items:center;justify-content:space-between}
+.topbar h2{font-size:16px;font-weight:600}
+.content{flex:1;overflow-y:auto;padding:24px}
+
+/* STATS */
+.stats{display:flex;gap:12px;margin-bottom:24px;flex-wrap:wrap}
+.stat{background:var(--card);border:1px solid var(--bordo);border-radius:8px;padding:16px 20px;text-align:center;min-width:90px;flex:1}
+.stat .n{font-size:24px;font-weight:bold;color:var(--oro)}
+.stat .label{font-size:10px;color:var(--grigio);margin-top:4px;text-transform:uppercase}
+
+/* TABELLA TESTER */
+.tester-list{width:100%}
+.t-row{display:flex;align-items:center;padding:10px 12px;border-bottom:1px solid var(--bordo);cursor:pointer;transition:.15s;gap:12px}
+.t-row:hover{background:rgba(200,169,110,.05)}
+.t-row.selected{background:rgba(200,169,110,.1);border-left:3px solid var(--oro)}
+.t-avatar{width:36px;height:36px;border-radius:50%;background:var(--card2);border:1px solid var(--bordo);display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:bold;color:var(--oro);flex-shrink:0}
+.t-info{flex:1;min-width:0}
+.t-name{font-size:13px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.t-email{font-size:11px;color:var(--grigio)}
+.badge{padding:2px 8px;border-radius:4px;font-size:10px;font-weight:bold;text-transform:uppercase}
+.b-attesa{background:#ff980020;color:#ff9800}.b-accettato{background:#4caf5020;color:#4caf50}.b-rifiutato{background:#e5393520;color:#e53935}
+.b-free{background:#78909c20;color:#78909c}.b-pro{background:#c8a96e20;color:var(--oro)}.b-shield{background:#7c4dff20;color:var(--viola)}
+
+/* SCHEDA TESTER */
+.detail-view{display:none;height:100%}
+.detail-layout{display:flex;height:100%;gap:0}
+.detail-left{width:320px;border-right:1px solid var(--bordo);overflow-y:auto;padding:24px;flex-shrink:0}
+.detail-right{flex:1;display:flex;flex-direction:column;overflow:hidden}
+
+.field{margin-bottom:16px}
+.field label{display:block;font-size:11px;color:var(--grigio);margin-bottom:4px;text-transform:uppercase}
+.field-val{font-size:14px}
+.field select,.field textarea{width:100%;background:#1a1a24;color:var(--bianco);border:1px solid var(--bordo);border-radius:4px;padding:8px;font-size:13px}
+.field textarea{resize:vertical;min-height:60px}
+
+.btn{padding:8px 16px;border-radius:6px;border:none;cursor:pointer;font-size:12px;font-weight:600}
+.btn-oro{background:var(--oro);color:var(--bg)}.btn-red{background:none;border:1px solid var(--rosso);color:var(--rosso)}
+.btn-red:hover{background:var(--rosso);color:#fff}
+.btn-ghost{background:none;border:1px solid var(--bordo);color:var(--grigio)}.btn-ghost:hover{color:var(--bianco)}
+
+/* TABS pannello dx */
+.tabs{display:flex;border-bottom:1px solid var(--bordo)}
+.tab{padding:10px 16px;cursor:pointer;font-size:12px;color:var(--grigio);border-bottom:2px solid transparent}
+.tab:hover{color:var(--bianco)}
+.tab.active{color:var(--oro);border-bottom-color:var(--oro)}
+.tab-content{flex:1;overflow-y:auto;padding:16px}
+
+/* CHAT */
+.chat-msgs{display:flex;flex-direction:column;gap:8px;margin-bottom:12px}
+.msg{max-width:80%;padding:8px 12px;border-radius:8px;font-size:13px;line-height:1.5}
+.msg-admin{background:var(--oro);color:var(--bg);align-self:flex-end;border-bottom-right-radius:2px}
+.msg-tester{background:var(--card2);border:1px solid var(--bordo);align-self:flex-start;border-bottom-left-radius:2px}
+.msg-time{font-size:10px;opacity:.6;margin-top:2px}
+.chat-input{display:flex;gap:8px;padding:12px 16px;border-top:1px solid var(--bordo)}
+.chat-input input{flex:1;background:#1a1a24;border:1px solid var(--bordo);color:var(--bianco);padding:8px 12px;border-radius:6px;font-size:13px}
+.chat-input button{padding:8px 16px;background:var(--oro);color:var(--bg);border:none;border-radius:6px;font-weight:bold;cursor:pointer}
+
+/* NOTE */
+.note-item{background:var(--card2);border:1px solid var(--bordo);border-radius:6px;padding:10px;margin-bottom:8px;position:relative}
+.note-item .del{position:absolute;top:6px;right:8px;cursor:pointer;color:var(--rosso);font-size:12px;opacity:.6}
+.note-item .del:hover{opacity:1}
+.note-item .time{font-size:10px;color:var(--grigio);margin-top:4px}
+.add-row{display:flex;gap:8px;margin-top:12px}
+.add-row input,.add-row textarea{flex:1;background:#1a1a24;border:1px solid var(--bordo);color:var(--bianco);padding:8px;border-radius:4px;font-size:13px}
+.add-row button{padding:8px 14px;background:var(--oro);color:var(--bg);border:none;border-radius:4px;font-weight:bold;cursor:pointer;white-space:nowrap}
+
+/* TODO */
+.todo-item{display:flex;align-items:center;gap:8px;padding:8px;border-bottom:1px solid var(--bordo)}
+.todo-item input[type=checkbox]{accent-color:var(--oro);width:16px;height:16px;cursor:pointer}
+.todo-item.done span{text-decoration:line-through;color:var(--grigio)}
+.todo-item .del{margin-left:auto;cursor:pointer;color:var(--rosso);font-size:12px;opacity:.5}
+.todo-item .del:hover{opacity:1}
 </style>
 </head>
 <body>
 
 <div id="login">
-  <h2>STOPP<span style="color:var(--bianco)">AI</span> Admin</h2>
-  <input type="password" id="pwd" placeholder="Password admin">
-  <button onclick="doLogin()">ACCEDI</button>
-  <p id="loginErr" style="color:var(--rosso);margin-top:10px;font-size:13px;display:none"></p>
+  <div class="login-box">
+    <h2>STOPP<span style="color:var(--bianco)">AI</span></h2>
+    <p style="color:var(--grigio);margin-bottom:20px;font-size:13px">Admin CRM</p>
+    <input type="password" id="pwd" placeholder="Password" onkeydown="if(event.key==='Enter')doLogin()">
+    <button onclick="doLogin()">ACCEDI</button>
+    <p id="loginErr"></p>
+  </div>
 </div>
 
-<div id="dashboard">
-  <h1>STOPP<span style="color:var(--bianco)">AI</span> Admin</h1>
-  <p class="subtitle">Gestione tester e piani</p>
-  <div class="stats" id="statsBar"></div>
-  <table>
-    <thead><tr><th>Nome</th><th>Email</th><th>Tel</th><th>Stato</th><th>Piano</th><th>Data</th><th>Azioni</th></tr></thead>
-    <tbody id="tBody"></tbody>
-  </table>
+<div id="app">
+  <div class="layout">
+    <div class="sidebar">
+      <div class="sb-logo">STOPP<span>AI</span></div>
+      <div class="sb-nav">
+        <div class="sb-item active" onclick="showView('dashboard')">📊 Dashboard</div>
+        <div class="sb-item" onclick="showView('testers')">👥 Tester</div>
+        <div class="sb-item" onclick="showView('referral')">🔗 Referral</div>
+      </div>
+      <div class="sb-footer">StoppAI Admin v1.0</div>
+    </div>
+    <div class="main">
+      <div class="topbar">
+        <h2 id="viewTitle">Dashboard</h2>
+        <button class="btn btn-ghost" onclick="doLogout()">Logout</button>
+      </div>
+      <div class="content" id="viewContent"></div>
+    </div>
+  </div>
 </div>
 
 <script>
-const API = '/api/admin';
+const API='/api/admin';
+let testers=[], currentTester=null, currentTab='chat';
 
-async function doLogin() {
-  const pwd = document.getElementById('pwd').value;
-  const r = await fetch(API + '/login', { method: 'POST', headers: {'Content-Type':'application/json'}, body: JSON.stringify({password: pwd}) });
-  if (r.ok) { document.getElementById('login').style.display='none'; document.getElementById('dashboard').style.display='block'; loadAll(); }
-  else { const e = document.getElementById('loginErr'); e.textContent='Password errata'; e.style.display='block'; }
+// --- AUTH ---
+async function doLogin(){
+  const r=await fetch(API+'/login',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({password:document.getElementById('pwd').value})});
+  if(r.ok){document.getElementById('login').style.display='none';document.getElementById('app').style.display='block';showView('dashboard')}
+  else{const e=document.getElementById('loginErr');e.textContent='Password errata';e.style.display='block'}
+}
+async function doLogout(){await fetch(API+'/logout',{method:'POST'});location.reload()}
+fetch(API+'/stats').then(r=>{if(r.ok){document.getElementById('login').style.display='none';document.getElementById('app').style.display='block';showView('dashboard')}});
+
+// --- VIEWS ---
+function showView(v){
+  document.querySelectorAll('.sb-item').forEach((el,i)=>{el.classList.toggle('active',['dashboard','testers','referral'][i]===v)});
+  currentTester=null;
+  if(v==='dashboard')loadDashboard();
+  else if(v==='testers')loadTesterList();
+  else if(v==='referral')document.getElementById('viewContent').innerHTML='<p style="color:var(--grigio);padding:40px;text-align:center">Gestione Referral — in arrivo</p>';
+  document.getElementById('viewTitle').textContent={dashboard:'Dashboard',testers:'Tester',referral:'Referral'}[v];
 }
 
-async function loadAll() { await Promise.all([loadStats(), loadTesters()]); }
-
-async function loadStats() {
-  const r = await fetch(API + '/stats');
-  if (!r.ok) return;
-  const s = await r.json();
-  document.getElementById('statsBar').innerHTML = `
-    <div class="stat"><div class="n">${s.totale}</div><div class="label">Totale</div></div>
-    <div class="stat"><div class="n">${s.inAttesa}</div><div class="label">In attesa</div></div>
-    <div class="stat"><div class="n">${s.accettati}</div><div class="label">Accettati</div></div>
-    <div class="stat"><div class="n">${s.piani.shield}</div><div class="label">Shield</div></div>
-    <div class="stat"><div class="n">${s.piani.pro}</div><div class="label">Pro</div></div>
-    <div class="stat"><div class="n">${s.piani.free}</div><div class="label">Free</div></div>`;
+// --- DASHBOARD ---
+async function loadDashboard(){
+  const s=await(await fetch(API+'/stats')).json();
+  document.getElementById('viewContent').innerHTML=`
+    <div class="stats">
+      <div class="stat"><div class="n">${s.totale}</div><div class="label">Totale</div></div>
+      <div class="stat"><div class="n">${s.inAttesa}</div><div class="label">In attesa</div></div>
+      <div class="stat"><div class="n">${s.accettati}</div><div class="label">Accettati</div></div>
+      <div class="stat"><div class="n">${s.piani.shield}</div><div class="label">Shield</div></div>
+      <div class="stat"><div class="n">${s.piani.pro}</div><div class="label">Pro</div></div>
+      <div class="stat"><div class="n">${s.piani.free}</div><div class="label">Free</div></div>
+    </div>`;
 }
 
-async function loadTesters() {
-  const r = await fetch(API + '/testers');
-  if (!r.ok) return;
-  const list = await r.json();
-  document.getElementById('tBody').innerHTML = list.map(t => `<tr>
-    <td><strong>${t.nome} ${t.cognome}</strong></td>
-    <td>${t.email}</td>
-    <td>${t.telefono}</td>
-    <td><span class="badge badge-${t.stato}">${t.stato}</span></td>
-    <td><select onchange="setPiano(${t.id}, this.value)">
-      <option value="free" ${t.piano==='free'?'selected':''}>Free</option>
-      <option value="pro" ${t.piano==='pro'?'selected':''}>Pro</option>
-      <option value="shield" ${t.piano==='shield'?'selected':''}>Shield</option>
-    </select></td>
-    <td style="font-size:11px;color:var(--grigio)">${t.data_iscrizione?.slice(0,10) || '-'}</td>
-    <td><div class="actions">
-      <select onchange="setStato(${t.id}, this.value)" style="width:100px">
-        <option value="in_attesa" ${t.stato==='in_attesa'?'selected':''}>In attesa</option>
-        <option value="accettato" ${t.stato==='accettato'?'selected':''}>Accettato</option>
-        <option value="rifiutato" ${t.stato==='rifiutato'?'selected':''}>Rifiutato</option>
-      </select>
-      <button class="btn-del" onclick="delTester(${t.id})">X</button>
-    </div></td>
-  </tr>`).join('');
+// --- TESTER LIST ---
+async function loadTesterList(){
+  testers=await(await fetch(API+'/testers')).json();
+  let h='<div class="tester-list">';
+  testers.forEach(t=>{
+    h+=`<div class="t-row" onclick="openTester(${t.id})">
+      <div class="t-avatar">${t.nome[0]}${t.cognome[0]}</div>
+      <div class="t-info"><div class="t-name">${t.nome} ${t.cognome}</div><div class="t-email">${t.email}</div></div>
+      <span class="badge b-${t.stato}">${t.stato.replace('_',' ')}</span>
+      <span class="badge b-${t.piano}">${t.piano}</span>
+    </div>`;
+  });
+  h+='</div>';
+  document.getElementById('viewContent').innerHTML=h;
 }
 
-async function setPiano(id, piano) {
-  await fetch(API + '/testers/' + id + '/piano', { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({piano}) });
-  loadAll();
+// --- SCHEDA TESTER ---
+async function openTester(id){
+  currentTester=await(await fetch(API+'/testers/'+id)).json();
+  const t=currentTester;
+  document.getElementById('viewTitle').textContent=t.nome+' '+t.cognome;
+  document.getElementById('viewContent').innerHTML=`
+  <div class="detail-layout" style="height:calc(100vh - 120px)">
+    <div class="detail-left">
+      <div style="display:flex;align-items:center;gap:12px;margin-bottom:20px">
+        <div class="t-avatar" style="width:48px;height:48px;font-size:18px">${t.nome[0]}${t.cognome[0]}</div>
+        <div><div style="font-size:16px;font-weight:bold">${t.nome} ${t.cognome}</div><div style="font-size:12px;color:var(--grigio)">${t.email}</div></div>
+      </div>
+      <div class="field"><label>Telefono</label><div class="field-val">${t.telefono}</div></div>
+      <div class="field"><label>Stato</label>
+        <select onchange="setStato(${t.id},this.value)">
+          <option value="in_attesa" ${t.stato==='in_attesa'?'selected':''}>In attesa</option>
+          <option value="accettato" ${t.stato==='accettato'?'selected':''}>Accettato</option>
+          <option value="rifiutato" ${t.stato==='rifiutato'?'selected':''}>Rifiutato</option>
+        </select></div>
+      <div class="field"><label>Piano</label>
+        <select onchange="setPiano(${t.id},this.value)">
+          <option value="free" ${t.piano==='free'?'selected':''}>Free</option>
+          <option value="pro" ${t.piano==='pro'?'selected':''}>Pro</option>
+          <option value="shield" ${t.piano==='shield'?'selected':''}>Shield</option>
+        </select></div>
+      <div class="field"><label>Iscritto il</label><div class="field-val">${t.data_iscrizione?.replace('T',' ').slice(0,16)||'-'}</div></div>
+      <div class="field"><label>Accettato il</label><div class="field-val">${t.data_accettazione?.replace('T',' ').slice(0,16)||'-'}</div></div>
+      <div class="field"><label>Modello telefono</label><div class="field-val">${t.modello_telefono||'Non disponibile'}</div></div>
+      <div class="field"><label>Versione app</label><div class="field-val">${t.versione_app||'Non disponibile'}</div></div>
+      <div style="display:flex;gap:8px;margin-top:20px">
+        <button class="btn btn-ghost" onclick="showView('testers')">← Lista</button>
+        <button class="btn btn-red" onclick="delTester(${t.id})">Elimina</button>
+      </div>
+    </div>
+    <div class="detail-right">
+      <div class="tabs">
+        <div class="tab active" onclick="switchTab('chat',${t.id})">💬 Chat</div>
+        <div class="tab" onclick="switchTab('notes',${t.id})">📝 Note</div>
+        <div class="tab" onclick="switchTab('todos',${t.id})">✅ To-Do</div>
+      </div>
+      <div class="tab-content" id="tabPanel"></div>
+      ${currentTab==='chat'?'<div class="chat-input" id="chatInput"><input id="chatMsg" placeholder="Scrivi un messaggio..." onkeydown="if(event.key===\'Enter\')sendMsg('+t.id+')"><button onclick="sendMsg('+t.id+')">Invia</button></div>':''}
+    </div>
+  </div>`;
+  switchTab('chat',t.id);
 }
 
-async function setStato(id, stato) {
-  await fetch(API + '/testers/' + id + '/stato', { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({stato}) });
-  loadAll();
+// --- TABS ---
+async function switchTab(tab,id){
+  currentTab=tab;
+  document.querySelectorAll('.tab').forEach(el=>el.classList.remove('active'));
+  document.querySelectorAll('.tab').forEach(el=>{if(el.textContent.includes({chat:'Chat',notes:'Note',todos:'To-Do'}[tab]))el.classList.add('active')});
+  const panel=document.getElementById('tabPanel');
+  const ci=document.getElementById('chatInput');
+  if(tab==='chat'){
+    if(ci)ci.style.display='flex';
+    const msgs=await(await fetch(API+'/testers/'+id+'/messaggi')).json();
+    panel.innerHTML='<div class="chat-msgs">'+msgs.map(m=>`<div class="msg msg-${m.mittente}"><div>${m.testo}</div><div class="msg-time">${m.timestamp?.slice(0,16).replace('T',' ')||''}</div></div>`).join('')+'</div>';
+    panel.scrollTop=panel.scrollHeight;
+  } else if(tab==='notes'){
+    if(ci)ci.style.display='none';
+    const notes=await(await fetch(API+'/testers/'+id+'/notes')).json();
+    panel.innerHTML=notes.map(n=>`<div class="note-item"><span class="del" onclick="delNote(${n.id},${id})">✕</span>${n.testo}<div class="time">${n.timestamp?.slice(0,16).replace('T',' ')||''}</div></div>`).join('')+`<div class="add-row"><textarea id="newNote" rows="2" placeholder="Scrivi una nota..."></textarea><button onclick="addNote(${id})">Salva</button></div>`;
+  } else if(tab==='todos'){
+    if(ci)ci.style.display='none';
+    const todos=await(await fetch(API+'/testers/'+id+'/todos')).json();
+    panel.innerHTML=todos.map(t=>`<div class="todo-item ${t.completato?'done':''}"><input type="checkbox" ${t.completato?'checked':''} onchange="toggleTodo(${t.id},${id})"><span>${t.testo}</span><span class="del" onclick="delTodo(${t.id},${id})">✕</span></div>`).join('')+`<div class="add-row"><input id="newTodo" placeholder="Nuova attivita'..." onkeydown="if(event.key==='Enter')addTodo(${id})"><button onclick="addTodo(${id})">Aggiungi</button></div>`;
+  }
 }
 
-async function delTester(id) {
-  if (!confirm('Eliminare questo tester?')) return;
-  await fetch(API + '/testers/' + id, { method: 'DELETE' });
-  loadAll();
-}
+// --- AZIONI ---
+async function setStato(id,stato){await fetch(API+'/testers/'+id+'/stato',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({stato})});openTester(id)}
+async function setPiano(id,piano){await fetch(API+'/testers/'+id+'/piano',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({piano})})}
+async function delTester(id){if(!confirm('Eliminare questo tester?'))return;await fetch(API+'/testers/'+id,{method:'DELETE'});showView('testers')}
 
-// Auto-check se gia' loggato
-fetch(API + '/stats').then(r => { if (r.ok) { document.getElementById('login').style.display='none'; document.getElementById('dashboard').style.display='block'; loadAll(); }});
+// CHAT
+async function sendMsg(id){const inp=document.getElementById('chatMsg');const t=inp.value.trim();if(!t)return;inp.value='';await fetch(API+'/testers/'+id+'/messaggi',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({testo:t})});switchTab('chat',id)}
+
+// NOTE
+async function addNote(id){const inp=document.getElementById('newNote');const t=inp.value.trim();if(!t)return;await fetch(API+'/testers/'+id+'/notes',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({testo:t})});switchTab('notes',id)}
+async function delNote(noteId,testerId){await fetch(API+'/notes/'+noteId,{method:'DELETE'});switchTab('notes',testerId)}
+
+// TODO
+async function addTodo(id){const inp=document.getElementById('newTodo');const t=inp.value.trim();if(!t)return;await fetch(API+'/testers/'+id+'/todos',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({testo:t})});switchTab('todos',id)}
+async function toggleTodo(todoId,testerId){await fetch(API+'/todos/'+todoId+'/toggle',{method:'POST'});switchTab('todos',testerId)}
+async function delTodo(todoId,testerId){await fetch(API+'/todos/'+todoId,{method:'DELETE'});switchTab('todos',testerId)}
 </script>
 </body>
 </html>

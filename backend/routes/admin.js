@@ -150,9 +150,88 @@ router.post('/testers/:id/note', authAdmin, (req, res) => {
   res.json({ success: true });
 });
 
+// GET /api/admin/testers/:id — dettaglio singolo tester
+router.get('/testers/:id', authAdmin, (req, res) => {
+  const tester = db.prepare('SELECT * FROM testers WHERE id = ?').get(req.params.id);
+  if (!tester) return res.status(404).json({ error: 'Tester non trovato' });
+  res.json(tester);
+});
+
 // DELETE /api/admin/testers/:id — elimina tester
 router.delete('/testers/:id', authAdmin, (req, res) => {
   db.prepare('DELETE FROM testers WHERE id = ?').run(req.params.id);
+  db.prepare('DELETE FROM messaggi_chat WHERE tester_id = ?').run(req.params.id);
+  db.prepare('DELETE FROM admin_notes WHERE tester_id = ?').run(req.params.id);
+  db.prepare('DELETE FROM admin_todos WHERE tester_id = ?').run(req.params.id);
+  res.json({ success: true });
+});
+
+// --- CHAT ---
+router.get('/testers/:id/messaggi', authAdmin, (req, res) => {
+  const msgs = db.prepare(
+    'SELECT * FROM messaggi_chat WHERE tester_id = ? ORDER BY timestamp ASC'
+  ).all(req.params.id);
+  res.json(msgs);
+});
+
+router.post('/testers/:id/messaggi', authAdmin, (req, res) => {
+  const { testo } = req.body;
+  if (!testo?.trim()) return res.status(400).json({ error: 'Testo vuoto' });
+  db.prepare(
+    'INSERT INTO messaggi_chat (tester_id, mittente, testo) VALUES (?, ?, ?)'
+  ).run(req.params.id, 'admin', testo.trim());
+  res.json({ success: true });
+});
+
+// --- NOTE MARIO ---
+router.get('/testers/:id/notes', authAdmin, (req, res) => {
+  const notes = db.prepare(
+    'SELECT * FROM admin_notes WHERE tester_id = ? ORDER BY timestamp DESC'
+  ).all(req.params.id);
+  res.json(notes);
+});
+
+router.post('/testers/:id/notes', authAdmin, (req, res) => {
+  const { testo } = req.body;
+  if (!testo?.trim()) return res.status(400).json({ error: 'Testo vuoto' });
+  db.prepare(
+    'INSERT INTO admin_notes (tester_id, testo) VALUES (?, ?)'
+  ).run(req.params.id, testo.trim());
+  res.json({ success: true });
+});
+
+router.delete('/notes/:noteId', authAdmin, (req, res) => {
+  db.prepare('DELETE FROM admin_notes WHERE id = ?').run(req.params.noteId);
+  res.json({ success: true });
+});
+
+// --- TODO ---
+router.get('/testers/:id/todos', authAdmin, (req, res) => {
+  const todos = db.prepare(
+    'SELECT * FROM admin_todos WHERE tester_id = ? ORDER BY timestamp ASC'
+  ).all(req.params.id);
+  res.json(todos);
+});
+
+router.post('/testers/:id/todos', authAdmin, (req, res) => {
+  const { testo } = req.body;
+  if (!testo?.trim()) return res.status(400).json({ error: 'Testo vuoto' });
+  db.prepare(
+    'INSERT INTO admin_todos (tester_id, testo) VALUES (?, ?)'
+  ).run(req.params.id, testo.trim());
+  res.json({ success: true });
+});
+
+router.post('/todos/:todoId/toggle', authAdmin, (req, res) => {
+  const todo = db.prepare('SELECT completato FROM admin_todos WHERE id = ?').get(req.params.todoId);
+  if (!todo) return res.status(404).json({ error: 'Todo non trovato' });
+  db.prepare('UPDATE admin_todos SET completato = ? WHERE id = ?')
+    .run(todo.completato ? 0 : 1, req.params.todoId);
+  res.json({ success: true });
+});
+
+router.delete('/todos/:todoId', authAdmin, (req, res) => {
+  db.prepare('DELETE FROM admin_todos WHERE id = ?').run(req.params.todoId);
   res.json({ success: true });
 });
 
