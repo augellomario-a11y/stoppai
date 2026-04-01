@@ -54,6 +54,11 @@ router.post('/request-code', async (req, res) => {
   const adminEmail = (process.env.ADMIN_EMAIL || '').toLowerCase();
   if (!adminEmail) return res.status(500).json({ error: 'ADMIN_EMAIL non configurata' });
 
+  const { email } = req.body;
+  if (!email || email.trim().toLowerCase() !== adminEmail) {
+    return res.status(403).json({ error: 'Email non autorizzata' });
+  }
+
   const codice = Math.floor(100000 + Math.random() * 900000).toString();
   const scade = new Date(Date.now() + 10 * 60 * 1000).toISOString();
 

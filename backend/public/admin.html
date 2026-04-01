@@ -114,16 +114,13 @@ body{font-family:-apple-system,sans-serif;background:var(--bg);color:var(--bianc
     <h2>STOPP<span style="color:var(--bianco)">AI</span></h2>
     <p style="color:var(--grigio);margin-bottom:20px;font-size:13px">Admin CRM</p>
     <div id="loginStep1">
-      <input type="password" id="pwd" placeholder="Password" onkeydown="if(event.key==='Enter')doLogin()">
-      <button onclick="doLogin()">ACCEDI</button>
-      <div style="margin-top:16px;padding-top:16px;border-top:1px solid var(--bordo)">
-        <button onclick="requestAdminCode()" style="width:100%;padding:10px;background:none;border:1px solid var(--oro);color:var(--oro);border-radius:6px;cursor:pointer;font-size:13px">ACCEDI CON CODICE EMAIL</button>
-      </div>
+      <input type="email" id="adminEmail" placeholder="La tua email" onkeydown="if(event.key==='Enter')requestAdminCode()">
+      <button onclick="requestAdminCode()">INVIA CODICE</button>
     </div>
     <div id="loginStep2" style="display:none">
       <p style="color:var(--verde);margin-bottom:16px;font-size:13px" id="codeMsg">Codice inviato!</p>
       <input type="text" id="adminCode" placeholder="Codice a 6 cifre" maxlength="6" style="text-align:center;font-size:20px;letter-spacing:6px" onkeydown="if(event.key==='Enter')doLoginCode()">
-      <button onclick="doLoginCode()">VERIFICA</button>
+      <button onclick="doLoginCode()">ACCEDI</button>
       <p style="margin-top:12px"><a href="#" onclick="document.getElementById('loginStep1').style.display='block';document.getElementById('loginStep2').style.display='none';return false" style="color:var(--grigio);font-size:12px">← Torna indietro</a></p>
     </div>
     <p id="loginErr"></p>
@@ -158,20 +155,20 @@ const API='/api/admin';
 let testers=[], currentTester=null, currentTab='chat';
 
 // --- AUTH ---
-async function doLogin(){
-  const r=await fetch(API+'/login',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({password:document.getElementById('pwd').value})});
-  if(r.ok){document.getElementById('login').style.display='none';document.getElementById('app').style.display='block';showView('dashboard')}
-  else{const e=document.getElementById('loginErr');e.textContent='Password errata';e.style.display='block'}
-}
+// Login con password rimosso dalla UI — solo magic code
+
 async function requestAdminCode(){
-  const r=await fetch(API+'/request-code',{method:'POST'});
+  const email=document.getElementById('adminEmail').value.trim();
+  if(!email||!email.includes('@')){document.getElementById('loginErr').textContent='Inserisci un\'email valida';document.getElementById('loginErr').style.display='block';return}
+  const r=await fetch(API+'/request-code',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({email})});
   const d=await r.json();
   if(r.ok){
     document.getElementById('loginStep1').style.display='none';
     document.getElementById('loginStep2').style.display='block';
     document.getElementById('codeMsg').textContent=d.message||'Codice inviato!';
+    document.getElementById('loginErr').style.display='none';
   } else {
-    document.getElementById('loginErr').textContent=d.error||'Errore';document.getElementById('loginErr').style.display='block';
+    document.getElementById('loginErr').textContent=d.error||'Email non autorizzata';document.getElementById('loginErr').style.display='block';
   }
 }
 async function doLoginCode(){
