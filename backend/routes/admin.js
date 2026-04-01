@@ -110,9 +110,9 @@ function emailAccettazione(nome) {
         </p>
       </div>
       <p style="font-size:15px;line-height:1.7;color:#ddd">
-        Come ringraziamento per il tuo contributo, hai diritto a
+        Se completerai tutte le fasi dei test, avrai diritto a
         <strong style="color:#c8a96e">1 anno di abbonamento Shield</strong>
-        del valore di &euro;119,88 — completamente gratuito.
+        del valore di &euro;59,88 — completamente gratuito.
       </p>
       <div style="text-align:center;margin:32px 0">
         <a href="#" style="display:inline-block;padding:14px 32px;background:#c8a96e;color:#0a0a0f;text-decoration:none;border-radius:6px;font-weight:bold;font-size:15px;letter-spacing:1px">SCARICA L'APP</a>

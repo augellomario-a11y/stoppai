@@ -48,7 +48,7 @@ router.post('/iscriviti', async (req, res) => {
             <h2 style="color:#c8a96e">Ciao ${nome},</h2>
             <p>abbiamo ricevuto la tua candidatura per partecipare ai test di StoppAI.</p>
             <p>Stiamo valutando la tua richiesta e ti contatteremo a breve con tutti i dettagli.</p>
-            <p>Come ringraziamento, se selezionato riceverai <strong>1 anno di abbonamento Shield del valore di €119,88</strong> completamente gratuito.</p>
+            <p>Se completerai tutte le fasi dei test, avrai diritto a <strong>1 anno di abbonamento Shield del valore di €59,88</strong> completamente gratuito.</p>
             <br>
             <p>A presto,<br>Il team StoppAI<br>
             <a href="mailto:info@internetfullservice.it">info@internetfullservice.it</a></p>
