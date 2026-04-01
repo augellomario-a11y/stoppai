@@ -1,0 +1,12 @@
+version: "3.8"
+services:
+  stoppai-backend:
+    build: .
+    container_name: stoppai-backend
+    restart: unless-stopped
+    ports:
+      - "6002:6002"
+    env_file:
+      - .env
+    volumes:
+      - ./db:/app/db

@@ -81,7 +81,39 @@ footer { padding: 4rem 5%; background: var(--nero2); border-top: 1px solid var(-
 function openPopup(){ document.getElementById('popup').style.display='flex'; }
 function closePopup(){ document.getElementById('popup').style.display='none'; }
 function goToForm(){ closePopup(); document.getElementById('iscriviti').scrollIntoView({behavior:'smooth'}); }
-async function submitForm(e){ e.preventDefault(); document.getElementById('successMsg').style.display='block'; document.getElementById('testerForm').style.display='none'; }
+async function submitForm(e){
+  e.preventDefault();
+  const f = e.target;
+  const btn = f.querySelector('button[type="submit"]');
+  btn.disabled = true; btn.textContent = 'INVIO IN CORSO...';
+  try {
+    const r = await fetch('/api/tester/iscriviti', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        nome: f.nome.value.trim(),
+        cognome: f.cognome.value.trim(),
+        telefono: f.tel.value.trim(),
+        email: f.email.value.trim(),
+        consenso: true
+      })
+    });
+    const data = await r.json();
+    const msg = document.getElementById('successMsg');
+    if (r.ok) {
+      msg.style.color = 'var(--oro)';
+      msg.textContent = data.message;
+    } else {
+      msg.style.color = '#ff6b6b';
+      msg.textContent = data.message || 'Errore. Riprova.';
+    }
+    msg.style.display = 'block';
+    f.style.display = 'none';
+  } catch(err) {
+    btn.disabled = false; btn.textContent = 'INVIA CANDIDATURA';
+    alert('Errore di connessione. Riprova tra poco.');
+  }
+}
 </script>
 </body>
 </html>
