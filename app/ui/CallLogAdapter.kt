@@ -49,14 +49,14 @@ class CallLogAdapter(
 
             val isContact = entry.displayName.isNotEmpty()
 
-            // DIREZIONE & COLORI (SA-109)
+            // DIREZIONE & COLORI (SA-109 fix SA-118)
             if (entry.callDirection == "USCITA") {
                 imgDirection.setImageResource(R.drawable.ic_arrow_up)
                 imgDirection.setColorFilter(android.graphics.Color.parseColor("#4CAF50")) // VERDE
             } else {
                 imgDirection.setImageResource(R.drawable.ic_arrow_down)
                 when {
-                    entry.callType == "MANCATA" || entry.callType == "DEVIATA" -> {
+                    entry.callOutcome == "MANCATA" || entry.callOutcome == "DEVIATA" -> {
                         imgDirection.setColorFilter(android.graphics.Color.GRAY)
                     }
                     isContact -> {

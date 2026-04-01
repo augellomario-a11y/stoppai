@@ -59,7 +59,7 @@ interface CallLogDao {
 
     @Query("DELETE FROM call_log_entries WHERE timestamp >= :since")
     suspend fun deleteCallsSince(since: Long)
-    @Query("SELECT * FROM call_log_entries WHERE phoneNumber LIKE '%' || :numero ORDER BY timestamp DESC LIMIT 1")
+    @Query("SELECT * FROM call_log_entries WHERE SUBSTR(REPLACE(REPLACE(phoneNumber, '+39', ''), '+', ''), -10) = SUBSTR(REPLACE(REPLACE(:numero, '+39', ''), '+', ''), -10) ORDER BY timestamp DESC LIMIT 1")
     suspend fun getMostRecentByNumber(numero: String): CallLogEntry?
 
     @Query("SELECT * FROM call_log_entries WHERE id = :id")
