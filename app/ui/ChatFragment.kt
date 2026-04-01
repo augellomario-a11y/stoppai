@@ -5,6 +5,8 @@ package com.ifs.stoppai.ui
 import android.graphics.Color
 import android.graphics.drawable.GradientDrawable
 import android.os.Bundle
+import android.os.Handler
+import android.os.Looper
 import android.view.Gravity
 import android.view.LayoutInflater
 import android.view.View
@@ -19,13 +21,13 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import org.json.JSONArray
-import org.json.JSONObject
 import java.net.URL
 
 class ChatFragment : Fragment(R.layout.fragment_chat) {
 
     companion object {
         const val BACKEND_URL = "http://46.225.14.90:6002"
+        const val POLL_INTERVAL = 3000L
     }
 
     private lateinit var rvChat: RecyclerView
@@ -33,6 +35,8 @@ class ChatFragment : Fragment(R.layout.fragment_chat) {
     private lateinit var btnSend: ImageButton
     private val messages = mutableListOf<ChatMsg>()
     private lateinit var adapter: ChatAdapter
+    private val handler = Handler(Looper.getMainLooper())
+    private var polling = false
 
     data class ChatMsg(val testo: String, val mittente: String, val timestamp: String)
 
@@ -51,6 +55,32 @@ class ChatFragment : Fragment(R.layout.fragment_chat) {
         loadMessages()
     }
 
+    override fun onResume() {
+        super.onResume()
+        startPolling()
+    }
+
+    override fun onPause() {
+        super.onPause()
+        stopPolling()
+    }
+
+    private fun startPolling() {
+        polling = true
+        handler.postDelayed(object : Runnable {
+            override fun run() {
+                if (!polling || !isAdded) return
+                loadMessages()
+                handler.postDelayed(this, POLL_INTERVAL)
+            }
+        }, POLL_INTERVAL)
+    }
+
+    private fun stopPolling() {
+        polling = false
+        handler.removeCallbacksAndMessages(null)
+    }
+
     private fun getTesterId(): Int {
         val prefs = requireContext().getSharedPreferences("stoppai_prefs", 0)
         return prefs.getInt("tester_id", -1)
@@ -59,9 +89,10 @@ class ChatFragment : Fragment(R.layout.fragment_chat) {
     private fun loadMessages() {
         val testerId = getTesterId()
         if (testerId == -1) {
-            messages.clear()
-            messages.add(ChatMsg("Benvenuto nell'assistenza StoppAI! Per attivare la chat, registrati come tester.", "admin", ""))
-            adapter.notifyDataSetChanged()
+            if (messages.isEmpty()) {
+                messages.add(ChatMsg("Per attivare la chat, accedi con la tua email.", "admin", ""))
+                adapter.notifyDataSetChanged()
+            }
             return
         }
 
@@ -70,6 +101,8 @@ class ChatFragment : Fragment(R.layout.fragment_chat) {
                 val url = URL("$BACKEND_URL/api/tester/$testerId/messaggi")
                 val conn = url.openConnection() as java.net.HttpURLConnection
                 conn.requestMethod = "GET"
+                conn.connectTimeout = 5000
+                conn.readTimeout = 5000
                 val response = conn.inputStream.bufferedReader().readText()
                 conn.disconnect()
 
@@ -85,21 +118,20 @@ class ChatFragment : Fragment(R.layout.fragment_chat) {
                 }
 
                 withContext(Dispatchers.Main) {
+                    if (!isAdded) return@withContext
+                    val wasAtBottom = !rvChat.canScrollVertically(1)
+                    val changed = msgs.size != messages.size
                     messages.clear()
                     messages.addAll(msgs)
                     if (messages.isEmpty()) {
                         messages.add(ChatMsg("Ciao! Come possiamo aiutarti?", "admin", ""))
                     }
                     adapter.notifyDataSetChanged()
-                    rvChat.scrollToPosition(messages.size - 1)
+                    if (changed && wasAtBottom) {
+                        rvChat.scrollToPosition(messages.size - 1)
+                    }
                 }
-            } catch (e: Exception) {
-                withContext(Dispatchers.Main) {
-                    messages.clear()
-                    messages.add(ChatMsg("Connessione non disponibile. Riprova piu' tardi.", "admin", ""))
-                    adapter.notifyDataSetChanged()
-                }
-            }
+            } catch (_: Exception) {}
         }
     }
 
@@ -110,11 +142,11 @@ class ChatFragment : Fragment(R.layout.fragment_chat) {
 
         val testerId = getTesterId()
         if (testerId == -1) {
-            Toast.makeText(requireContext(), "Registrati come tester per usare la chat", Toast.LENGTH_SHORT).show()
+            Toast.makeText(requireContext(), "Accedi per usare la chat", Toast.LENGTH_SHORT).show()
             return
         }
 
-        messages.add(ChatMsg(text, "tester", ""))
+        messages.add(ChatMsg(text, "tester", "adesso"))
         adapter.notifyItemInserted(messages.size - 1)
         rvChat.scrollToPosition(messages.size - 1)
 
@@ -125,7 +157,8 @@ class ChatFragment : Fragment(R.layout.fragment_chat) {
                 conn.requestMethod = "POST"
                 conn.doOutput = true
                 conn.setRequestProperty("Content-Type", "application/json")
-                conn.outputStream.write("""{"testo":"$text","mittente":"tester"}""".toByteArray())
+                val escaped = text.replace("\\", "\\\\").replace("\"", "\\\"")
+                conn.outputStream.write("""{"testo":"$escaped","mittente":"tester"}""".toByteArray())
                 conn.responseCode
                 conn.disconnect()
             } catch (e: Exception) {
@@ -149,23 +182,30 @@ class ChatFragment : Fragment(R.layout.fragment_chat) {
         override fun onBindViewHolder(holder: MsgViewHolder, position: Int) {
             val msg = messages[position]
             holder.txtText.text = msg.testo
-            holder.txtTime.text = msg.timestamp.take(16).replace("T", " ")
+
+            val ts = msg.timestamp
+            holder.txtTime.text = if (ts.length >= 16) ts.substring(11, 16) else if (ts == "adesso") "adesso" else ""
 
             val params = holder.bubble.layoutParams as FrameLayout.LayoutParams
             val bg = GradientDrawable()
-            bg.cornerRadius = 16f
 
             if (msg.mittente == "tester") {
                 params.gravity = Gravity.END
+                bg.cornerRadii = floatArrayOf(36f,36f, 36f,36f, 8f,8f, 36f,36f)
                 bg.setColor(Color.parseColor("#c8a96e"))
                 holder.txtText.setTextColor(Color.parseColor("#0a0a0f"))
+                holder.txtTime.setTextColor(Color.parseColor("#8a7540"))
             } else {
                 params.gravity = Gravity.START
-                bg.setColor(Color.parseColor("#F0F0F0"))
+                bg.cornerRadii = floatArrayOf(36f,36f, 36f,36f, 36f,36f, 8f,8f)
+                bg.setColor(Color.parseColor("#EEEEEE"))
                 holder.txtText.setTextColor(Color.parseColor("#1a1a1a"))
+                holder.txtTime.setTextColor(Color.parseColor("#999999"))
             }
+
             holder.bubble.layoutParams = params
             holder.bubble.background = bg
+            holder.bubble.elevation = 2f
         }
 
         override fun getItemCount() = messages.size

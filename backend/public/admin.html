@@ -184,6 +184,7 @@ fetch(API+'/stats').then(r=>{if(r.ok){document.getElementById('login').style.dis
 
 // --- VIEWS ---
 function showView(v){
+  stopChatPoll();
   document.querySelectorAll('.sb-item').forEach((el,i)=>{el.classList.toggle('active',['dashboard','testers','broadcast','referral','links'][i]===v)});
   currentTester=null;
   if(v==='dashboard')loadDashboard();
@@ -279,11 +280,11 @@ async function switchTab(tab,id){
   document.querySelectorAll('.tab').forEach(el=>{if(el.textContent.includes({chat:'Chat',notes:'Note',todos:'To-Do'}[tab]))el.classList.add('active')});
   const panel=document.getElementById('tabPanel');
   const ci=document.getElementById('chatInput');
+  stopChatPoll();
   if(tab==='chat'){
     if(ci)ci.style.display='flex';
-    const msgs=await(await fetch(API+'/testers/'+id+'/messaggi')).json();
-    panel.innerHTML='<div class="chat-msgs">'+msgs.map(m=>`<div class="msg msg-${m.mittente}"><div>${m.testo}</div><div class="msg-time">${m.timestamp?.slice(0,16).replace('T',' ')||''}</div></div>`).join('')+'</div>';
-    panel.scrollTop=panel.scrollHeight;
+    await refreshChat(id);
+    startChatPoll(id);
   } else if(tab==='stats'){
     if(ci)ci.style.display='none';
     const t=currentTester;
@@ -373,8 +374,22 @@ async function setStato(id,stato){await fetch(API+'/testers/'+id+'/stato',{metho
 async function setPiano(id,piano){await fetch(API+'/testers/'+id+'/piano',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({piano})})}
 async function delTester(id){if(!confirm('Eliminare questo tester?'))return;await fetch(API+'/testers/'+id,{method:'DELETE'});showView('testers')}
 
-// CHAT
-async function sendMsg(id){const inp=document.getElementById('chatMsg');const t=inp.value.trim();if(!t)return;inp.value='';await fetch(API+'/testers/'+id+'/messaggi',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({testo:t})});switchTab('chat',id)}
+// CHAT con polling
+let chatPollTimer=null;
+function startChatPoll(id){
+  stopChatPoll();
+  chatPollTimer=setInterval(()=>refreshChat(id),3000);
+}
+function stopChatPoll(){if(chatPollTimer){clearInterval(chatPollTimer);chatPollTimer=null}}
+async function refreshChat(id){
+  if(currentTab!=='chat'||!currentTester)return;
+  const msgs=await(await fetch(API+'/testers/'+id+'/messaggi')).json();
+  const panel=document.getElementById('tabPanel');
+  if(!panel)return;
+  panel.innerHTML='<div class="chat-msgs">'+msgs.map(m=>`<div class="msg msg-${m.mittente}"><div>${m.testo}</div><div class="msg-time">${m.timestamp?.slice(11,16)||''}</div></div>`).join('')+'</div>';
+  panel.scrollTop=panel.scrollHeight;
+}
+async function sendMsg(id){const inp=document.getElementById('chatMsg');const t=inp.value.trim();if(!t)return;inp.value='';await fetch(API+'/testers/'+id+'/messaggi',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({testo:t})});refreshChat(id)}
 
 // NOTE
 async function addNote(id){const inp=document.getElementById('newNote');const t=inp.value.trim();if(!t)return;await fetch(API+'/testers/'+id+'/notes',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({testo:t})});switchTab('notes',id)}
