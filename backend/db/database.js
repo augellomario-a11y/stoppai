@@ -65,6 +65,15 @@ db.exec(`
     usato INTEGER DEFAULT 0
   );
 
+  CREATE TABLE IF NOT EXISTS piano_log (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    tester_id INTEGER NOT NULL,
+    piano_precedente TEXT NOT NULL,
+    piano_nuovo TEXT NOT NULL,
+    cambiato_da TEXT DEFAULT 'admin',
+    timestamp TEXT DEFAULT (datetime('now'))
+  );
+
   CREATE TABLE IF NOT EXISTS tester_stats (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     tester_id INTEGER NOT NULL,
@@ -90,6 +99,13 @@ db.exec(`
     ultimo_sync TEXT DEFAULT (datetime('now'))
   );
 `);
+
+// Migrazione: aggiunge colonna immagine a messaggi_chat se non esiste
+try {
+  db.prepare("SELECT immagine FROM messaggi_chat LIMIT 1").get();
+} catch (e) {
+  db.exec("ALTER TABLE messaggi_chat ADD COLUMN immagine TEXT");
+}
 
 // Migrazione: aggiunge colonna piano se non esiste
 try {

@@ -103,6 +103,31 @@ router.post('/:id/messaggi', (req, res) => {
   res.json({ success: true });
 });
 
+// POST /api/tester/:id/messaggi/img — tester invia immagine
+const multer = require('multer');
+const path = require('path');
+const fs = require('fs');
+const uploadDir = path.join(__dirname, '..', 'uploads');
+if (!fs.existsSync(uploadDir)) fs.mkdirSync(uploadDir, { recursive: true });
+const storage = multer.diskStorage({
+  destination: (req, file, cb) => cb(null, uploadDir),
+  filename: (req, file, cb) => {
+    const ext = path.extname(file.originalname) || '.jpg';
+    cb(null, `chat_${Date.now()}_${Math.random().toString(36).slice(2,8)}${ext}`);
+  }
+});
+const uploadTester = multer({ storage, limits: { fileSize: 5 * 1024 * 1024 } });
+
+router.post('/:id/messaggi/img', uploadTester.single('immagine'), (req, res) => {
+  if (!req.file) return res.status(400).json({ error: 'Nessun file' });
+  const imgPath = `/uploads/${req.file.filename}`;
+  const testo = req.body.testo || '';
+  db.prepare(
+    'INSERT INTO messaggi_chat (tester_id, mittente, testo, immagine) VALUES (?, ?, ?, ?)'
+  ).run(req.params.id, 'tester', testo, imgPath);
+  res.json({ success: true, immagine: imgPath });
+});
+
 // POST /api/tester/sync — l'app invia device info + statistiche
 router.post('/sync', (req, res) => {
   const { tester_id, device, stats } = req.body;

@@ -258,6 +258,7 @@ async function openTester(id){
         <button class="btn btn-ghost" onclick="showView('testers')">← Lista</button>
         <button class="btn btn-red" onclick="delTester(${t.id})">Elimina</button>
       </div>
+      <div id="pianoLogSidebar" style="margin-top:20px"></div>
     </div>
     <div class="detail-right">
       <div class="tabs">
@@ -267,10 +268,11 @@ async function openTester(id){
         <div class="tab" onclick="switchTab('todos',${t.id})">✅ To-Do</div>
       </div>
       <div class="tab-content" id="tabPanel"></div>
-      ${currentTab==='chat'?'<div class="chat-input" id="chatInput"><input id="chatMsg" placeholder="Scrivi un messaggio..." onkeydown="if(event.key===\'Enter\')sendMsg('+t.id+')"><button onclick="sendMsg('+t.id+')">Invia</button></div>':''}
+      ${currentTab==='chat'?'<div class="chat-input" id="chatInput"><label style="cursor:pointer;font-size:18px;padding:0 6px" title="Allega immagine">📎<input type="file" accept="image/*" style="display:none" onchange="sendImg('+t.id+',this)"></label><input id="chatMsg" placeholder="Scrivi un messaggio..." onkeydown="if(event.key===\'Enter\')sendMsg('+t.id+')"><button onclick="sendMsg('+t.id+')">Invia</button></div>':''}
     </div>
   </div>`;
   switchTab('chat',t.id);
+  loadPianoLog(t.id);
 }
 
 // --- TABS ---
@@ -293,7 +295,7 @@ async function switchTab(tab,id){
     const has=s.ultimo_sync;
     const sc=v=>v||0;
     function miniCard(icon,label,value,color){return `<div style="background:var(--card);border:1px solid var(--bordo);border-radius:10px;padding:16px;text-align:center;min-width:100px;flex:1"><div style="font-size:20px;margin-bottom:6px">${icon}</div><div style="font-size:26px;font-weight:bold;color:${color||'var(--oro)'}">${value}</div><div style="font-size:10px;color:var(--grigio);margin-top:4px;text-transform:uppercase;letter-spacing:.5px">${label}</div></div>`}
-    function statRow(label,value,icon,color){return `<div style="display:flex;justify-content:space-between;align-items:center;padding:10px 0;border-bottom:1px solid var(--bordo)"><div style="display:flex;align-items:center;gap:8px"><span style="font-size:16px">${icon||''}</span><span style="font-size:13px;color:#ccc">${label}</span></div><div style="font-size:15px;font-weight:bold;color:${color||'var(--bianco)'}">${value}</div></div>`}
+    function statRow(label,value,icon,color,campo,tid){return `<div style="display:flex;justify-content:space-between;align-items:center;padding:10px 0;border-bottom:1px solid var(--bordo)"><div style="display:flex;align-items:center;gap:8px"><span style="font-size:16px">${icon||''}</span><span style="font-size:13px;color:#ccc">${label}</span></div><div style="display:flex;align-items:center;gap:8px"><span style="font-size:15px;font-weight:bold;color:${color||'var(--bianco)'}">${value}</span>${campo?`<span style="font-size:10px;cursor:pointer;color:var(--rosso);opacity:.4" onclick="resetStat(${tid},'${campo}')" title="Azzera">✕</span>`:''}</div></div>`}
     panel.innerHTML=`<div style="padding:8px 0">
       <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:24px">
         <div style="background:var(--card);border:1px solid var(--bordo);border-radius:10px;padding:14px"><div style="font-size:10px;color:var(--grigio);text-transform:uppercase;margin-bottom:4px">Dispositivo</div><div style="font-size:13px;font-weight:600">${s.modello_telefono||t.modello_telefono||'—'}</div></div>
@@ -318,16 +320,17 @@ async function switchTab(tab,id){
       </div>
 
       <div id="tableArea" style="display:none">
+      <div style="display:flex;justify-content:flex-end;margin-bottom:8px"><button class="btn btn-red" style="font-size:11px;padding:4px 10px" onclick="resetStat(${id},'all')">Azzera tutte le statistiche</button></div>
       <div style="background:var(--card);border:1px solid var(--bordo);border-radius:12px;overflow:hidden;margin-bottom:16px">
         <div style="background:linear-gradient(135deg,#1a1a2e,#12121a);padding:14px 16px;border-bottom:1px solid var(--bordo)">
           <span style="font-size:14px;font-weight:600;color:var(--oro)">📱 Sconosciuti Mobile</span>
         </div>
         <div style="padding:4px 16px">
-          ${statRow('Non risposti',sc(s.sconosciuti_mobile_non_risposti),'🚫','#ff9800')}
-          ${statRow('SMS inviato',sc(s.sconosciuti_mobile_sms),'✉️','#42a5f5')}
-          ${statRow('Inoltro segreteria',sc(s.sconosciuti_mobile_segreteria),'🎙️','var(--viola)')}
-          ${statRow('Messaggio lasciato',sc(s.sconosciuti_mobile_msg_lasciato),'💬','var(--verde)')}
-          ${statRow('Nessun messaggio',sc(s.sconosciuti_mobile_msg_non_lasciato),'—','var(--grigio)')}
+          ${statRow('Non risposti',sc(s.sconosciuti_mobile_non_risposti),'🚫','#ff9800','sconosciuti_mobile_non_risposti',id)}
+          ${statRow('SMS inviato',sc(s.sconosciuti_mobile_sms),'✉️','#42a5f5','sconosciuti_mobile_sms',id)}
+          ${statRow('Inoltro segreteria',sc(s.sconosciuti_mobile_segreteria),'🎙️','var(--viola)','sconosciuti_mobile_segreteria',id)}
+          ${statRow('Messaggio lasciato',sc(s.sconosciuti_mobile_msg_lasciato),'💬','var(--verde)','sconosciuti_mobile_msg_lasciato',id)}
+          ${statRow('Nessun messaggio',sc(s.sconosciuti_mobile_msg_non_lasciato),'—','var(--grigio)','sconosciuti_mobile_msg_non_lasciato',id)}
         </div>
       </div>
       <div style="background:var(--card);border:1px solid var(--bordo);border-radius:12px;overflow:hidden;margin-bottom:16px">
@@ -335,10 +338,10 @@ async function switchTab(tab,id){
           <span style="font-size:14px;font-weight:600;color:var(--oro)">☎️ Sconosciuti Fisso</span>
         </div>
         <div style="padding:4px 16px">
-          ${statRow('Non risposti',sc(s.sconosciuti_fissi_non_risposti),'🚫','#ff9800')}
-          ${statRow('Inoltro segreteria',sc(s.sconosciuti_fissi_segreteria),'🎙️','var(--viola)')}
-          ${statRow('Messaggio lasciato',sc(s.sconosciuti_fissi_msg_lasciato),'💬','var(--verde)')}
-          ${statRow('Nessun messaggio',sc(s.sconosciuti_fissi_msg_non_lasciato),'—','var(--grigio)')}
+          ${statRow('Non risposti',sc(s.sconosciuti_fissi_non_risposti),'🚫','#ff9800','sconosciuti_fissi_non_risposti',id)}
+          ${statRow('Inoltro segreteria',sc(s.sconosciuti_fissi_segreteria),'🎙️','var(--viola)','sconosciuti_fissi_segreteria',id)}
+          ${statRow('Messaggio lasciato',sc(s.sconosciuti_fissi_msg_lasciato),'💬','var(--verde)','sconosciuti_fissi_msg_lasciato',id)}
+          ${statRow('Nessun messaggio',sc(s.sconosciuti_fissi_msg_non_lasciato),'—','var(--grigio)','sconosciuti_fissi_msg_non_lasciato',id)}
         </div>
       </div>
       <div style="background:var(--card);border:1px solid var(--bordo);border-radius:12px;overflow:hidden">
@@ -346,10 +349,10 @@ async function switchTab(tab,id){
           <span style="font-size:14px;font-weight:600;color:var(--rosso)">🕵️ Numeri Privati</span>
         </div>
         <div style="padding:4px 16px">
-          ${statRow('Non risposti',sc(s.privati_non_risposti),'🚫','#ff9800')}
-          ${statRow('Inoltro segreteria',sc(s.privati_segreteria),'🎙️','var(--viola)')}
-          ${statRow('Messaggio lasciato',sc(s.privati_msg_lasciato),'💬','var(--verde)')}
-          ${statRow('Nessun messaggio',sc(s.privati_msg_non_lasciato),'—','var(--grigio)')}
+          ${statRow('Non risposti',sc(s.privati_non_risposti),'🚫','#ff9800','privati_non_risposti',id)}
+          ${statRow('Inoltro segreteria',sc(s.privati_segreteria),'🎙️','var(--viola)','privati_segreteria',id)}
+          ${statRow('Messaggio lasciato',sc(s.privati_msg_lasciato),'💬','var(--verde)','privati_msg_lasciato',id)}
+          ${statRow('Nessun messaggio',sc(s.privati_msg_non_lasciato),'—','var(--grigio)','privati_msg_non_lasciato',id)}
         </div>
       </div>
       </div>
@@ -386,10 +389,43 @@ async function refreshChat(id){
   const msgs=await(await fetch(API+'/testers/'+id+'/messaggi')).json();
   const panel=document.getElementById('tabPanel');
   if(!panel)return;
-  panel.innerHTML='<div class="chat-msgs">'+msgs.map(m=>`<div class="msg msg-${m.mittente}"><div>${m.testo}</div><div class="msg-time">${m.timestamp?.slice(11,16)||''}</div></div>`).join('')+'</div>';
+  panel.innerHTML=`<div style="display:flex;justify-content:flex-end;margin-bottom:8px"><button class="btn btn-red" style="font-size:11px;padding:4px 10px" onclick="clearChat(${id})">Cancella tutta la chat</button></div><div class="chat-msgs">`+
+    msgs.map(m=>{
+      const img=m.immagine?`<img src="${m.immagine}" style="max-width:200px;border-radius:8px;margin-top:6px;cursor:pointer" onclick="window.open('${m.immagine}')">`:''
+      return `<div class="msg msg-${m.mittente}" style="position:relative;group">
+        <div>${m.testo}</div>${img}
+        <div class="msg-time">${m.timestamp?.slice(11,16)||''}
+          <span style="margin-left:8px;cursor:pointer;opacity:.5" onclick="editMsg(${m.id},${id})" title="Modifica">✏️</span>
+          <span style="cursor:pointer;opacity:.5" onclick="deleteMsg(${m.id},${id})" title="Elimina">🗑️</span>
+        </div>
+      </div>`}).join('')+'</div>';
   panel.scrollTop=panel.scrollHeight;
 }
 async function sendMsg(id){const inp=document.getElementById('chatMsg');const t=inp.value.trim();if(!t)return;inp.value='';await fetch(API+'/testers/'+id+'/messaggi',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({testo:t})});refreshChat(id)}
+async function deleteMsg(msgId,testerId){if(!confirm('Eliminare questo messaggio?'))return;await fetch(API+'/messaggi/'+msgId,{method:'DELETE'});refreshChat(testerId)}
+async function editMsg(msgId,testerId){const newText=prompt('Modifica messaggio:');if(!newText)return;await fetch(API+'/messaggi/'+msgId,{method:'PUT',headers:{'Content-Type':'application/json'},body:JSON.stringify({testo:newText})});refreshChat(testerId)}
+async function clearChat(testerId){if(!confirm('Cancellare TUTTA la chat con questo tester?'))return;await fetch(API+'/testers/'+testerId+'/chat',{method:'DELETE'});refreshChat(testerId)}
+async function sendImg(testerId,input){if(!input.files[0])return;const fd=new FormData();fd.append('immagine',input.files[0]);fd.append('testo','');const r=await fetch(API+'/testers/'+testerId+'/messaggi/img',{method:'POST',body:fd});if(r.ok)refreshChat(testerId);input.value=''}
+
+// LOG PIANO — nella sidebar sinistra
+async function loadPianoLog(id){
+  const r=await fetch(API+'/testers/'+id+'/piano-log');
+  const log=r.ok?await r.json():[];
+  const area=document.getElementById('pianoLogSidebar');
+  if(!area)return;
+  if(!log.length){area.innerHTML='';return}
+  area.innerHTML=`<div style="border:1px solid var(--bordo);border-radius:8px;overflow:hidden">
+    <div style="padding:10px 12px;border-bottom:1px solid var(--bordo);display:flex;justify-content:space-between;align-items:center">
+      <span style="font-size:12px;font-weight:600;color:var(--oro)">📋 Storico piano</span>
+      <span style="font-size:10px;cursor:pointer;color:var(--rosso);opacity:.6" onclick="clearPianoLog(${id})">Pulisci</span>
+    </div>
+    <div style="max-height:160px;overflow-y:auto;padding:4px 12px">${log.map(l=>`<div style="display:flex;justify-content:space-between;align-items:center;padding:6px 0;border-bottom:1px solid var(--bordo);font-size:11px">
+      <div><span class="badge b-${l.piano_precedente}" style="font-size:9px">${l.piano_precedente}</span> → <span class="badge b-${l.piano_nuovo}" style="font-size:9px">${l.piano_nuovo}</span></div>
+      <div style="color:var(--grigio);font-size:10px">${l.timestamp?.slice(0,16).replace('T',' ')||''}</div>
+    </div>`).join('')}</div></div>`;
+}
+async function clearPianoLog(id){if(!confirm('Pulire lo storico cambi piano?'))return;await fetch(API+'/testers/'+id+'/piano-log',{method:'DELETE'});loadPianoLog(id)}
+async function resetStat(id,campo){const msg=campo==='all'?'Azzera TUTTE le statistiche?':'Azzerare questo valore?';if(!confirm(msg))return;await fetch(API+'/testers/'+id+'/stats/reset',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({campo})});cachedStats={};switchTab('stats',id)}
 
 // NOTE
 async function addNote(id){const inp=document.getElementById('newNote');const t=inp.value.trim();if(!t)return;await fetch(API+'/testers/'+id+'/notes',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({testo:t})});switchTab('notes',id)}

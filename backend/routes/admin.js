@@ -1,5 +1,6 @@
 const express = require('express');
 const router = express.Router();
+const path = require('path');
 const db = require('../db/database');
 const { Resend } = require('resend');
 
@@ -193,11 +194,17 @@ function emailAccettazione(nome) {
   </div>`;
 }
 
-// POST /api/admin/testers/:id/piano — cambia piano
+// POST /api/admin/testers/:id/piano — cambia piano + log
 router.post('/testers/:id/piano', authAdmin, (req, res) => {
-  const { piano } = req.body; // 'free' | 'pro' | 'shield'
+  const { piano } = req.body;
   if (!['free', 'pro', 'shield'].includes(piano)) {
     return res.status(400).json({ error: 'Piano non valido' });
+  }
+  const tester = db.prepare('SELECT piano FROM testers WHERE id = ?').get(req.params.id);
+  const vecchio = tester?.piano || 'free';
+  if (vecchio !== piano) {
+    db.prepare('INSERT INTO piano_log (tester_id, piano_precedente, piano_nuovo) VALUES (?, ?, ?)')
+      .run(req.params.id, vecchio, piano);
   }
   db.prepare('UPDATE testers SET piano = ? WHERE id = ?')
     .run(piano, req.params.id);
@@ -319,6 +326,88 @@ router.post('/broadcast', authAdmin, (req, res) => {
   });
 
   res.json({ success: true, count: testers.length });
+});
+
+// --- GESTIONE MESSAGGI CHAT (admin only) ---
+
+// DELETE /api/admin/messaggi/:msgId — cancella singolo messaggio
+router.delete('/messaggi/:msgId', authAdmin, (req, res) => {
+  db.prepare('DELETE FROM messaggi_chat WHERE id = ?').run(req.params.msgId);
+  res.json({ success: true });
+});
+
+// PUT /api/admin/messaggi/:msgId — modifica singolo messaggio
+router.put('/messaggi/:msgId', authAdmin, (req, res) => {
+  const { testo } = req.body;
+  if (!testo?.trim()) return res.status(400).json({ error: 'Testo vuoto' });
+  db.prepare('UPDATE messaggi_chat SET testo = ? WHERE id = ?')
+    .run(testo.trim(), req.params.msgId);
+  res.json({ success: true });
+});
+
+// DELETE /api/admin/testers/:id/chat — cancella intera chat
+router.delete('/testers/:id/chat', authAdmin, (req, res) => {
+  db.prepare('DELETE FROM messaggi_chat WHERE tester_id = ?').run(req.params.id);
+  res.json({ success: true });
+});
+
+// --- LOG CAMBI PIANO ---
+router.get('/testers/:id/piano-log', authAdmin, (req, res) => {
+  const log = db.prepare(
+    'SELECT * FROM piano_log WHERE tester_id = ? ORDER BY timestamp DESC'
+  ).all(req.params.id);
+  res.json(log);
+});
+
+router.delete('/testers/:id/piano-log', authAdmin, (req, res) => {
+  db.prepare('DELETE FROM piano_log WHERE tester_id = ?').run(req.params.id);
+  res.json({ success: true });
+});
+
+// POST /api/admin/testers/:id/stats/reset — azzera singole o tutte le stats
+router.post('/testers/:id/stats/reset', authAdmin, (req, res) => {
+  const { campo } = req.body; // 'all' oppure nome campo specifico
+  if (campo === 'all') {
+    db.prepare('DELETE FROM tester_stats WHERE tester_id = ?').run(req.params.id);
+  } else if (campo) {
+    // Azzera solo quel campo
+    const campiValidi = ['chiamate_totali','chiamate_oggi','conosciuti_non_risposti',
+      'sconosciuti_mobile_non_risposti','sconosciuti_mobile_sms','sconosciuti_mobile_segreteria',
+      'sconosciuti_mobile_msg_lasciato','sconosciuti_mobile_msg_non_lasciato',
+      'sconosciuti_fissi_non_risposti','sconosciuti_fissi_segreteria',
+      'sconosciuti_fissi_msg_lasciato','sconosciuti_fissi_msg_non_lasciato',
+      'privati_non_risposti','privati_segreteria','privati_msg_lasciato','privati_msg_non_lasciato'];
+    if (campiValidi.includes(campo)) {
+      db.prepare(`UPDATE tester_stats SET ${campo} = 0 WHERE tester_id = ?`).run(req.params.id);
+    }
+  }
+  res.json({ success: true });
+});
+
+// --- UPLOAD IMMAGINI CHAT ---
+const multer = require('multer');
+const fs = require('fs');
+const uploadDir = path.join(__dirname, '..', 'uploads');
+if (!fs.existsSync(uploadDir)) fs.mkdirSync(uploadDir, { recursive: true });
+
+const storage = multer.diskStorage({
+  destination: (req, file, cb) => cb(null, uploadDir),
+  filename: (req, file, cb) => {
+    const ext = path.extname(file.originalname) || '.jpg';
+    cb(null, `chat_${Date.now()}_${Math.random().toString(36).slice(2,8)}${ext}`);
+  }
+});
+const upload = multer({ storage, limits: { fileSize: 5 * 1024 * 1024 } });
+
+// POST /api/admin/testers/:id/messaggi/img — admin invia immagine
+router.post('/testers/:id/messaggi/img', authAdmin, upload.single('immagine'), (req, res) => {
+  if (!req.file) return res.status(400).json({ error: 'Nessun file' });
+  const imgPath = `/uploads/${req.file.filename}`;
+  const testo = req.body.testo || '';
+  db.prepare(
+    'INSERT INTO messaggi_chat (tester_id, mittente, testo, immagine) VALUES (?, ?, ?, ?)'
+  ).run(req.params.id, 'admin', testo, imgPath);
+  res.json({ success: true, immagine: imgPath });
 });
 
 module.exports = router;

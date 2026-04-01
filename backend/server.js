@@ -20,6 +20,9 @@ app.use('/api/tester', testerRoutes);
 app.use('/api/tester/auth', authRoutes);
 app.use('/api/admin', adminRoutes);
 
+// Serve uploads (immagini chat)
+app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
+
 // Serve admin panel
 app.use(express.static(path.join(__dirname, 'public')));
 
