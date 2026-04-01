@@ -2,14 +2,10 @@ const express = require('express');
 const router = express.Router();
 const db = require('../db/database');
 const { Resend } = require('resend');
-const admin = require('firebase-admin');
 
 const resend = process.env.RESEND_API_KEY && process.env.RESEND_API_KEY !== 'inserisci_qui'
   ? new Resend(process.env.RESEND_API_KEY)
   : null;
-
-const FCM_TOKEN_FILE = '/app/db/fcm_tokens.json';
-const fs = require('fs');
 
 function genera6cifre() {
   return Math.floor(100000 + Math.random() * 900000).toString();
@@ -106,24 +102,27 @@ router.post('/verify', (req, res) => {
   });
 });
 
-// Invio push FCM con codice
-async function inviaFcmCodice(token, codice) {
-  // Usiamo HTTP diretto a FCM (non serve firebase-admin qui)
-  const response = await fetch('https://fcm.googleapis.com/v1/projects/stoppai/messages:send', {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-      // Nota: in produzione servirebbe l'auth token di Firebase
-      // Per ora usiamo il meccanismo locale via whisper_worker
-    },
-    body: JSON.stringify({
-      message: {
-        token: token,
-        data: { tipo: 'magic_code', codice: codice },
-        android: { priority: 'high' }
-      }
-    })
-  }).catch(() => null);
+// Invio push FCM con codice tramite bridge locale (porta 3000)
+async function inviaFcmCodice(fcmToken, codice) {
+  try {
+    const http = require('http');
+    const data = JSON.stringify({ token: fcmToken, tipo: 'magic_code', codice: codice });
+    const options = {
+      hostname: '127.0.0.1',
+      port: 3000,
+      path: '/api/push',
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'Content-Length': data.length }
+    };
+    return new Promise((resolve) => {
+      const req = http.request(options, (res) => { resolve(res.statusCode); });
+      req.on('error', () => resolve(null));
+      req.write(data);
+      req.end();
+    });
+  } catch (e) {
+    console.error('FCM push codice fallito:', e.message);
+  }
 }
 
 function emailCodice(nome, codice) {
