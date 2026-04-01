@@ -16,17 +16,74 @@ function authAdmin(req, res, next) {
   next();
 }
 
-// POST /api/admin/login — genera cookie di sessione
+// POST /api/admin/login — login con password O magic code
 router.post('/login', (req, res) => {
-  const { password } = req.body;
-  if (password !== process.env.ADMIN_TOKEN_SECRET) {
-    return res.status(401).json({ error: 'Password errata' });
+  const { password, codice } = req.body;
+
+  // Login classico con password (backward compatible)
+  if (password && password === process.env.ADMIN_TOKEN_SECRET) {
+    res.cookie('admin_token', process.env.ADMIN_TOKEN_SECRET, {
+      httpOnly: true, maxAge: 24 * 60 * 60 * 1000
+    });
+    return res.json({ success: true });
   }
-  res.cookie('admin_token', process.env.ADMIN_TOKEN_SECRET, {
-    httpOnly: true,
-    maxAge: 24 * 60 * 60 * 1000 // 24 ore
-  });
-  res.json({ success: true });
+
+  // Login con magic code
+  if (codice) {
+    const now = new Date().toISOString();
+    const adminEmail = (process.env.ADMIN_EMAIL || '').toLowerCase();
+    const record = db.prepare(
+      "SELECT * FROM auth_codes WHERE email = ? AND codice = ? AND usato = 0 AND scade_at > ? ORDER BY creato_at DESC LIMIT 1"
+    ).get(adminEmail, codice.trim(), now);
+
+    if (record) {
+      db.prepare('UPDATE auth_codes SET usato = 1 WHERE id = ?').run(record.id);
+      res.cookie('admin_token', process.env.ADMIN_TOKEN_SECRET, {
+        httpOnly: true, maxAge: 24 * 60 * 60 * 1000
+      });
+      return res.json({ success: true });
+    }
+    return res.status(401).json({ error: 'Codice non valido o scaduto' });
+  }
+
+  return res.status(401).json({ error: 'Credenziali non valide' });
+});
+
+// POST /api/admin/request-code — richiedi magic code per admin
+router.post('/request-code', async (req, res) => {
+  const adminEmail = (process.env.ADMIN_EMAIL || '').toLowerCase();
+  if (!adminEmail) return res.status(500).json({ error: 'ADMIN_EMAIL non configurata' });
+
+  const codice = Math.floor(100000 + Math.random() * 900000).toString();
+  const scade = new Date(Date.now() + 10 * 60 * 1000).toISOString();
+
+  db.prepare("UPDATE auth_codes SET usato = 1 WHERE email = ? AND usato = 0").run(adminEmail);
+  db.prepare('INSERT INTO auth_codes (email, codice, scade_at) VALUES (?, ?, ?)').run(adminEmail, codice, scade);
+
+  if (resend) {
+    try {
+      await resend.emails.send({
+        from: process.env.FROM_EMAIL,
+        to: adminEmail,
+        subject: `${codice} — Accesso Admin StoppAI`,
+        html: `<div style="font-family:'Helvetica Neue',Arial,sans-serif;max-width:600px;margin:0 auto;background:#0a0a0f;color:#f5f3ee;border-radius:12px;overflow:hidden">
+          <div style="background:linear-gradient(135deg,#0a0a0f 0%,#1a1a2e 100%);padding:32px;text-align:center;border-bottom:2px solid #c8a96e">
+            <h1 style="margin:0;font-size:24px;letter-spacing:2px">STOPP<span style="color:#c8a96e">AI</span> Admin</h1>
+          </div>
+          <div style="padding:40px 32px;text-align:center">
+            <p style="font-size:15px;color:#ddd;margin-bottom:24px">Il tuo codice di accesso admin:</p>
+            <div style="background:#12121a;border:2px solid #c8a96e;border-radius:12px;padding:24px;margin:0 auto;max-width:280px">
+              <div style="font-size:36px;font-weight:bold;letter-spacing:12px;color:#c8a96e;font-family:monospace">${codice}</div>
+            </div>
+            <p style="font-size:13px;color:#666;margin-top:20px">Scade tra 10 minuti.</p>
+          </div></div>`
+      });
+    } catch (err) {
+      console.error('Errore invio email admin code:', err.message);
+    }
+  }
+
+  res.json({ success: true, message: 'Codice inviato a ' + adminEmail });
 });
 
 // POST /api/admin/logout
