@@ -130,7 +130,7 @@ router.post('/:id/messaggi/img', uploadTester.single('immagine'), (req, res) => 
 
 // POST /api/tester/sync — l'app invia device info + statistiche
 router.post('/sync', (req, res) => {
-  const { tester_id, device, stats } = req.body;
+  const { tester_id, device, stats, batteria } = req.body;
   if (!tester_id) return res.status(400).json({ error: 'tester_id mancante' });
 
   const tester = db.prepare('SELECT id FROM testers WHERE id = ?').get(tester_id);
@@ -197,6 +197,63 @@ router.post('/sync', (req, res) => {
       );
     }
   }
+
+  // Log batteria
+  if (batteria && batteria.livello >= 0) {
+    db.prepare(
+      'INSERT INTO batteria_log (tester_id, livello, in_carica, temperatura) VALUES (?, ?, ?, ?)'
+    ).run(tester.id, batteria.livello, batteria.in_carica ? 1 : 0, batteria.temperatura || null);
+  }
+
+  res.json({ success: true });
+});
+
+// POST /api/tester/aria — whisper_worker salva messaggio ARIA dopo trascrizione
+router.post('/aria', (req, res) => {
+  const { caller_number, caller_name, wav_filename, trascrizione, durata_secondi, dimensione_kb } = req.body;
+  if (!caller_number) return res.status(400).json({ error: 'caller_number obbligatorio' });
+
+  // Cerca il tester associato (per ora match opzionale)
+  const tester = db.prepare(
+    "SELECT id FROM testers WHERE telefono LIKE ? LIMIT 1"
+  ).get(`%${caller_number.slice(-10)}%`);
+
+  // Cerca nome contatto gia' noto da invii precedenti dell'app
+  let nome = caller_name || null;
+  if (!nome) {
+    const noto = db.prepare(
+      "SELECT caller_name FROM aria_messaggi WHERE caller_number LIKE ? AND caller_name IS NOT NULL AND caller_name != '' ORDER BY id DESC LIMIT 1"
+    ).get(`%${caller_number.slice(-10)}%`);
+    if (noto) nome = noto.caller_name;
+  }
+
+  db.prepare(`
+    INSERT INTO aria_messaggi (tester_id, caller_number, caller_name, wav_filename, trascrizione, durata_secondi, dimensione_kb)
+    VALUES (?, ?, ?, ?, ?, ?, ?)
+  `).run(
+    tester?.id || null,
+    caller_number,
+    nome,
+    wav_filename || null,
+    trascrizione || null,
+    durata_secondi || null,
+    dimensione_kb || null
+  );
+
+  res.json({ success: true });
+});
+
+// POST /api/tester/caller-name — l'app invia associazione numero-nome dalla rubrica
+router.post('/caller-name', (req, res) => {
+  const { caller_number, caller_name } = req.body;
+  if (!caller_number || !caller_name) {
+    return res.status(400).json({ error: 'caller_number e caller_name obbligatori' });
+  }
+
+  // Aggiorna i messaggi ARIA esistenti senza nome per quel numero
+  db.prepare(
+    "UPDATE aria_messaggi SET caller_name = ? WHERE caller_number LIKE ? AND (caller_name IS NULL OR caller_name = '')"
+  ).run(caller_name, `%${caller_number.slice(-10)}%`);
 
   res.json({ success: true });
 });

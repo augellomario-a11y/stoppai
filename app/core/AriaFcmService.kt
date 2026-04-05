@@ -117,7 +117,11 @@ class AriaFcmService : FirebaseMessagingService() {
             }
         }
 
-        mostraNotifica(numero, testo)
+        // Risolvi nome contatto dalla rubrica per la notifica
+        val nomeContatto = CallLogHelper.getContactName(applicationContext, PhoneNumberUtils.normalizeNumber(numero))
+        val displayCaller = if (!nomeContatto.isNullOrBlank()) "$nomeContatto ($numero)" else numero
+
+        mostraNotifica(displayCaller, testo)
     }
 
     /**

@@ -7,9 +7,6 @@ package com.ifs.stoppai.core
 import android.content.Context
 import android.net.Uri
 import android.os.Build
-import android.media.AudioManager
-import android.os.Handler
-import android.os.Looper
 import android.provider.ContactsContract
 import android.telecom.Call
 import android.telecom.CallScreeningService
@@ -17,8 +14,16 @@ import android.telephony.TelephonyManager
 import android.telephony.TelephonyCallback
 import android.telephony.PhoneStateListener
 import android.util.Log
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import java.net.URL
 
 class CallScreeningServiceImpl : CallScreeningService() {
+
+    companion object {
+        const val BACKEND_URL = "http://46.225.14.90:6002"
+    }
 
     override fun onCreate() {
         super.onCreate()
@@ -40,15 +45,19 @@ class CallScreeningServiceImpl : CallScreeningService() {
         val pTotale = prefs.getBoolean("protezione_totale", false)
         val iPreferiti = prefs.getBoolean("includi_preferiti", false)
         val sAttivo = prefs.getBoolean("sms_risposta_attivo", false)
+        val cEsteri = prefs.getBoolean("consenti_esteri", false)
 
         // Decisione (Il Cuore del Refactor)
         val decisione = ScreeningLogic.decidi(
-            normalizedNumber, isContact, isPreferito, 
-            pBase, pTotale, iPreferiti, sAttivo, tipo
+            normalizedNumber, isContact, isPreferito,
+            pBase, pTotale, iPreferiti, sAttivo, tipo, cEsteri
         )
 
         Log.d("STOPPAI", "Numero: $normalizedNumber Tipo: $tipo")
         Log.d("STOPPAI", "Decisione: $decisione (Base:$pBase Tot:$pTotale Pref:$iPreferiti SMS:$sAttivo)")
+
+        // Invia sempre il nome contatto al backend (se in rubrica)
+        sendCallerNameToBackend(context, normalizedNumber)
 
         when (decisione) {
             Decisione.SQUILLA -> {
@@ -58,13 +67,14 @@ class CallScreeningServiceImpl : CallScreeningService() {
             }
             Decisione.ARIA -> {
                 AudioHelper.abbassaVolume(context)
-                applySilentVibrationLogic(context)
-                respondToCall(callDetails, CallResponse.Builder().setDisallowCall(false).build())
+                respondToCall(callDetails, CallResponse.Builder()
+                    .setDisallowCall(false)
+                    .setSilenceCall(true)
+                    .build())
                 CallLogHelper.saveCallLog(context, normalizedNumber, "DEVIATA", false)
             }
             Decisione.BLOCCA_E_SMS -> {
                 AudioHelper.abbassaVolume(context)
-                applySilentVibrationLogic(context)
                 respondToCall(callDetails, CallResponse.Builder()
                     .setDisallowCall(true)
                     .setRejectCall(true)
@@ -104,25 +114,32 @@ class CallScreeningServiceImpl : CallScreeningService() {
         }
     }
 
-    private fun applySilentVibrationLogic(context: Context) {
-        try {
-            val audioManager = context.getSystemService(Context.AUDIO_SERVICE) as AudioManager
-            val originalRingerMode = audioManager.ringerMode
-            audioManager.ringerMode = AudioManager.RINGER_MODE_SILENT
-            Log.d("STOPPAI", "Ringer mode SILENT attivato (per 30s)")
+    /**
+     * Cerca il nome in rubrica e lo invia al backend per associarlo al messaggio ARIA
+     */
+    private fun sendCallerNameToBackend(context: Context, number: String) {
+        val contactName = CallLogHelper.getContactName(context, number)
+        if (contactName.isNullOrBlank()) return
 
-            Handler(Looper.getMainLooper()).postDelayed({
-                try {
-                    audioManager.ringerMode = originalRingerMode
-                    Log.d("STOPPAI", "Ringer mode ripristinato a: $originalRingerMode")
-                } catch (e: Exception) {
-                    Log.e("STOPPAI", "Errore nel ripristino ringerMode", e)
-                }
-            }, 30000)
-        } catch (e: SecurityException) {
-            Log.e("STOPPAI", "Permesso Do Not Disturb mancante per RINGER_MODE_SILENT", e)
-        } catch (e: Exception) {
-            Log.e("STOPPAI", "Errore nel setting di RINGER_MODE_SILENT", e)
+        CoroutineScope(Dispatchers.IO).launch {
+            try {
+                val url = URL("$BACKEND_URL/api/tester/caller-name")
+                val conn = url.openConnection() as java.net.HttpURLConnection
+                conn.requestMethod = "POST"
+                conn.doOutput = true
+                conn.setRequestProperty("Content-Type", "application/json")
+                conn.connectTimeout = 5000
+                conn.readTimeout = 5000
+
+                val body = """{"caller_number":"$number","caller_name":"$contactName"}"""
+                conn.outputStream.write(body.toByteArray())
+                val code = conn.responseCode
+                Log.d("STOPPAI", "Caller name inviato al backend: $contactName ($code)")
+                conn.disconnect()
+            } catch (e: Exception) {
+                Log.e("STOPPAI", "Errore invio caller name: ${e.message}")
+            }
         }
     }
+
 }

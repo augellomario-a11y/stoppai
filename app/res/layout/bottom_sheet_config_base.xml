@@ -18,11 +18,46 @@
     <TextView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="Tutti i numeri sconosciuti verranno bloccati e deviati alla segreteria. I numeri internazionali vengono sempre bloccati automaticamente."
+        android:text="Tutti i numeri sconosciuti verranno bloccati e deviati alla segreteria."
         android:textSize="14sp"
         android:textColor="#666666"
         android:lineSpacingExtra="4dp"
-        android:layout_marginBottom="24dp" />
+        android:layout_marginBottom="20dp" />
+
+    <!-- Numeri esteri -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:gravity="center_vertical"
+        android:layout_marginBottom="16dp">
+
+        <LinearLayout
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:orientation="vertical">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="🌍 Numeri esteri"
+                android:textSize="16sp"
+                android:textStyle="bold" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Se attivo, i numeri internazionali sconosciuti potranno squillare. Se disattivo, vengono bloccati automaticamente."
+                android:textSize="12sp"
+                android:textColor="#666666" />
+        </LinearLayout>
+
+        <Switch
+            android:id="@+id/switch_esteri"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content" />
+    </LinearLayout>
 
     <!-- SMS Switch -->
     <LinearLayout
