@@ -64,4 +64,29 @@ interface CallLogDao {
 
     @Query("SELECT * FROM call_log_entries WHERE id = :id")
     suspend fun getCallById(id: Long): CallLogEntry?
+
+    // --- STATISTICHE PER SYNC (SA-123) ---
+    @Query("SELECT COUNT(*) FROM call_log_entries WHERE displayName != '' AND callOutcome != 'PASSATA' AND callDirection = 'ENTRATA' AND timestamp > :since")
+    suspend fun countConosciutiNonRispostiSince(since: Long): Int
+
+    @Query("SELECT COUNT(*) FROM call_log_entries WHERE displayName = '' AND callType = 'MOBILE_IT' AND callOutcome != 'PASSATA' AND callDirection = 'ENTRATA' AND timestamp > :since")
+    suspend fun countSconosciutiMobileNonRispostiSince(since: Long): Int
+
+    @Query("SELECT COUNT(*) FROM call_log_entries WHERE displayName = '' AND callType = 'MOBILE_IT' AND smsInviato = 1 AND timestamp > :since")
+    suspend fun countSconosciutiMobileSmsSince(since: Long): Int
+
+    @Query("SELECT COUNT(*) FROM call_log_entries WHERE displayName = '' AND callType = 'MOBILE_IT' AND callOutcome = 'DEVIATA' AND timestamp > :since")
+    suspend fun countSconosciutiMobileSegrSince(since: Long): Int
+
+    @Query("SELECT COUNT(*) FROM call_log_entries WHERE displayName = '' AND callType = 'FISSO_IT' AND callOutcome != 'PASSATA' AND callDirection = 'ENTRATA' AND timestamp > :since")
+    suspend fun countSconosciutiFissiNonRispostiSince(since: Long): Int
+
+    @Query("SELECT COUNT(*) FROM call_log_entries WHERE displayName = '' AND callType = 'FISSO_IT' AND callOutcome = 'DEVIATA' AND timestamp > :since")
+    suspend fun countSconosciutiFissiSegrSince(since: Long): Int
+
+    @Query("SELECT COUNT(*) FROM call_log_entries WHERE (callType = 'NASCOSTO' OR phoneNumber = '' OR phoneNumber LIKE '%nascosto%') AND callOutcome != 'PASSATA' AND callDirection = 'ENTRATA' AND timestamp > :since")
+    suspend fun countPrivatiNonRispostiSince(since: Long): Int
+
+    @Query("SELECT COUNT(*) FROM call_log_entries WHERE (callType = 'NASCOSTO' OR phoneNumber = '' OR phoneNumber LIKE '%nascosto%') AND callOutcome = 'DEVIATA' AND timestamp > :since")
+    suspend fun countPrivatiSegrSince(since: Long): Int
 }

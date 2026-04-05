@@ -13,7 +13,11 @@
     android:icon="@drawable/ic_settings_gear"
     android:title="Impostazioni"/>
   <item
-    android:id="@+id/nav_help"
-    android:icon="@android:drawable/ic_menu_help"
+    android:id="@+id/nav_info"
+    android:icon="@drawable/ic_info"
+    android:title="Info"/>
+  <item
+    android:id="@+id/nav_chat"
+    android:icon="@drawable/ic_chat"
     android:title="Aiuto"/>
 </menu>

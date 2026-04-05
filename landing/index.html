@@ -111,9 +111,19 @@ async function submitForm(e){
     f.style.display = 'none';
   } catch(err) {
     btn.disabled = false; btn.textContent = 'INVIA CANDIDATURA';
-    alert('Errore di connessione. Riprova tra poco.');
+    showToast('Errore di connessione. Riprova tra poco.', 'error');
   }
 }
+function showToast(msg, type) {
+  let t = document.getElementById('toast');
+  if (!t) { t = document.createElement('div'); t.id='toast'; document.body.appendChild(t); }
+  t.textContent = msg;
+  t.style.cssText = 'position:fixed;top:24px;left:50%;transform:translateX(-50%);padding:14px 28px;border-radius:8px;font-size:14px;font-weight:600;z-index:9999;animation:fadeIn .3s;max-width:90%;text-align:center;'
+    + (type==='error' ? 'background:#2a0a0a;color:#ff6b6b;border:1px solid #ff6b6b40;' : 'background:#0a1a0a;color:#c8a96e;border:1px solid #c8a96e40;');
+  t.style.display = 'block';
+  setTimeout(() => { t.style.display = 'none'; }, 4000);
+}
 </script>
+<style>@keyframes fadeIn{from{opacity:0;transform:translateX(-50%) translateY(-10px)}to{opacity:1;transform:translateX(-50%) translateY(0)}}</style>
 </body>
 </html>

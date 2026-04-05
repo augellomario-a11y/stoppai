@@ -1,5 +1,6 @@
 const express = require('express');
 const router = express.Router();
+const path = require('path');
 const db = require('../db/database');
 const { Resend } = require('resend');
 
@@ -16,17 +17,79 @@ function authAdmin(req, res, next) {
   next();
 }
 
-// POST /api/admin/login — genera cookie di sessione
+// POST /api/admin/login — login con password O magic code
 router.post('/login', (req, res) => {
-  const { password } = req.body;
-  if (password !== process.env.ADMIN_TOKEN_SECRET) {
-    return res.status(401).json({ error: 'Password errata' });
+  const { password, codice } = req.body;
+
+  // Login classico con password (backward compatible)
+  if (password && password === process.env.ADMIN_TOKEN_SECRET) {
+    res.cookie('admin_token', process.env.ADMIN_TOKEN_SECRET, {
+      httpOnly: true, maxAge: 24 * 60 * 60 * 1000
+    });
+    return res.json({ success: true });
   }
-  res.cookie('admin_token', process.env.ADMIN_TOKEN_SECRET, {
-    httpOnly: true,
-    maxAge: 24 * 60 * 60 * 1000 // 24 ore
-  });
-  res.json({ success: true });
+
+  // Login con magic code
+  if (codice) {
+    const now = new Date().toISOString();
+    const adminEmail = (process.env.ADMIN_EMAIL || '').toLowerCase();
+    const record = db.prepare(
+      "SELECT * FROM auth_codes WHERE email = ? AND codice = ? AND usato = 0 AND scade_at > ? ORDER BY creato_at DESC LIMIT 1"
+    ).get(adminEmail, codice.trim(), now);
+
+    if (record) {
+      db.prepare('UPDATE auth_codes SET usato = 1 WHERE id = ?').run(record.id);
+      res.cookie('admin_token', process.env.ADMIN_TOKEN_SECRET, {
+        httpOnly: true, maxAge: 24 * 60 * 60 * 1000
+      });
+      return res.json({ success: true });
+    }
+    return res.status(401).json({ error: 'Codice non valido o scaduto' });
+  }
+
+  return res.status(401).json({ error: 'Credenziali non valide' });
+});
+
+// POST /api/admin/request-code — richiedi magic code per admin
+router.post('/request-code', async (req, res) => {
+  const adminEmail = (process.env.ADMIN_EMAIL || '').toLowerCase();
+  if (!adminEmail) return res.status(500).json({ error: 'ADMIN_EMAIL non configurata' });
+
+  const { email } = req.body;
+  if (!email || email.trim().toLowerCase() !== adminEmail) {
+    return res.status(403).json({ error: 'Email non autorizzata' });
+  }
+
+  const codice = Math.floor(100000 + Math.random() * 900000).toString();
+  const scade = new Date(Date.now() + 10 * 60 * 1000).toISOString();
+
+  db.prepare("UPDATE auth_codes SET usato = 1 WHERE email = ? AND usato = 0").run(adminEmail);
+  db.prepare('INSERT INTO auth_codes (email, codice, scade_at) VALUES (?, ?, ?)').run(adminEmail, codice, scade);
+
+  if (resend) {
+    try {
+      await resend.emails.send({
+        from: process.env.FROM_EMAIL,
+        to: adminEmail,
+        subject: `${codice} — Accesso Admin StoppAI`,
+        html: `<div style="font-family:'Helvetica Neue',Arial,sans-serif;max-width:600px;margin:0 auto;background:#0a0a0f;color:#f5f3ee;border-radius:12px;overflow:hidden">
+          <div style="background:linear-gradient(135deg,#0a0a0f 0%,#1a1a2e 100%);padding:32px;text-align:center;border-bottom:2px solid #c8a96e">
+            <h1 style="margin:0;font-size:24px;letter-spacing:2px">STOPP<span style="color:#c8a96e">AI</span> Admin</h1>
+          </div>
+          <div style="padding:40px 32px;text-align:center">
+            <p style="font-size:15px;color:#ddd;margin-bottom:24px">Il tuo codice di accesso admin:</p>
+            <div style="background:#12121a;border:2px solid #c8a96e;border-radius:12px;padding:24px;margin:0 auto;max-width:280px">
+              <div style="font-size:36px;font-weight:bold;letter-spacing:12px;color:#c8a96e;font-family:monospace">${codice}</div>
+            </div>
+            <p style="font-size:13px;color:#666;margin-top:20px">Scade tra 10 minuti.</p>
+          </div></div>`
+      });
+    } catch (err) {
+      console.error('Errore invio email admin code:', err.message);
+    }
+  }
+
+  res.json({ success: true, message: 'Codice inviato a ' + adminEmail });
 });
 
 // POST /api/admin/logout
@@ -131,11 +194,17 @@ function emailAccettazione(nome) {
   </div>`;
 }
 
-// POST /api/admin/testers/:id/piano — cambia piano
+// POST /api/admin/testers/:id/piano — cambia piano + log
 router.post('/testers/:id/piano', authAdmin, (req, res) => {
-  const { piano } = req.body; // 'free' | 'pro' | 'shield'
+  const { piano } = req.body;
   if (!['free', 'pro', 'shield'].includes(piano)) {
     return res.status(400).json({ error: 'Piano non valido' });
+  }
+  const tester = db.prepare('SELECT piano FROM testers WHERE id = ?').get(req.params.id);
+  const vecchio = tester?.piano || 'free';
+  if (vecchio !== piano) {
+    db.prepare('INSERT INTO piano_log (tester_id, piano_precedente, piano_nuovo) VALUES (?, ?, ?)')
+      .run(req.params.id, vecchio, piano);
   }
   db.prepare('UPDATE testers SET piano = ? WHERE id = ?')
     .run(piano, req.params.id);
@@ -155,6 +224,12 @@ router.get('/testers/:id', authAdmin, (req, res) => {
   const tester = db.prepare('SELECT * FROM testers WHERE id = ?').get(req.params.id);
   if (!tester) return res.status(404).json({ error: 'Tester non trovato' });
   res.json(tester);
+});
+
+// GET /api/admin/testers/:id/stats — statistiche dettagliate tester
+router.get('/testers/:id/stats', authAdmin, (req, res) => {
+  const stats = db.prepare('SELECT * FROM tester_stats WHERE tester_id = ?').get(req.params.id);
+  res.json(stats || { message: 'Nessuna statistica sincronizzata' });
 });
 
 // DELETE /api/admin/testers/:id — elimina tester
@@ -233,6 +308,106 @@ router.post('/todos/:todoId/toggle', authAdmin, (req, res) => {
 router.delete('/todos/:todoId', authAdmin, (req, res) => {
   db.prepare('DELETE FROM admin_todos WHERE id = ?').run(req.params.todoId);
   res.json({ success: true });
+});
+
+// POST /api/admin/broadcast — messaggio a tutti i tester
+router.post('/broadcast', authAdmin, (req, res) => {
+  const { oggetto, testo } = req.body;
+  if (!oggetto?.trim() || !testo?.trim()) {
+    return res.status(400).json({ error: 'Oggetto e testo obbligatori' });
+  }
+
+  const testers = db.prepare("SELECT id FROM testers WHERE stato = 'accettato'").all();
+
+  testers.forEach(t => {
+    db.prepare(
+      'INSERT INTO messaggi_chat (tester_id, mittente, testo) VALUES (?, ?, ?)'
+    ).run(t.id, 'admin', `[${oggetto}] ${testo}`);
+  });
+
+  res.json({ success: true, count: testers.length });
+});
+
+// --- GESTIONE MESSAGGI CHAT (admin only) ---
+
+// DELETE /api/admin/messaggi/:msgId — cancella singolo messaggio
+router.delete('/messaggi/:msgId', authAdmin, (req, res) => {
+  db.prepare('DELETE FROM messaggi_chat WHERE id = ?').run(req.params.msgId);
+  res.json({ success: true });
+});
+
+// PUT /api/admin/messaggi/:msgId — modifica singolo messaggio
+router.put('/messaggi/:msgId', authAdmin, (req, res) => {
+  const { testo } = req.body;
+  if (!testo?.trim()) return res.status(400).json({ error: 'Testo vuoto' });
+  db.prepare('UPDATE messaggi_chat SET testo = ? WHERE id = ?')
+    .run(testo.trim(), req.params.msgId);
+  res.json({ success: true });
+});
+
+// DELETE /api/admin/testers/:id/chat — cancella intera chat
+router.delete('/testers/:id/chat', authAdmin, (req, res) => {
+  db.prepare('DELETE FROM messaggi_chat WHERE tester_id = ?').run(req.params.id);
+  res.json({ success: true });
+});
+
+// --- LOG CAMBI PIANO ---
+router.get('/testers/:id/piano-log', authAdmin, (req, res) => {
+  const log = db.prepare(
+    'SELECT * FROM piano_log WHERE tester_id = ? ORDER BY timestamp DESC'
+  ).all(req.params.id);
+  res.json(log);
+});
+
+router.delete('/testers/:id/piano-log', authAdmin, (req, res) => {
+  db.prepare('DELETE FROM piano_log WHERE tester_id = ?').run(req.params.id);
+  res.json({ success: true });
+});
+
+// POST /api/admin/testers/:id/stats/reset — azzera singole o tutte le stats
+router.post('/testers/:id/stats/reset', authAdmin, (req, res) => {
+  const { campo } = req.body; // 'all' oppure nome campo specifico
+  if (campo === 'all') {
+    db.prepare('DELETE FROM tester_stats WHERE tester_id = ?').run(req.params.id);
+  } else if (campo) {
+    // Azzera solo quel campo
+    const campiValidi = ['chiamate_totali','chiamate_oggi','conosciuti_non_risposti',
+      'sconosciuti_mobile_non_risposti','sconosciuti_mobile_sms','sconosciuti_mobile_segreteria',
+      'sconosciuti_mobile_msg_lasciato','sconosciuti_mobile_msg_non_lasciato',
+      'sconosciuti_fissi_non_risposti','sconosciuti_fissi_segreteria',
+      'sconosciuti_fissi_msg_lasciato','sconosciuti_fissi_msg_non_lasciato',
+      'privati_non_risposti','privati_segreteria','privati_msg_lasciato','privati_msg_non_lasciato'];
+    if (campiValidi.includes(campo)) {
+      db.prepare(`UPDATE tester_stats SET ${campo} = 0 WHERE tester_id = ?`).run(req.params.id);
+    }
+  }
+  res.json({ success: true });
+});
+
+// --- UPLOAD IMMAGINI CHAT ---
+const multer = require('multer');
+const fs = require('fs');
+const uploadDir = path.join(__dirname, '..', 'uploads');
+if (!fs.existsSync(uploadDir)) fs.mkdirSync(uploadDir, { recursive: true });
+
+const storage = multer.diskStorage({
+  destination: (req, file, cb) => cb(null, uploadDir),
+  filename: (req, file, cb) => {
+    const ext = path.extname(file.originalname) || '.jpg';
+    cb(null, `chat_${Date.now()}_${Math.random().toString(36).slice(2,8)}${ext}`);
+  }
+});
+const upload = multer({ storage, limits: { fileSize: 5 * 1024 * 1024 } });
+
+// POST /api/admin/testers/:id/messaggi/img — admin invia immagine
+router.post('/testers/:id/messaggi/img', authAdmin, upload.single('immagine'), (req, res) => {
+  if (!req.file) return res.status(400).json({ error: 'Nessun file' });
+  const imgPath = `/uploads/${req.file.filename}`;
+  const testo = req.body.testo || '';
+  db.prepare(
+    'INSERT INTO messaggi_chat (tester_id, mittente, testo, immagine) VALUES (?, ?, ?, ?)'
+  ).run(req.params.id, 'admin', testo, imgPath);
+  res.json({ success: true, immagine: imgPath });
 });
 
 module.exports = router;

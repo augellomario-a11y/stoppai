@@ -85,4 +85,120 @@ router.get('/piano/:email', (req, res) => {
   res.json({ piano: tester.piano, stato: tester.stato });
 });
 
+// GET /api/tester/:id/messaggi — chat messaggi per l'app
+router.get('/:id/messaggi', (req, res) => {
+  const msgs = db.prepare(
+    'SELECT * FROM messaggi_chat WHERE tester_id = ? ORDER BY timestamp ASC'
+  ).all(req.params.id);
+  res.json(msgs);
+});
+
+// POST /api/tester/:id/messaggi — tester invia messaggio
+router.post('/:id/messaggi', (req, res) => {
+  const { testo, mittente } = req.body;
+  if (!testo?.trim()) return res.status(400).json({ error: 'Testo vuoto' });
+  db.prepare(
+    'INSERT INTO messaggi_chat (tester_id, mittente, testo) VALUES (?, ?, ?)'
+  ).run(req.params.id, mittente || 'tester', testo.trim());
+  res.json({ success: true });
+});
+
+// POST /api/tester/:id/messaggi/img — tester invia immagine
+const multer = require('multer');
+const path = require('path');
+const fs = require('fs');
+const uploadDir = path.join(__dirname, '..', 'uploads');
+if (!fs.existsSync(uploadDir)) fs.mkdirSync(uploadDir, { recursive: true });
+const storage = multer.diskStorage({
+  destination: (req, file, cb) => cb(null, uploadDir),
+  filename: (req, file, cb) => {
+    const ext = path.extname(file.originalname) || '.jpg';
+    cb(null, `chat_${Date.now()}_${Math.random().toString(36).slice(2,8)}${ext}`);
+  }
+});
+const uploadTester = multer({ storage, limits: { fileSize: 5 * 1024 * 1024 } });
+
+router.post('/:id/messaggi/img', uploadTester.single('immagine'), (req, res) => {
+  if (!req.file) return res.status(400).json({ error: 'Nessun file' });
+  const imgPath = `/uploads/${req.file.filename}`;
+  const testo = req.body.testo || '';
+  db.prepare(
+    'INSERT INTO messaggi_chat (tester_id, mittente, testo, immagine) VALUES (?, ?, ?, ?)'
+  ).run(req.params.id, 'tester', testo, imgPath);
+  res.json({ success: true, immagine: imgPath });
+});
+
+// POST /api/tester/sync — l'app invia device info + statistiche
+router.post('/sync', (req, res) => {
+  const { tester_id, device, stats } = req.body;
+  if (!tester_id) return res.status(400).json({ error: 'tester_id mancante' });
+
+  const tester = db.prepare('SELECT id FROM testers WHERE id = ?').get(tester_id);
+  if (!tester) return res.status(404).json({ error: 'Tester non trovato' });
+
+  // Aggiorna info device nella tabella testers
+  if (device) {
+    db.prepare('UPDATE testers SET modello_telefono = ?, versione_app = ? WHERE id = ?')
+      .run(device.modello || null, device.versione_app || null, tester.id);
+  }
+
+  // Upsert statistiche
+  if (stats) {
+    const existing = db.prepare('SELECT id FROM tester_stats WHERE tester_id = ?').get(tester.id);
+    if (existing) {
+      db.prepare(`UPDATE tester_stats SET
+        modello_telefono = ?, versione_android = ?, versione_app = ?,
+        chiamate_totali = ?, chiamate_oggi = ?,
+        conosciuti_non_risposti = ?,
+        sconosciuti_mobile_non_risposti = ?, sconosciuti_mobile_sms = ?,
+        sconosciuti_mobile_segreteria = ?, sconosciuti_mobile_msg_lasciato = ?,
+        sconosciuti_mobile_msg_non_lasciato = ?,
+        sconosciuti_fissi_non_risposti = ?, sconosciuti_fissi_segreteria = ?,
+        sconosciuti_fissi_msg_lasciato = ?, sconosciuti_fissi_msg_non_lasciato = ?,
+        privati_non_risposti = ?, privati_segreteria = ?,
+        privati_msg_lasciato = ?, privati_msg_non_lasciato = ?,
+        ultimo_sync = datetime('now')
+        WHERE tester_id = ?`).run(
+        device?.modello || null, device?.versione_android || null, device?.versione_app || null,
+        stats.chiamate_totali || 0, stats.chiamate_oggi || 0,
+        stats.conosciuti_non_risposti || 0,
+        stats.sconosciuti_mobile_non_risposti || 0, stats.sconosciuti_mobile_sms || 0,
+        stats.sconosciuti_mobile_segreteria || 0, stats.sconosciuti_mobile_msg_lasciato || 0,
+        stats.sconosciuti_mobile_msg_non_lasciato || 0,
+        stats.sconosciuti_fissi_non_risposti || 0, stats.sconosciuti_fissi_segreteria || 0,
+        stats.sconosciuti_fissi_msg_lasciato || 0, stats.sconosciuti_fissi_msg_non_lasciato || 0,
+        stats.privati_non_risposti || 0, stats.privati_segreteria || 0,
+        stats.privati_msg_lasciato || 0, stats.privati_msg_non_lasciato || 0,
+        tester.id
+      );
+    } else {
+      db.prepare(`INSERT INTO tester_stats (
+        tester_id, modello_telefono, versione_android, versione_app,
+        chiamate_totali, chiamate_oggi,
+        conosciuti_non_risposti,
+        sconosciuti_mobile_non_risposti, sconosciuti_mobile_sms,
+        sconosciuti_mobile_segreteria, sconosciuti_mobile_msg_lasciato,
+        sconosciuti_mobile_msg_non_lasciato,
+        sconosciuti_fissi_non_risposti, sconosciuti_fissi_segreteria,
+        sconosciuti_fissi_msg_lasciato, sconosciuti_fissi_msg_non_lasciato,
+        privati_non_risposti, privati_segreteria,
+        privati_msg_lasciato, privati_msg_non_lasciato
+      ) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)`).run(
+        tester.id, device?.modello || null, device?.versione_android || null, device?.versione_app || null,
+        stats.chiamate_totali || 0, stats.chiamate_oggi || 0,
+        stats.conosciuti_non_risposti || 0,
+        stats.sconosciuti_mobile_non_risposti || 0, stats.sconosciuti_mobile_sms || 0,
+        stats.sconosciuti_mobile_segreteria || 0, stats.sconosciuti_mobile_msg_lasciato || 0,
+        stats.sconosciuti_mobile_msg_non_lasciato || 0,
+        stats.sconosciuti_fissi_non_risposti || 0, stats.sconosciuti_fissi_segreteria || 0,
+        stats.sconosciuti_fissi_msg_lasciato || 0, stats.sconosciuti_fissi_msg_non_lasciato || 0,
+        stats.privati_non_risposti || 0, stats.privati_segreteria || 0,
+        stats.privati_msg_lasciato || 0, stats.privati_msg_non_lasciato || 0
+      );
+    }
+  }
+
+  res.json({ success: true });
+});
+
 module.exports = router;
