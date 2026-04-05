@@ -23,7 +23,8 @@ object ScreeningLogic {
         protezioneTotale: Boolean,
         includiPreferiti: Boolean,
         smsAttivo: Boolean,
-        tipoNumero: String
+        tipoNumero: String,
+        consentiEsteri: Boolean = false
     ): Decisione {
 
         // 1. TUTTO SPENTO -> SQUILLA SEMPRE
@@ -31,32 +32,35 @@ object ScreeningLogic {
             return Decisione.SQUILLA
         }
 
-        // 2. SMS PRIORITARIO: Se SMS attivo e Mobile IT sconosciuto -> BLOCCO + SMS
-        // Questa regola vince su tutto il resto per i numeri sconosciuti mobili
+        // 2. Contatto in rubrica -> SQUILLA (vale per tutti, base e totale esclusa)
+        //    In protezione totale gestito sotto con logica preferiti
+        if (isContact && !protezioneTotale) {
+            return Decisione.SQUILLA
+        }
+
+        // 3. SMS PRIORITARIO: Se SMS attivo e Mobile IT sconosciuto -> BLOCCO + SMS
         if (smsAttivo && !isContact && tipoNumero == "MOBILE_IT") {
             return Decisione.BLOCCA_E_SMS
         }
 
-        // 3. PROTEZIONE TOTALE ON
+        // 4. Numeri esteri sconosciuti
+        if (tipoNumero == "ESTERO" && !isContact) {
+            // Se consenti esteri ON -> SQUILLA, altrimenti -> ARIA
+            return if (consentiEsteri) Decisione.SQUILLA else Decisione.ARIA
+        }
+
+        // 5. PROTEZIONE TOTALE ON
         if (protezioneTotale) {
-            // Se Includi Preferiti è ON -> nessuno squilla (vince su tutto)
             if (includiPreferiti) {
                 return Decisione.ARIA
             }
-            // Se Includi Preferiti è OFF -> solo i preferiti squillano
             if (isPreferito) {
                 return Decisione.SQUILLA
             }
-            // Tutti gli altri (rubrica standard o sconosciuti non mobili) -> ARIA
             return Decisione.ARIA
         }
 
-        // 4. PROTEZIONE BASE ON (Siamo qui se totale = false)
-        if (isContact) {
-            return Decisione.SQUILLA
-        }
-
-        // Sconosciuto (già filtrato se mobile+sms sopra) -> ARIA
+        // 6. PROTEZIONE BASE ON — sconosciuto italiano -> ARIA
         return Decisione.ARIA
     }
 }

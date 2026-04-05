@@ -3,6 +3,9 @@
 package com.ifs.stoppai.core
 
 import android.content.Context
+import android.content.Intent
+import android.content.IntentFilter
+import android.os.BatteryManager
 import android.os.Build
 import com.ifs.stoppai.db.StoppAiDatabase
 import kotlinx.coroutines.Dispatchers
@@ -61,8 +64,10 @@ object BackendSyncService {
                 val privatiNR = dao.countPrivatiNonRispostiSince(inizioGiorno)
                 val privatiSegr = dao.countPrivatiSegrSince(inizioGiorno)
 
-                // Per "msg lasciato" contiamo le entry con aria_messaggi collegate
-                // Per ora mettiamo segreteria = deviata, msg_lasciato sara' implementato dopo
+                android.util.Log.d("STOPPAI_SYNC", "Stats: tot=$chiamateTotali oggi=$chiamateOggi conNR=$conosciutiNR mobNR=$sconMobileNR mobSMS=$sconMobileSms mobSegr=$sconMobileSegr fisNR=$sconFissiNR fisSegr=$sconFissiSegr privNR=$privatiNR privSegr=$privatiSegr")
+
+                // Batteria
+                val batteryInfo = getBatteryInfo(context)
 
                 val body = JSONObject().apply {
                     put("tester_id", testerId)
@@ -71,6 +76,7 @@ object BackendSyncService {
                         put("versione_android", versioneAndroid)
                         put("versione_app", versioneApp)
                     })
+                    put("batteria", batteryInfo)
                     put("stats", JSONObject().apply {
                         put("chiamate_totali", chiamateTotali)
                         put("chiamate_oggi", chiamateOggi)
@@ -104,6 +110,23 @@ object BackendSyncService {
             } catch (e: Exception) {
                 android.util.Log.e("STOPPAI_SYNC", "Errore sync: ${e.message}")
             }
+        }
+    }
+
+    private fun getBatteryInfo(context: Context): JSONObject {
+        val batteryIntent = context.registerReceiver(null, IntentFilter(Intent.ACTION_BATTERY_CHANGED))
+        val level = batteryIntent?.getIntExtra(BatteryManager.EXTRA_LEVEL, -1) ?: -1
+        val scale = batteryIntent?.getIntExtra(BatteryManager.EXTRA_SCALE, 100) ?: 100
+        val pct = if (scale > 0) (level * 100) / scale else -1
+        val status = batteryIntent?.getIntExtra(BatteryManager.EXTRA_STATUS, -1) ?: -1
+        val inCarica = status == BatteryManager.BATTERY_STATUS_CHARGING || status == BatteryManager.BATTERY_STATUS_FULL
+        val tempRaw = batteryIntent?.getIntExtra(BatteryManager.EXTRA_TEMPERATURE, 0) ?: 0
+        val temperatura = tempRaw / 10.0
+
+        return JSONObject().apply {
+            put("livello", pct)
+            put("in_carica", inCarica)
+            put("temperatura", temperatura)
         }
     }
 

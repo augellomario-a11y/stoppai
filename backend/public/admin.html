@@ -106,6 +106,54 @@ body{font-family:-apple-system,sans-serif;background:var(--bg);color:var(--bianc
 .todo-item.done span{text-decoration:line-through;color:var(--grigio)}
 .todo-item .del{margin-left:auto;cursor:pointer;color:var(--rosso);font-size:12px;opacity:.5}
 .todo-item .del:hover{opacity:1}
+
+/* DASHBOARD STATS */
+.dash-grid{display:grid;gap:14px;margin-bottom:14px}
+.dash-2{grid-template-columns:repeat(2,1fr)}
+.dash-3{grid-template-columns:repeat(3,1fr)}
+.dash-4{grid-template-columns:repeat(4,1fr)}
+.dash-widget{background:var(--card);border:1px solid var(--bordo);border-radius:12px;padding:20px;position:relative;overflow:hidden}
+.dash-widget::before{content:'';position:absolute;top:0;left:0;right:0;height:3px}
+.dash-widget.w-oro::before{background:var(--oro)}
+.dash-widget.w-verde::before{background:var(--verde)}
+.dash-widget.w-blu::before{background:#42a5f5}
+.dash-widget.w-rosso::before{background:var(--rosso)}
+.dash-widget.w-viola::before{background:var(--viola)}
+.w-title{font-size:11px;color:var(--grigio);text-transform:uppercase;letter-spacing:.8px;margin-bottom:8px;font-weight:600}
+.w-value{font-size:28px;font-weight:800;margin-bottom:2px}
+.w-sub{font-size:11px;color:var(--grigio)}
+.w-span2{grid-column:span 2}
+
+/* MODAL CUSTOM */
+.modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.7);z-index:9999;display:flex;align-items:center;justify-content:center;backdrop-filter:blur(4px);animation:modalFadeIn .2s}
+@keyframes modalFadeIn{from{opacity:0}to{opacity:1}}
+.modal-box{background:var(--card);border:1px solid var(--bordo);border-radius:14px;width:380px;max-width:90vw;overflow:hidden;box-shadow:0 20px 60px rgba(0,0,0,.5);animation:modalSlide .25s}
+@keyframes modalSlide{from{transform:translateY(-20px);opacity:0}to{transform:translateY(0);opacity:1}}
+.modal-header{padding:20px 24px 0;display:flex;align-items:center;gap:10px}
+.modal-header .icon{font-size:24px}
+.modal-header .title{font-size:16px;font-weight:700;color:var(--bianco)}
+.modal-body{padding:12px 24px 20px;font-size:14px;color:#ccc;line-height:1.6}
+.modal-body input,.modal-body textarea{width:100%;background:#1a1a24;border:1px solid var(--bordo);color:var(--bianco);padding:10px;border-radius:6px;font-size:14px;margin-top:8px}
+.modal-footer{padding:0 24px 20px;display:flex;gap:10px;justify-content:flex-end}
+.modal-btn{padding:10px 20px;border-radius:8px;border:none;cursor:pointer;font-size:13px;font-weight:600;transition:.15s}
+.modal-btn-cancel{background:none;border:1px solid var(--bordo);color:var(--grigio)}
+.modal-btn-cancel:hover{color:var(--bianco);border-color:var(--grigio)}
+.modal-btn-danger{background:var(--rosso);color:#fff}
+.modal-btn-danger:hover{background:#c62828}
+.modal-btn-ok{background:var(--oro);color:var(--bg)}
+.modal-btn-ok:hover{background:#b8963e}
+
+/* ARIA MESSAGGI */
+.aria-item{background:var(--card);border:1px solid var(--bordo);border-radius:10px;padding:16px;margin-bottom:12px}
+.aria-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:8px}
+.aria-caller{font-size:14px;font-weight:600}
+.aria-caller-name{color:var(--oro)}
+.aria-caller-num{color:var(--grigio);font-size:12px;margin-left:8px}
+.aria-date{font-size:11px;color:var(--grigio)}
+.aria-wav{display:flex;align-items:center;gap:8px;margin-bottom:8px;font-size:12px;color:var(--grigio)}
+.aria-wav audio{height:32px;flex:1}
+.aria-trascrizione{background:var(--card2);border:1px solid var(--bordo);border-radius:8px;padding:10px 12px;font-size:13px;line-height:1.6;color:#b8e6b8;font-style:italic}
+.aria-empty{text-align:center;padding:40px;color:var(--grigio)}
 </style>
 </head>
 <body>
@@ -155,6 +203,31 @@ body{font-family:-apple-system,sans-serif;background:var(--bg);color:var(--bianc
 const API='/api/admin';
 let testers=[], currentTester=null, currentTab='chat';
 
+// --- MODAL SYSTEM ---
+function showModal({icon,title,message,type,inputDefault,onConfirm,onCancel}){
+  const overlay=document.createElement('div');
+  overlay.className='modal-overlay';
+  const isDanger=type==='danger';
+  const isPrompt=type==='prompt';
+  const isAlert=type==='alert';
+  overlay.innerHTML=`<div class="modal-box">
+    <div class="modal-header"><span class="icon">${icon||'⚠️'}</span><span class="title">${title||'Conferma'}</span></div>
+    <div class="modal-body">${message||''}${isPrompt?`<textarea id="modalInput" rows="3">${inputDefault||''}</textarea>`:''}</div>
+    <div class="modal-footer">
+      ${isAlert?'':`<button class="modal-btn modal-btn-cancel" id="modalCancel">Annulla</button>`}
+      <button class="modal-btn ${isDanger?'modal-btn-danger':'modal-btn-ok'}" id="modalOk">${isDanger?'Elimina':isAlert?'OK':'Conferma'}</button>
+    </div>
+  </div>`;
+  document.body.appendChild(overlay);
+  const ok=overlay.querySelector('#modalOk');
+  const cancel=overlay.querySelector('#modalCancel');
+  const inp=overlay.querySelector('#modalInput');
+  if(inp)setTimeout(()=>inp.focus(),100);
+  ok.onclick=()=>{overlay.remove();if(onConfirm)onConfirm(inp?inp.value:true)};
+  if(cancel)cancel.onclick=()=>{overlay.remove();if(onCancel)onCancel()};
+  overlay.onclick=e=>{if(e.target===overlay){overlay.remove();if(onCancel)onCancel()}};
+}
+
 // --- AUTH ---
 // Login con password rimosso dalla UI — solo magic code
 
@@ -184,7 +257,7 @@ fetch(API+'/stats').then(r=>{if(r.ok){document.getElementById('login').style.dis
 
 // --- VIEWS ---
 function showView(v){
-  stopChatPoll();
+  stopChatPoll();stopAriaPoll();
   document.querySelectorAll('.sb-item').forEach((el,i)=>{el.classList.toggle('active',['dashboard','testers','broadcast','referral','links'][i]===v)});
   currentTester=null;
   if(v==='dashboard')loadDashboard();
@@ -266,6 +339,7 @@ async function openTester(id){
         <div class="tab" onclick="switchTab('stats',${t.id})">📊 Statistiche</div>
         <div class="tab" onclick="switchTab('notes',${t.id})">📝 Note</div>
         <div class="tab" onclick="switchTab('todos',${t.id})">✅ To-Do</div>
+        <div class="tab" onclick="switchTab('aria',${t.id})">🎙️ ARIA</div>
       </div>
       <div class="tab-content" id="tabPanel"></div>
       ${currentTab==='chat'?'<div class="chat-input" id="chatInput"><label style="cursor:pointer;font-size:18px;padding:0 6px" title="Allega immagine">📎<input type="file" accept="image/*" style="display:none" onchange="sendImg('+t.id+',this)"></label><input id="chatMsg" placeholder="Scrivi un messaggio..." onkeydown="if(event.key===\'Enter\')sendMsg('+t.id+')"><button onclick="sendMsg('+t.id+')">Invia</button></div>':''}
@@ -279,10 +353,11 @@ async function openTester(id){
 async function switchTab(tab,id){
   currentTab=tab;
   document.querySelectorAll('.tab').forEach(el=>el.classList.remove('active'));
-  document.querySelectorAll('.tab').forEach(el=>{if(el.textContent.includes({chat:'Chat',notes:'Note',todos:'To-Do'}[tab]))el.classList.add('active')});
+  document.querySelectorAll('.tab').forEach(el=>{if(el.textContent.includes({chat:'Chat',notes:'Note',todos:'To-Do',aria:'ARIA',stats:'Statistiche'}[tab]))el.classList.add('active')});
   const panel=document.getElementById('tabPanel');
   const ci=document.getElementById('chatInput');
   stopChatPoll();
+  stopAriaPoll();
   if(tab==='chat'){
     if(ci)ci.style.display='flex';
     await refreshChat(id);
@@ -296,67 +371,76 @@ async function switchTab(tab,id){
     const sc=v=>v||0;
     function miniCard(icon,label,value,color){return `<div style="background:var(--card);border:1px solid var(--bordo);border-radius:10px;padding:16px;text-align:center;min-width:100px;flex:1"><div style="font-size:20px;margin-bottom:6px">${icon}</div><div style="font-size:26px;font-weight:bold;color:${color||'var(--oro)'}">${value}</div><div style="font-size:10px;color:var(--grigio);margin-top:4px;text-transform:uppercase;letter-spacing:.5px">${label}</div></div>`}
     function statRow(label,value,icon,color,campo,tid){return `<div style="display:flex;justify-content:space-between;align-items:center;padding:10px 0;border-bottom:1px solid var(--bordo)"><div style="display:flex;align-items:center;gap:8px"><span style="font-size:16px">${icon||''}</span><span style="font-size:13px;color:#ccc">${label}</span></div><div style="display:flex;align-items:center;gap:8px"><span style="font-size:15px;font-weight:bold;color:${color||'var(--bianco)'}">${value}</span>${campo?`<span style="font-size:10px;cursor:pointer;color:var(--rosso);opacity:.4" onclick="resetStat(${tid},'${campo}')" title="Azzera">✕</span>`:''}</div></div>`}
-    panel.innerHTML=`<div style="padding:8px 0">
-      <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:24px">
-        <div style="background:var(--card);border:1px solid var(--bordo);border-radius:10px;padding:14px"><div style="font-size:10px;color:var(--grigio);text-transform:uppercase;margin-bottom:4px">Dispositivo</div><div style="font-size:13px;font-weight:600">${s.modello_telefono||t.modello_telefono||'—'}</div></div>
-        <div style="background:var(--card);border:1px solid var(--bordo);border-radius:10px;padding:14px"><div style="font-size:10px;color:var(--grigio);text-transform:uppercase;margin-bottom:4px">Android</div><div style="font-size:13px;font-weight:600">${s.versione_android||'—'}</div></div>
-        <div style="background:var(--card);border:1px solid var(--bordo);border-radius:10px;padding:14px"><div style="font-size:10px;color:var(--grigio);text-transform:uppercase;margin-bottom:4px">App</div><div style="font-size:13px;font-weight:600">${s.versione_app||t.versione_app||'—'}</div></div>
-        <div style="background:var(--card);border:1px solid var(--bordo);border-radius:10px;padding:14px"><div style="font-size:10px;color:var(--grigio);text-transform:uppercase;margin-bottom:4px">Ultimo sync</div><div style="font-size:13px;font-weight:600">${s.ultimo_sync?.replace('T',' ').slice(0,16)||'Mai'}</div></div>
+    function statRow(label,value,icon,color,campo,tid){return `<div style="display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-bottom:1px solid var(--bordo)"><div style="display:flex;align-items:center;gap:6px"><span style="font-size:14px">${icon||''}</span><span style="font-size:12px;color:#ccc">${label}</span></div><div style="display:flex;align-items:center;gap:6px"><span style="font-size:13px;font-weight:bold;color:${color||'var(--bianco)'}">${value}</span>${campo?`<span style="font-size:9px;cursor:pointer;color:var(--rosso);opacity:.3" onclick="resetStat(${tid},'${campo}')" title="Azzera">✕</span>`:''}</div></div>`}
+    panel.innerHTML=`<div style="padding:4px 0">
+
+      <!-- ROW 1: Device -->
+      <div class="dash-grid dash-4">
+        <div class="dash-widget w-oro"><div class="w-title">Dispositivo</div><div style="font-size:14px;font-weight:700">${s.modello_telefono||t.modello_telefono||'—'}</div></div>
+        <div class="dash-widget w-oro"><div class="w-title">Android</div><div style="font-size:14px;font-weight:700">${s.versione_android||'—'}</div></div>
+        <div class="dash-widget w-oro"><div class="w-title">Versione App</div><div style="font-size:14px;font-weight:700">${s.versione_app||t.versione_app||'—'}</div></div>
+        <div class="dash-widget w-oro"><div class="w-title">Ultimo Sync</div><div style="font-size:14px;font-weight:700">${s.ultimo_sync?.replace('T',' ').slice(0,16)||'Mai'}</div></div>
       </div>
+
+      <!-- ROW 2: Batteria + Chiamate -->
+      <div class="dash-grid" style="grid-template-columns:1fr 1fr 1fr 1fr 1fr">
+        <div class="dash-widget w-verde" id="battWidget"><div class="w-title">Batteria</div><div id="batterySection"></div></div>
+        <div class="dash-widget w-verde" id="battTempWidget"><div class="w-title">Temperatura</div><div id="battTempSection"></div></div>
+        ${has?`
+        <div class="dash-widget w-oro"><div class="w-title">Chiamate Totali</div><div class="w-value" style="color:var(--oro)">${sc(s.chiamate_totali)}</div><div class="w-sub">Dall'installazione</div></div>
+        <div class="dash-widget w-blu"><div class="w-title">Chiamate Oggi</div><div class="w-value" style="color:#42a5f5">${sc(s.chiamate_oggi)}</div><div class="w-sub">Da mezzanotte</div></div>
+        <div class="dash-widget w-verde"><div class="w-title">Conosciuti NR</div><div class="w-value" style="color:var(--verde)">${sc(s.conosciuti_non_risposti)}</div><div class="w-sub">Non risposti oggi</div></div>
+        `:`
+        <div class="dash-widget w-oro" style="grid-column:span 3"><div class="w-title">Chiamate</div><div style="text-align:center;padding:16px;color:var(--grigio);font-size:13px">Nessun dato. L'app sincronizzera' alla prossima apertura.</div></div>
+        `}
+      </div>
+
       ${has?`
-      <div style="display:flex;gap:12px;margin-bottom:24px">
-        ${miniCard('📞','Chiamate totali',sc(s.chiamate_totali),'var(--oro)')}
-        ${miniCard('📅','Oggi',sc(s.chiamate_oggi),'var(--bianco)')}
-        ${miniCard('👤','Conosciuti NR',sc(s.conosciuti_non_risposti),'var(--verde)')}
-      </div>
-
-      <div style="display:flex;gap:8px;margin-bottom:20px">
-        <button class="btn btn-ghost" style="font-size:11px" onclick="showChartView('pie',${id})">🥧 Torta</button>
-        <button class="btn btn-ghost" style="font-size:11px" onclick="showChartView('bar',${id})">📊 Barre</button>
-        <button class="btn btn-ghost" style="font-size:11px" onclick="showChartView('table',${id})">📋 Tabella</button>
-      </div>
-      <div id="chartArea" style="background:var(--card);border:1px solid var(--bordo);border-radius:12px;padding:24px;margin-bottom:20px">
-        <canvas id="statsChart" style="max-height:320px"></canvas>
-      </div>
-
-      <div id="tableArea" style="display:none">
-      <div style="display:flex;justify-content:flex-end;margin-bottom:8px"><button class="btn btn-red" style="font-size:11px;padding:4px 10px" onclick="resetStat(${id},'all')">Azzera tutte le statistiche</button></div>
-      <div style="background:var(--card);border:1px solid var(--bordo);border-radius:12px;overflow:hidden;margin-bottom:16px">
-        <div style="background:linear-gradient(135deg,#1a1a2e,#12121a);padding:14px 16px;border-bottom:1px solid var(--bordo)">
-          <span style="font-size:14px;font-weight:600;color:var(--oro)">📱 Sconosciuti Mobile</span>
+      <!-- ROW 3: Grafici distribuzione + dettaglio -->
+      <div class="dash-grid dash-2">
+        <div class="dash-widget w-oro">
+          <div class="w-title">Distribuzione Chiamate</div>
+          <div style="display:flex;gap:6px;margin-bottom:12px">
+            <button class="btn btn-ghost" style="font-size:10px;padding:4px 10px" onclick="showChartView('pie',${id})">Torta</button>
+            <button class="btn btn-ghost" style="font-size:10px;padding:4px 10px" onclick="showChartView('bar',${id})">Barre</button>
+          </div>
+          <div id="chartArea"><canvas id="statsChart" style="max-height:260px"></canvas></div>
         </div>
-        <div style="padding:4px 16px">
+        <div class="dash-widget w-viola">
+          <div class="w-title">Andamento Batteria</div>
+          <div id="battChartSection"><canvas id="batteryChart" style="max-height:260px"></canvas></div>
+        </div>
+      </div>
+
+      <!-- ROW 4: Dettaglio categorie -->
+      <div class="dash-grid dash-3">
+        <div class="dash-widget w-oro">
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px">
+            <div class="w-title" style="margin:0">Sconosciuti Mobile</div>
+            <span style="font-size:9px;cursor:pointer;color:var(--rosso);opacity:.4" onclick="resetStat(${id},'all')">Azzera tutto</span>
+          </div>
           ${statRow('Non risposti',sc(s.sconosciuti_mobile_non_risposti),'🚫','#ff9800','sconosciuti_mobile_non_risposti',id)}
           ${statRow('SMS inviato',sc(s.sconosciuti_mobile_sms),'✉️','#42a5f5','sconosciuti_mobile_sms',id)}
-          ${statRow('Inoltro segreteria',sc(s.sconosciuti_mobile_segreteria),'🎙️','var(--viola)','sconosciuti_mobile_segreteria',id)}
-          ${statRow('Messaggio lasciato',sc(s.sconosciuti_mobile_msg_lasciato),'💬','var(--verde)','sconosciuti_mobile_msg_lasciato',id)}
-          ${statRow('Nessun messaggio',sc(s.sconosciuti_mobile_msg_non_lasciato),'—','var(--grigio)','sconosciuti_mobile_msg_non_lasciato',id)}
+          ${statRow('Segreteria',sc(s.sconosciuti_mobile_segreteria),'🎙️','var(--viola)','sconosciuti_mobile_segreteria',id)}
+          ${statRow('Msg lasciato',sc(s.sconosciuti_mobile_msg_lasciato),'💬','var(--verde)','sconosciuti_mobile_msg_lasciato',id)}
+          ${statRow('Nessun msg',sc(s.sconosciuti_mobile_msg_non_lasciato),'—','var(--grigio)','sconosciuti_mobile_msg_non_lasciato',id)}
         </div>
-      </div>
-      <div style="background:var(--card);border:1px solid var(--bordo);border-radius:12px;overflow:hidden;margin-bottom:16px">
-        <div style="background:linear-gradient(135deg,#1a1a2e,#12121a);padding:14px 16px;border-bottom:1px solid var(--bordo)">
-          <span style="font-size:14px;font-weight:600;color:var(--oro)">☎️ Sconosciuti Fisso</span>
-        </div>
-        <div style="padding:4px 16px">
+        <div class="dash-widget w-blu">
+          <div class="w-title">Sconosciuti Fisso</div>
           ${statRow('Non risposti',sc(s.sconosciuti_fissi_non_risposti),'🚫','#ff9800','sconosciuti_fissi_non_risposti',id)}
-          ${statRow('Inoltro segreteria',sc(s.sconosciuti_fissi_segreteria),'🎙️','var(--viola)','sconosciuti_fissi_segreteria',id)}
-          ${statRow('Messaggio lasciato',sc(s.sconosciuti_fissi_msg_lasciato),'💬','var(--verde)','sconosciuti_fissi_msg_lasciato',id)}
-          ${statRow('Nessun messaggio',sc(s.sconosciuti_fissi_msg_non_lasciato),'—','var(--grigio)','sconosciuti_fissi_msg_non_lasciato',id)}
+          ${statRow('Segreteria',sc(s.sconosciuti_fissi_segreteria),'🎙️','var(--viola)','sconosciuti_fissi_segreteria',id)}
+          ${statRow('Msg lasciato',sc(s.sconosciuti_fissi_msg_lasciato),'💬','var(--verde)','sconosciuti_fissi_msg_lasciato',id)}
+          ${statRow('Nessun msg',sc(s.sconosciuti_fissi_msg_non_lasciato),'—','var(--grigio)','sconosciuti_fissi_msg_non_lasciato',id)}
         </div>
-      </div>
-      <div style="background:var(--card);border:1px solid var(--bordo);border-radius:12px;overflow:hidden">
-        <div style="background:linear-gradient(135deg,#2a0a0a,#12121a);padding:14px 16px;border-bottom:1px solid var(--bordo)">
-          <span style="font-size:14px;font-weight:600;color:var(--rosso)">🕵️ Numeri Privati</span>
-        </div>
-        <div style="padding:4px 16px">
+        <div class="dash-widget w-rosso">
+          <div class="w-title">Numeri Privati</div>
           ${statRow('Non risposti',sc(s.privati_non_risposti),'🚫','#ff9800','privati_non_risposti',id)}
-          ${statRow('Inoltro segreteria',sc(s.privati_segreteria),'🎙️','var(--viola)','privati_segreteria',id)}
-          ${statRow('Messaggio lasciato',sc(s.privati_msg_lasciato),'💬','var(--verde)','privati_msg_lasciato',id)}
-          ${statRow('Nessun messaggio',sc(s.privati_msg_non_lasciato),'—','var(--grigio)','privati_msg_non_lasciato',id)}
+          ${statRow('Segreteria',sc(s.privati_segreteria),'🎙️','var(--viola)','privati_segreteria',id)}
+          ${statRow('Msg lasciato',sc(s.privati_msg_lasciato),'💬','var(--verde)','privati_msg_lasciato',id)}
+          ${statRow('Nessun msg',sc(s.privati_msg_non_lasciato),'—','var(--grigio)','privati_msg_non_lasciato',id)}
         </div>
       </div>
-      </div>
-      `:`<div style="background:var(--card);border:1px solid var(--bordo);border-radius:12px;padding:32px;text-align:center;margin-top:12px">
+      `:`<div class="dash-widget" style="text-align:center;padding:32px">
         <div style="font-size:32px;margin-bottom:12px">📊</div>
         <p style="color:var(--grigio);font-size:13px">Statistiche non ancora sincronizzate.<br>L'app inviera' i dati automaticamente alla prossima apertura.</p>
       </div>`}
@@ -369,13 +453,48 @@ async function switchTab(tab,id){
     if(ci)ci.style.display='none';
     const todos=await(await fetch(API+'/testers/'+id+'/todos')).json();
     panel.innerHTML=todos.map(t=>`<div class="todo-item ${t.completato?'done':''}"><input type="checkbox" ${t.completato?'checked':''} onchange="toggleTodo(${t.id},${id})"><span>${t.testo}</span><span class="del" onclick="delTodo(${t.id},${id})">✕</span></div>`).join('')+`<div class="add-row"><input id="newTodo" placeholder="Nuova attivita'..." onkeydown="if(event.key==='Enter')addTodo(${id})"><button onclick="addTodo(${id})">Aggiungi</button></div>`;
+  } else if(tab==='aria'){
+    if(ci)ci.style.display='none';
+    loadAria(id,panel);
+    startAriaPoll(id);
   }
 }
+
+let ariaPollTimer=null;
+function startAriaPoll(id){stopAriaPoll();ariaPollTimer=setInterval(()=>{const p=document.getElementById('tabPanel');if(p&&currentTab==='aria')loadAria(id,p)},5000)}
+function stopAriaPoll(){if(ariaPollTimer){clearInterval(ariaPollTimer);ariaPollTimer=null}}
+
+async function loadAria(id,panel){
+  const msgs=await(await fetch(API+'/testers/'+id+'/aria')).json();
+  if(!msgs.length){
+    panel.innerHTML='<div class="aria-empty"><div style="font-size:40px;margin-bottom:12px">🎙️</div><p>Nessun messaggio ARIA registrato per questo tester.</p></div>';
+    return;
+  }
+  panel.innerHTML=`<div style="display:flex;justify-content:flex-end;margin-bottom:12px"><button class="btn btn-red" style="font-size:11px;padding:4px 10px" onclick="clearAllAria(${id})">Cancella tutti i messaggi ARIA</button></div>`+msgs.map(m=>{
+    const nome=m.caller_name?`<span class="aria-caller-name">${m.caller_name}</span><span class="aria-caller-num">${m.caller_number}</span>`:`<span class="aria-caller-name">${m.caller_number}</span>`;
+    const data=m.timestamp?.replace('T',' ').slice(0,16)||'';
+    const info=[];
+    if(m.wav_filename)info.push(m.wav_filename);
+    if(m.dimensione_kb)info.push('Peso: '+m.dimensione_kb.toFixed(1)+' KB');
+    if(m.durata_secondi)info.push('Durata: '+m.durata_secondi+'s');
+    return `<div class="aria-item">
+      <div class="aria-header">
+        <div class="aria-caller">Chi: ${nome}</div>
+        <div class="aria-date">${data}</div>
+      </div>
+      ${info.length?`<div class="aria-wav">${info.join(' | ')}</div>`:''}
+      ${m.trascrizione?`<div class="aria-trascrizione">🗨️ ${m.trascrizione}</div>`:'<div class="aria-trascrizione" style="color:var(--grigio)">Nessuna trascrizione disponibile</div>'}
+      <div style="text-align:right;margin-top:8px"><span style="font-size:11px;cursor:pointer;color:var(--rosso);opacity:.5" onclick="delAria(${m.id},${id})">Elimina</span></div>
+    </div>`;
+  }).join('');
+}
+function delAria(msgId,testerId){showModal({icon:'🗑️',title:'Elimina messaggio',message:'Eliminare questo messaggio ARIA?',type:'danger',onConfirm:async()=>{await fetch(API+'/aria/'+msgId,{method:'DELETE'});loadAria(testerId,document.getElementById('tabPanel'))}})}
+function clearAllAria(testerId){showModal({icon:'⚠️',title:'Cancella tutto',message:'Cancellare <strong>TUTTI</strong> i messaggi ARIA di questo tester? Questa azione non può essere annullata.',type:'danger',onConfirm:async()=>{await fetch(API+'/testers/'+testerId+'/aria',{method:'DELETE'});loadAria(testerId,document.getElementById('tabPanel'))}})}
 
 // --- AZIONI ---
 async function setStato(id,stato){await fetch(API+'/testers/'+id+'/stato',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({stato})});openTester(id)}
 async function setPiano(id,piano){await fetch(API+'/testers/'+id+'/piano',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({piano})})}
-async function delTester(id){if(!confirm('Eliminare questo tester?'))return;await fetch(API+'/testers/'+id,{method:'DELETE'});showView('testers')}
+function delTester(id){showModal({icon:'🗑️',title:'Elimina tester',message:'Eliminare questo tester e tutti i suoi dati? Questa azione non può essere annullata.',type:'danger',onConfirm:async()=>{await fetch(API+'/testers/'+id,{method:'DELETE'});showView('testers')}})}
 
 // CHAT con polling
 let chatPollTimer=null;
@@ -402,9 +521,9 @@ async function refreshChat(id){
   panel.scrollTop=panel.scrollHeight;
 }
 async function sendMsg(id){const inp=document.getElementById('chatMsg');const t=inp.value.trim();if(!t)return;inp.value='';await fetch(API+'/testers/'+id+'/messaggi',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({testo:t})});refreshChat(id)}
-async function deleteMsg(msgId,testerId){if(!confirm('Eliminare questo messaggio?'))return;await fetch(API+'/messaggi/'+msgId,{method:'DELETE'});refreshChat(testerId)}
-async function editMsg(msgId,testerId){const newText=prompt('Modifica messaggio:');if(!newText)return;await fetch(API+'/messaggi/'+msgId,{method:'PUT',headers:{'Content-Type':'application/json'},body:JSON.stringify({testo:newText})});refreshChat(testerId)}
-async function clearChat(testerId){if(!confirm('Cancellare TUTTA la chat con questo tester?'))return;await fetch(API+'/testers/'+testerId+'/chat',{method:'DELETE'});refreshChat(testerId)}
+function deleteMsg(msgId,testerId){showModal({icon:'🗑️',title:'Elimina messaggio',message:'Eliminare questo messaggio dalla chat?',type:'danger',onConfirm:async()=>{await fetch(API+'/messaggi/'+msgId,{method:'DELETE'});refreshChat(testerId)}})}
+function editMsg(msgId,testerId){showModal({icon:'✏️',title:'Modifica messaggio',message:'Scrivi il nuovo testo:',type:'prompt',onConfirm:async(val)=>{if(!val||!val.trim())return;await fetch(API+'/messaggi/'+msgId,{method:'PUT',headers:{'Content-Type':'application/json'},body:JSON.stringify({testo:val.trim()})});refreshChat(testerId)}})}
+function clearChat(testerId){showModal({icon:'⚠️',title:'Cancella chat',message:'Cancellare <strong>TUTTA</strong> la chat con questo tester?',type:'danger',onConfirm:async()=>{await fetch(API+'/testers/'+testerId+'/chat',{method:'DELETE'});refreshChat(testerId)}})}
 async function sendImg(testerId,input){if(!input.files[0])return;const fd=new FormData();fd.append('immagine',input.files[0]);fd.append('testo','');const r=await fetch(API+'/testers/'+testerId+'/messaggi/img',{method:'POST',body:fd});if(r.ok)refreshChat(testerId);input.value=''}
 
 // LOG PIANO — nella sidebar sinistra
@@ -424,8 +543,8 @@ async function loadPianoLog(id){
       <div style="color:var(--grigio);font-size:10px">${l.timestamp?.slice(0,16).replace('T',' ')||''}</div>
     </div>`).join('')}</div></div>`;
 }
-async function clearPianoLog(id){if(!confirm('Pulire lo storico cambi piano?'))return;await fetch(API+'/testers/'+id+'/piano-log',{method:'DELETE'});loadPianoLog(id)}
-async function resetStat(id,campo){const msg=campo==='all'?'Azzera TUTTE le statistiche?':'Azzerare questo valore?';if(!confirm(msg))return;await fetch(API+'/testers/'+id+'/stats/reset',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({campo})});cachedStats={};switchTab('stats',id)}
+function clearPianoLog(id){showModal({icon:'📋',title:'Pulisci storico',message:'Pulire lo storico dei cambi piano?',type:'danger',onConfirm:async()=>{await fetch(API+'/testers/'+id+'/piano-log',{method:'DELETE'});loadPianoLog(id)}})}
+function resetStat(id,campo){const msg=campo==='all'?'Azzera <strong>TUTTE</strong> le statistiche di questo tester?':'Azzerare questo valore?';showModal({icon:'📊',title:'Azzera statistiche',message:msg,type:'danger',onConfirm:async()=>{await fetch(API+'/testers/'+id+'/stats/reset',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({campo})});cachedStats={};switchTab('stats',id)}})}
 
 // NOTE
 async function addNote(id){const inp=document.getElementById('newNote');const t=inp.value.trim();if(!t)return;await fetch(API+'/testers/'+id+'/notes',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({testo:t})});switchTab('notes',id)}
@@ -474,9 +593,47 @@ async function showChartView(type,id){
         scales:{x:{grid:{color:'#1e1e1e'}},y:{grid:{color:'#1e1e1e'},beginAtZero:true}}}})
   }
 }
-// Auto-mostra torta quando si apre stats
+// BATTERIA — popola i widget batteria nella dashboard
+let batteryChart=null;
+async function loadBattery(id){
+  const sec=document.getElementById('batterySection');
+  const tempSec=document.getElementById('battTempSection');
+  const chartSec=document.getElementById('battChartSection');
+  if(!sec)return;
+  const r=await fetch(API+'/testers/'+id+'/batteria');
+  const log=r.ok?await r.json():[];
+  if(!log.length){
+    sec.innerHTML='<div class="w-value" style="color:var(--grigio)">—</div><div class="w-sub">Nessun dato</div>';
+    if(tempSec)tempSec.innerHTML='<div class="w-value" style="color:var(--grigio)">—</div><div class="w-sub">Nessun dato</div>';
+    return;
+  }
+  const ultimo=log[0];
+  const lvl=ultimo.livello;
+  const colore=lvl>50?'var(--verde)':lvl>20?'#ff9800':'var(--rosso)';
+  const icona=ultimo.in_carica?'🔌':'🔋';
+  const temp=ultimo.temperatura?ultimo.temperatura.toFixed(1):'—';
+  sec.innerHTML=`<div class="w-value" style="color:${colore}">${icona} ${lvl}%</div><div class="w-sub">${ultimo.in_carica?'In carica':'In uso'} — ${log.length} rilevazioni</div>`;
+  if(tempSec)tempSec.innerHTML=`<div class="w-value" style="color:${parseFloat(temp)>38?'var(--rosso)':parseFloat(temp)>32?'#ff9800':'var(--bianco)'}">${temp}°C</div><div class="w-sub"><span style="font-size:10px;cursor:pointer;color:var(--rosso);opacity:.5" onclick="clearBatteryLog(${id})">Pulisci storico</span></div>`;
+
+  // Grafico andamento
+  const canvas=document.getElementById('batteryChart');
+  if(!canvas)return;
+  const pts=log.slice(0,50).reverse();
+  if(batteryChart){batteryChart.destroy();batteryChart=null}
+  batteryChart=new Chart(canvas.getContext('2d'),{type:'line',data:{
+    labels:pts.map(p=>p.timestamp?.slice(11,16)||''),
+    datasets:[{label:'Batteria %',data:pts.map(p=>p.livello),
+      borderColor:'#4CAF50',backgroundColor:'rgba(76,175,80,.1)',fill:true,tension:.3,pointRadius:2,borderWidth:2},
+      {label:'Temp °C',data:pts.map(p=>p.temperatura||0),
+      borderColor:'#ff9800',backgroundColor:'rgba(255,152,0,.05)',fill:false,tension:.3,pointRadius:1,borderWidth:1.5,yAxisID:'y2'}]
+  },options:{responsive:true,plugins:{legend:{position:'bottom',labels:{padding:12,font:{size:10},usePointStyle:true,pointStyle:'circle'}}},
+    scales:{x:{grid:{color:'#1e1e1e'},ticks:{font:{size:9}}},y:{min:0,max:100,grid:{color:'#1e1e1e'},ticks:{font:{size:9}},title:{display:true,text:'%',color:'#4CAF50',font:{size:10}}},y2:{position:'right',min:15,max:45,grid:{display:false},ticks:{font:{size:9}},title:{display:true,text:'°C',color:'#ff9800',font:{size:10}}}}}})
+}
+function clearBatteryLog(id){showModal({icon:'🔋',title:'Pulisci storico batteria',message:'Pulire lo storico delle rilevazioni batteria?',type:'danger',onConfirm:async()=>{await fetch(API+'/testers/'+id+'/batteria',{method:'DELETE'});loadBattery(id)}})}
+
+// Auto-mostra grafici quando si apre stats
 const origSwitchTab=switchTab;
-switchTab=async function(tab,id){await origSwitchTab(tab,id);if(tab==='stats'&&document.getElementById('statsChart')){cachedStats={};showChartView('pie',id)}}
+switchTab=async function(tab,id){await origSwitchTab(tab,id);if(tab==='stats'){loadBattery(id);if(document.getElementById('statsChart')){cachedStats={};showChartView('pie',id)}}}
 
 // BROADCAST
 function loadBroadcast(){
@@ -493,14 +650,15 @@ function loadBroadcast(){
       </div>
     </div>`;
 }
-async function sendBroadcast(){
+function sendBroadcast(){
   const subject=document.getElementById('bcSubject').value.trim();
   const body=document.getElementById('bcBody').value.trim();
-  if(!subject||!body){alert('Compila oggetto e messaggio');return}
-  if(!confirm('Inviare a TUTTI i tester?'))return;
-  const r=await fetch(API+'/broadcast',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({oggetto:subject,testo:body})});
-  const d=await r.json();
-  document.getElementById('bcStatus').textContent=d.success?'Inviato a '+d.count+' tester':'Errore: '+d.error;
+  if(!subject||!body){showModal({icon:'📝',title:'Campi mancanti',message:'Compila sia l\'oggetto che il messaggio prima di inviare.',type:'alert'});return}
+  showModal({icon:'📢',title:'Conferma invio',message:'Inviare questo messaggio a <strong>TUTTI</strong> i tester accettati?',type:'danger',onConfirm:async()=>{
+    const r=await fetch(API+'/broadcast',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({oggetto:subject,testo:body})});
+    const d=await r.json();
+    document.getElementById('bcStatus').textContent=d.success?'Inviato a '+d.count+' tester':'Errore: '+d.error;
+  }});
 }
 </script>
 </body>

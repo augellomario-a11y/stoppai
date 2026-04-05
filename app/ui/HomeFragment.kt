@@ -282,7 +282,9 @@ class HomeFragment : Fragment(R.layout.fragment_home) {
                         com.ifs.stoppai.db.CallLogCrmItem(entry, cnt)
                     }
                 }
-                adapter.submitList(crmItems)
+                adapter.submitList(crmItems) {
+                    rvLog.scrollToPosition(0)
+                }
                 tvEmpty.visibility = if (list.isEmpty()) View.VISIBLE else View.GONE
             }
         }

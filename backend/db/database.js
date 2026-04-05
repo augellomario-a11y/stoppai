@@ -74,6 +74,27 @@ db.exec(`
     timestamp TEXT DEFAULT (datetime('now'))
   );
 
+  CREATE TABLE IF NOT EXISTS batteria_log (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    tester_id INTEGER NOT NULL,
+    livello INTEGER,
+    in_carica INTEGER DEFAULT 0,
+    temperatura REAL,
+    timestamp TEXT DEFAULT (datetime('now'))
+  );
+
+  CREATE TABLE IF NOT EXISTS aria_messaggi (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    tester_id INTEGER,
+    caller_number TEXT NOT NULL,
+    caller_name TEXT,
+    wav_filename TEXT,
+    trascrizione TEXT,
+    durata_secondi INTEGER,
+    dimensione_kb REAL,
+    timestamp TEXT DEFAULT (datetime('now'))
+  );
+
   CREATE TABLE IF NOT EXISTS tester_stats (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     tester_id INTEGER NOT NULL,

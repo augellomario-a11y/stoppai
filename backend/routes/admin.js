@@ -410,4 +410,57 @@ router.post('/testers/:id/messaggi/img', authAdmin, upload.single('immagine'), (
   res.json({ success: true, immagine: imgPath });
 });
 
+// --- BATTERIA ---
+
+// GET /api/admin/testers/:id/batteria — storico batteria tester
+router.get('/testers/:id/batteria', authAdmin, (req, res) => {
+  const log = db.prepare(
+    'SELECT * FROM batteria_log WHERE tester_id = ? ORDER BY timestamp DESC LIMIT 100'
+  ).all(req.params.id);
+  res.json(log);
+});
+
+// DELETE /api/admin/testers/:id/batteria — pulisci storico batteria
+router.delete('/testers/:id/batteria', authAdmin, (req, res) => {
+  db.prepare('DELETE FROM batteria_log WHERE tester_id = ?').run(req.params.id);
+  res.json({ success: true });
+});
+
+// --- MESSAGGI ARIA ---
+
+// GET /api/admin/testers/:id/aria — lista messaggi ARIA per tester
+router.get('/testers/:id/aria', authAdmin, (req, res) => {
+  const tester = db.prepare('SELECT telefono FROM testers WHERE id = ?').get(req.params.id);
+  if (!tester) return res.status(404).json({ error: 'Tester non trovato' });
+
+  // Cerca messaggi per tester_id, oppure tutti se tester_id è null (fase test singolo tester)
+  const messaggi = db.prepare(`
+    SELECT * FROM aria_messaggi
+    WHERE tester_id = ? OR tester_id IS NULL
+    ORDER BY timestamp DESC
+  `).all(req.params.id);
+
+  res.json(messaggi);
+});
+
+// DELETE /api/admin/aria/:msgId — elimina singolo messaggio ARIA
+router.delete('/aria/:msgId', authAdmin, (req, res) => {
+  db.prepare('DELETE FROM aria_messaggi WHERE id = ?').run(req.params.msgId);
+  res.json({ success: true });
+});
+
+// DELETE /api/admin/testers/:id/aria — cancella tutti i messaggi ARIA del tester
+router.delete('/testers/:id/aria', authAdmin, (req, res) => {
+  db.prepare('DELETE FROM aria_messaggi WHERE tester_id = ? OR tester_id IS NULL').run(req.params.id);
+  res.json({ success: true });
+});
+
+// GET /api/admin/aria — tutti i messaggi ARIA (per dashboard)
+router.get('/aria', authAdmin, (req, res) => {
+  const messaggi = db.prepare(
+    'SELECT * FROM aria_messaggi ORDER BY timestamp DESC LIMIT 100'
+  ).all();
+  res.json(messaggi);
+});
+
 module.exports = router;

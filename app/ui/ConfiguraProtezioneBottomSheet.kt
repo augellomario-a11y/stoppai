@@ -33,11 +33,15 @@ class ConfiguraProtezioneBottomSheet : BottomSheetDialogFragment() {
         val root = inflater.inflate(R.layout.bottom_sheet_config_base, container, false)
         prefs = requireContext().getSharedPreferences("stoppai_prefs", Context.MODE_PRIVATE)
 
+        val swEsteri = root.findViewById<Switch>(R.id.switch_esteri)
         val swSms = root.findViewById<Switch>(R.id.switch_sms_reply)
         val layoutEditor = root.findViewById<View>(R.id.layout_sms_editor)
         val edtSms = root.findViewById<EditText>(R.id.edt_sms_text)
         val txtCounter = root.findViewById<TextView>(R.id.txt_char_counter)
         val btnConfirm = root.findViewById<Button>(R.id.btn_confirm_base)
+
+        // Stato iniziale numeri esteri (default: OFF = bloccati)
+        swEsteri.isChecked = prefs.getBoolean("consenti_esteri", false)
 
         // Stato iniziale SMS
         val isSmsAct = prefs.getBoolean("sms_risposta_attivo", false)
@@ -67,6 +71,7 @@ class ConfiguraProtezioneBottomSheet : BottomSheetDialogFragment() {
 
         btnConfirm.setOnClickListener {
             prefs.edit()
+                .putBoolean("consenti_esteri", swEsteri.isChecked)
                 .putBoolean("sms_risposta_attivo", swSms.isChecked)
                 .putString("sms_testo_risposta", edtSms.text.toString())
                 .putBoolean("protezione_base", true)
