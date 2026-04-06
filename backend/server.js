@@ -23,6 +23,11 @@ app.use('/api/admin', adminRoutes);
 // Serve uploads (immagini chat)
 app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 
+// Serve ARIA preset audio (8 voci uomo/donna)
+app.use('/aria-preset', express.static('/opt/stoppai/asterisk/recordings/preset'));
+// Serve ARIA custom audio (registrazioni personali tester)
+app.use('/aria-custom', express.static('/opt/stoppai/asterisk/recordings/custom'));
+
 // Serve admin panel
 app.use(express.static(path.join(__dirname, 'public')));
 

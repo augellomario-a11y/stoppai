@@ -95,6 +95,16 @@ db.exec(`
     timestamp TEXT DEFAULT (datetime('now'))
   );
 
+  CREATE TABLE IF NOT EXISTS aria_config (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    tester_id INTEGER NOT NULL UNIQUE,
+    tipo_messaggio TEXT NOT NULL DEFAULT 'base',
+    preset_id TEXT,
+    custom_wav_path TEXT,
+    custom_sms_testo TEXT,
+    updated_at TEXT DEFAULT (datetime('now'))
+  );
+
   CREATE TABLE IF NOT EXISTS tester_stats (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     tester_id INTEGER NOT NULL,
@@ -133,6 +143,13 @@ try {
   db.prepare("SELECT piano FROM testers LIMIT 1").get();
 } catch (e) {
   db.exec("ALTER TABLE testers ADD COLUMN piano TEXT DEFAULT 'free'");
+}
+
+// Migrazione: aggiunge colonna custom_uploaded_at a aria_config
+try {
+  db.prepare("SELECT custom_uploaded_at FROM aria_config LIMIT 1").get();
+} catch (e) {
+  db.exec("ALTER TABLE aria_config ADD COLUMN custom_uploaded_at TEXT");
 }
 
 module.exports = db;
