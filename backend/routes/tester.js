@@ -347,13 +347,13 @@ router.post('/:id/aria-config/custom-upload', uploadCustom.single('wav'), (req, 
     return res.status(500).json({ error: 'Errore conversione audio' });
   }
 
-  // Aggiorna config: imposta tipo = 'custom' e path
+  // Aggiorna config: imposta tipo = 'custom', path e timestamp registrazione
   const existing = db.prepare('SELECT id FROM aria_config WHERE tester_id = ?').get(req.params.id);
   if (existing) {
-    db.prepare(`UPDATE aria_config SET tipo_messaggio = 'custom', custom_wav_path = ?, updated_at = datetime('now') WHERE tester_id = ?`)
+    db.prepare(`UPDATE aria_config SET tipo_messaggio = 'custom', custom_wav_path = ?, custom_uploaded_at = datetime('now'), updated_at = datetime('now') WHERE tester_id = ?`)
       .run(wavPath, req.params.id);
   } else {
-    db.prepare(`INSERT INTO aria_config (tester_id, tipo_messaggio, custom_wav_path) VALUES (?, 'custom', ?)`)
+    db.prepare(`INSERT INTO aria_config (tester_id, tipo_messaggio, custom_wav_path, custom_uploaded_at) VALUES (?, 'custom', ?, datetime('now'))`)
       .run(req.params.id, wavPath);
   }
   res.json({ success: true, path: wavPath });

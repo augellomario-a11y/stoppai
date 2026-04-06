@@ -145,4 +145,11 @@ try {
   db.exec("ALTER TABLE testers ADD COLUMN piano TEXT DEFAULT 'free'");
 }
 
+// Migrazione: aggiunge colonna custom_uploaded_at a aria_config
+try {
+  db.prepare("SELECT custom_uploaded_at FROM aria_config LIMIT 1").get();
+} catch (e) {
+  db.exec("ALTER TABLE aria_config ADD COLUMN custom_uploaded_at TEXT");
+}
+
 module.exports = db;

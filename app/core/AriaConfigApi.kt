@@ -22,6 +22,7 @@ object AriaConfigApi {
         val tipoMessaggio: String = "base",  // base / preset / custom
         val presetId: String? = null,
         val customWavPath: String? = null,
+        val customUploadedAt: String? = null,  // timestamp ISO dell'ultima registrazione
         val customSmsTesto: String? = null
     )
 
@@ -43,6 +44,7 @@ object AriaConfigApi {
                 tipoMessaggio = json.optString("tipo_messaggio", "base"),
                 presetId = json.optString("preset_id").takeIf { it.isNotBlank() && it != "null" },
                 customWavPath = json.optString("custom_wav_path").takeIf { it.isNotBlank() && it != "null" },
+                customUploadedAt = json.optString("custom_uploaded_at").takeIf { it.isNotBlank() && it != "null" },
                 customSmsTesto = json.optString("custom_sms_testo").takeIf { it.isNotBlank() && it != "null" }
             )
         } catch (e: Exception) {

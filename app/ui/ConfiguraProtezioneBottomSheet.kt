@@ -40,6 +40,7 @@ class ConfiguraProtezioneBottomSheet : BottomSheetDialogFragment() {
     private var recorder: AriaRecorder? = null
     private var recordedFile: File? = null
     private var hasRemoteCustom: Boolean = false
+    private var customUploadedAt: String? = null
     private var uploading = false
 
     // View references
@@ -274,7 +275,7 @@ class ConfiguraProtezioneBottomSheet : BottomSheetDialogFragment() {
                 if (file != null && file.length() > 1024) {
                     recordedFile = file
                     btnPlayCustom?.isEnabled = true
-                    txtCustomStatus?.text = "Registrazione pronta (${file.length() / 1024} KB)"
+                    txtCustomStatus?.text = formatCustomStatus()
                 }
             }
         }
@@ -354,15 +355,54 @@ class ConfiguraProtezioneBottomSheet : BottomSheetDialogFragment() {
                         radioGroup.check(R.id.radio_custom)
                     }
                 }
+                customUploadedAt = cfg.customUploadedAt
                 // Se esiste gia' una registrazione sul server, abilita Ascolta e mostra status
                 if (hasRemoteCustom) {
                     btnPlayCustom?.isEnabled = true
-                    txtCustomStatus?.text = "Registrazione attiva sul server. Premi REGISTRA per sostituirla."
+                    txtCustomStatus?.text = formatCustomStatus()
                 }
                 // Riabilita il pulsante Conferma ora che la config e' caricata
                 btnConfirm?.isEnabled = true
                 btnConfirm?.text = "CONFERMA E ATTIVA"
             }
+        }
+    }
+
+    /**
+     * Restituisce il testo da mostrare sotto i pulsanti REGISTRA/ASCOLTA
+     * in base allo stato della registrazione custom.
+     */
+    private fun formatCustomStatus(): String {
+        // Caso 1: nessuna registrazione (locale o remota)
+        if (recordedFile == null && !hasRemoteCustom) {
+            return "Premi REGISTRA per crearne uno (max 30 secondi)"
+        }
+        // Caso 2: registrazione locale fresca, non ancora confermata
+        if (recordedFile != null) {
+            val kb = (recordedFile?.length() ?: 0) / 1024
+            return "Nuova registrazione pronta ($kb KB) — premi CONFERMA per attivarla"
+        }
+        // Caso 3: registrazione gia' presente sul server
+        val data = customUploadedAt
+        return if (data != null) {
+            "Ultima registrazione: ${formatDateIt(data)}\nPremi REGISTRA per sostituirla."
+        } else {
+            "Registrazione attiva sul server. Premi REGISTRA per sostituirla."
+        }
+    }
+
+    /**
+     * Converte un timestamp ISO ("2026-04-06 11:53:42") in formato italiano "06/04/2026 11:53".
+     */
+    private fun formatDateIt(iso: String): String {
+        return try {
+            // Backend ritorna "YYYY-MM-DD HH:MM:SS"
+            val parts = iso.replace('T', ' ').split(' ')
+            val date = parts[0].split('-')
+            val time = if (parts.size > 1) parts[1].split(':') else listOf("00","00")
+            "${date[2]}/${date[1]}/${date[0]} ${time[0]}:${time[1]}"
+        } catch (e: Exception) {
+            iso
         }
     }
 
