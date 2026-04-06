@@ -39,6 +39,7 @@ class ConfiguraProtezioneBottomSheet : BottomSheetDialogFragment() {
     private var selectedPresetId: String? = null
     private var recorder: AriaRecorder? = null
     private var recordedFile: File? = null
+    private var hasRemoteCustom: Boolean = false
     private var uploading = false
 
     // View references
@@ -223,15 +224,30 @@ class ConfiguraProtezioneBottomSheet : BottomSheetDialogFragment() {
         }
 
         btnPlayCustom?.setOnClickListener {
-            val file = recordedFile ?: return@setOnClickListener
-            if (AriaMessagePlayer.isPlaying("custom_local")) {
+            // Priorita' alla registrazione locale appena fatta, altrimenti stream dal server
+            val tag = "custom_local"
+            if (AriaMessagePlayer.isPlaying(tag)) {
                 AriaMessagePlayer.stop()
                 btnPlayCustom?.text = "▶ ASCOLTA"
-            } else {
-                btnPlayCustom?.text = "■ STOP"
-                AriaMessagePlayer.playLocalFile(file.absolutePath, "custom_local") {
+                return@setOnClickListener
+            }
+            btnPlayCustom?.text = "■ STOP"
+            val localFile = recordedFile
+            if (localFile != null && localFile.exists()) {
+                AriaMessagePlayer.playLocalFile(localFile.absolutePath, tag) {
                     try { btnPlayCustom?.text = "▶ ASCOLTA" } catch (_: Exception) {}
                 }
+            } else if (hasRemoteCustom) {
+                val testerId = prefs.getInt("tester_id", -1)
+                if (testerId != -1) {
+                    AriaMessagePlayer.playUrl(AriaConfigApi.customAudioUrl(testerId), tag) {
+                        try { btnPlayCustom?.text = "▶ ASCOLTA" } catch (_: Exception) {}
+                    }
+                } else {
+                    btnPlayCustom?.text = "▶ ASCOLTA"
+                }
+            } else {
+                btnPlayCustom?.text = "▶ ASCOLTA"
             }
         }
     }
@@ -273,11 +289,18 @@ class ConfiguraProtezioneBottomSheet : BottomSheetDialogFragment() {
     // ============================================
     // CONFERMA — salva config
     // ============================================
+    private var btnConfirm: Button? = null
+
     private fun setupConfirmButton(root: View) {
-        val btnConfirm = root.findViewById<Button>(R.id.btn_confirm_base)
+        btnConfirm = root.findViewById(R.id.btn_confirm_base)
+        val btnConfirm = btnConfirm!!
         val swEsteri = root.findViewById<Switch>(R.id.switch_esteri)
         val swSms = root.findViewById<Switch>(R.id.switch_sms_reply)
         val edtSms = root.findViewById<EditText>(R.id.edt_sms_text)
+
+        // Disabilita finche' la config non e' caricata dal backend
+        btnConfirm.isEnabled = false
+        btnConfirm.text = "CARICAMENTO..."
 
         btnConfirm.setOnClickListener {
             if (uploading) return@setOnClickListener
@@ -287,8 +310,8 @@ class ConfiguraProtezioneBottomSheet : BottomSheetDialogFragment() {
                 Toast.makeText(requireContext(), "Seleziona una voce preset", Toast.LENGTH_SHORT).show()
                 return@setOnClickListener
             }
-            // Valida custom
-            if (selectedTipo == "custom" && recordedFile == null) {
+            // Valida custom: serve almeno una registrazione locale nuova OPPURE una gia' sul server
+            if (selectedTipo == "custom" && recordedFile == null && !hasRemoteCustom) {
                 Toast.makeText(requireContext(), "Registra prima il messaggio personale", Toast.LENGTH_SHORT).show()
                 return@setOnClickListener
             }
@@ -321,6 +344,7 @@ class ConfiguraProtezioneBottomSheet : BottomSheetDialogFragment() {
             withContext(Dispatchers.Main) {
                 selectedTipo = cfg.tipoMessaggio
                 selectedPresetId = cfg.presetId
+                hasRemoteCustom = !cfg.customWavPath.isNullOrBlank()
                 val view = view ?: return@withContext
                 val radioGroup = view.findViewById<RadioGroup>(R.id.radio_tipo_messaggio)
                 when (cfg.tipoMessaggio) {
@@ -328,11 +352,16 @@ class ConfiguraProtezioneBottomSheet : BottomSheetDialogFragment() {
                     "preset" -> radioGroup.check(R.id.radio_preset)
                     "custom" -> {
                         radioGroup.check(R.id.radio_custom)
-                        if (cfg.customWavPath != null) {
-                            txtCustomStatus?.text = "Registrazione già presente sul server"
-                        }
                     }
                 }
+                // Se esiste gia' una registrazione sul server, abilita Ascolta e mostra status
+                if (hasRemoteCustom) {
+                    btnPlayCustom?.isEnabled = true
+                    txtCustomStatus?.text = "Registrazione attiva sul server. Premi REGISTRA per sostituirla."
+                }
+                // Riabilita il pulsante Conferma ora che la config e' caricata
+                btnConfirm?.isEnabled = true
+                btnConfirm?.text = "CONFERMA E ATTIVA"
             }
         }
     }

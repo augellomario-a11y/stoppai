@@ -13,8 +13,8 @@ android {
         applicationId "com.ifs.stoppai"
         minSdk = 26
         targetSdk = 34
-        versionCode = 87
-        versionName = "5.6.0"
+        versionCode = 89
+        versionName = "5.6.2"
     }
 
     compileOptions {

@@ -332,6 +332,20 @@ router.post('/:id/aria-config/custom-upload', uploadCustom.single('wav'), (req, 
   if (!req.file) return res.status(400).json({ error: 'Nessun file ricevuto' });
 
   const wavPath = `custom_tester_${req.params.id}.wav`;
+  const fullPath = pathAria.join(CUSTOM_DIR, wavPath);
+
+  // Converti il WAV uploadato a 8kHz mono 16bit (formato richiesto da Asterisk)
+  const { execSync } = require('child_process');
+  try {
+    const tmpPath = fullPath + '.orig.wav';
+    fsAria.renameSync(fullPath, tmpPath);
+    execSync(`sox "${tmpPath}" -r 8000 -c 1 -b 16 "${fullPath}"`);
+    fsAria.unlinkSync(tmpPath);
+    try { execSync(`chown asterisk:asterisk "${fullPath}"`); } catch(e) {}
+  } catch (e) {
+    console.error('Errore conversione sox:', e.message);
+    return res.status(500).json({ error: 'Errore conversione audio' });
+  }
 
   // Aggiorna config: imposta tipo = 'custom' e path
   const existing = db.prepare('SELECT id FROM aria_config WHERE tester_id = ?').get(req.params.id);
@@ -358,8 +372,8 @@ router.get('/asterisk-message/:number', (req, res) => {
     "SELECT id FROM testers WHERE telefono LIKE ? LIMIT 1"
   ).get(`%${numero.slice(-10)}%`);
 
-  // Fallback: isabella
-  let filePath = '/opt/stoppai/asterisk/recordings/isabella';
+  // Default: stringa vuota -> Asterisk fa fallback al messaggio standard 'benvenuto'
+  let filePath = '';
 
   if (tester) {
     const cfg = db.prepare('SELECT * FROM aria_config WHERE tester_id = ?').get(tester.id);
@@ -369,6 +383,7 @@ router.get('/asterisk-message/:number', (req, res) => {
       } else if (cfg.tipo_messaggio === 'custom' && cfg.custom_wav_path) {
         filePath = `/opt/stoppai/asterisk/recordings/custom/${cfg.custom_wav_path.replace('.wav','')}`;
       }
+      // tipo_messaggio === 'base' -> filePath resta vuoto -> fallback dialplan
     }
   }
 
