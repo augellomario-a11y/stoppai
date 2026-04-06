@@ -258,4 +258,122 @@ router.post('/caller-name', (req, res) => {
   res.json({ success: true });
 });
 
+// ============================================
+// ARIA CONFIG — scelta preset / custom per tester
+// ============================================
+
+const PRESET_VALIDI = ['uomo_1','uomo_2','uomo_3','uomo_4','donna_1','donna_2','donna_3','donna_4'];
+
+// GET /api/tester/:id/aria-config — l'app legge la config corrente
+router.get('/:id/aria-config', (req, res) => {
+  const cfg = db.prepare('SELECT * FROM aria_config WHERE tester_id = ?').get(req.params.id);
+  if (!cfg) {
+    return res.json({
+      tipo_messaggio: 'base',
+      preset_id: null,
+      custom_wav_path: null,
+      custom_sms_testo: null
+    });
+  }
+  res.json(cfg);
+});
+
+// POST /api/tester/:id/aria-config — salva scelta tipo messaggio (base/preset/custom)
+router.post('/:id/aria-config', (req, res) => {
+  const { tipo_messaggio, preset_id, custom_sms_testo } = req.body;
+  if (!['base','preset','custom'].includes(tipo_messaggio)) {
+    return res.status(400).json({ error: 'tipo_messaggio non valido' });
+  }
+  if (tipo_messaggio === 'preset' && !PRESET_VALIDI.includes(preset_id)) {
+    return res.status(400).json({ error: 'preset_id non valido' });
+  }
+
+  const existing = db.prepare('SELECT id FROM aria_config WHERE tester_id = ?').get(req.params.id);
+  if (existing) {
+    db.prepare(`UPDATE aria_config SET tipo_messaggio = ?, preset_id = ?, custom_sms_testo = ?, updated_at = datetime('now') WHERE tester_id = ?`)
+      .run(tipo_messaggio, preset_id || null, custom_sms_testo || null, req.params.id);
+  } else {
+    db.prepare(`INSERT INTO aria_config (tester_id, tipo_messaggio, preset_id, custom_sms_testo) VALUES (?, ?, ?, ?)`)
+      .run(req.params.id, tipo_messaggio, preset_id || null, custom_sms_testo || null);
+  }
+  res.json({ success: true });
+});
+
+// POST /api/tester/:id/aria-config/custom-upload — upload WAV personalizzato
+const multerAria = require('multer');
+const pathAria = require('path');
+const fsAria = require('fs');
+
+const CUSTOM_DIR = '/opt/stoppai/asterisk/recordings/custom';
+if (!fsAria.existsSync(CUSTOM_DIR)) {
+  try { fsAria.mkdirSync(CUSTOM_DIR, { recursive: true }); } catch(e) {}
+}
+
+const customStorage = multerAria.diskStorage({
+  destination: (req, file, cb) => cb(null, CUSTOM_DIR),
+  filename: (req, file, cb) => {
+    // Nome fisso per tester: sovrascrive automaticamente il vecchio
+    cb(null, `custom_tester_${req.params.id}.wav`);
+  }
+});
+const uploadCustom = multerAria({
+  storage: customStorage,
+  limits: { fileSize: 5 * 1024 * 1024 }, // max 5MB (circa 30s WAV)
+  fileFilter: (req, file, cb) => {
+    if (file.mimetype === 'audio/wav' || file.mimetype === 'audio/x-wav' || file.originalname.endsWith('.wav')) {
+      cb(null, true);
+    } else {
+      cb(new Error('Solo file WAV accettati'));
+    }
+  }
+});
+
+router.post('/:id/aria-config/custom-upload', uploadCustom.single('wav'), (req, res) => {
+  if (!req.file) return res.status(400).json({ error: 'Nessun file ricevuto' });
+
+  const wavPath = `custom_tester_${req.params.id}.wav`;
+
+  // Aggiorna config: imposta tipo = 'custom' e path
+  const existing = db.prepare('SELECT id FROM aria_config WHERE tester_id = ?').get(req.params.id);
+  if (existing) {
+    db.prepare(`UPDATE aria_config SET tipo_messaggio = 'custom', custom_wav_path = ?, updated_at = datetime('now') WHERE tester_id = ?`)
+      .run(wavPath, req.params.id);
+  } else {
+    db.prepare(`INSERT INTO aria_config (tester_id, tipo_messaggio, custom_wav_path) VALUES (?, 'custom', ?)`)
+      .run(req.params.id, wavPath);
+  }
+  res.json({ success: true, path: wavPath });
+});
+
+// ============================================
+// ASTERISK ENDPOINT — dialplan chiama per sapere quale file usare
+// ============================================
+
+// GET /api/asterisk/message-for/:number
+// Risponde con il path del file WAV da riprodurre per il tester chiamato
+router.get('/asterisk-message/:number', (req, res) => {
+  // Cerca tester per numero telefono
+  const numero = req.params.number.replace(/[^0-9]/g, '');
+  const tester = db.prepare(
+    "SELECT id FROM testers WHERE telefono LIKE ? LIMIT 1"
+  ).get(`%${numero.slice(-10)}%`);
+
+  // Fallback: isabella
+  let filePath = '/opt/stoppai/asterisk/recordings/isabella';
+
+  if (tester) {
+    const cfg = db.prepare('SELECT * FROM aria_config WHERE tester_id = ?').get(tester.id);
+    if (cfg) {
+      if (cfg.tipo_messaggio === 'preset' && cfg.preset_id) {
+        filePath = `/opt/stoppai/asterisk/recordings/preset/${cfg.preset_id}`;
+      } else if (cfg.tipo_messaggio === 'custom' && cfg.custom_wav_path) {
+        filePath = `/opt/stoppai/asterisk/recordings/custom/${cfg.custom_wav_path.replace('.wav','')}`;
+      }
+    }
+  }
+
+  // Asterisk Playback() vuole il path senza estensione
+  res.type('text/plain').send(filePath);
+});
+
 module.exports = router;
