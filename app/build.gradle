@@ -13,8 +13,8 @@ android {
         applicationId "com.ifs.stoppai"
         minSdk = 26
         targetSdk = 34
-        versionCode = 90
-        versionName = "5.6.3"
+        versionCode = 93
+        versionName = "5.7.2"
     }
 
     compileOptions {
@@ -52,4 +52,8 @@ dependencies {
     implementation 'org.jetbrains.kotlinx:kotlinx-coroutines-android:1.7.3'
     implementation 'androidx.lifecycle:lifecycle-viewmodel-ktx:2.7.0'
     implementation 'androidx.lifecycle:lifecycle-runtime-ktx:2.7.0'
+
+    // Onboarding wizard (TASK-SA-125)
+    implementation 'androidx.activity:activity-ktx:1.8.2'
+    implementation 'androidx.fragment:fragment-ktx:1.6.2'
 }

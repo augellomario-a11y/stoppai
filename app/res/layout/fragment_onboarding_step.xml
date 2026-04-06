@@ -1,0 +1,151 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.core.widget.NestedScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:fillViewport="true"
+    android:background="#0a0a0f">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:padding="32dp"
+        android:gravity="center_horizontal">
+
+        <!-- Icona grande dello step -->
+        <TextView
+            android:id="@+id/txt_step_icon"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="📱"
+            android:textSize="64sp"
+            android:layout_marginTop="20dp"
+            android:layout_marginBottom="24dp" />
+
+        <!-- Titolo principale -->
+        <TextView
+            android:id="@+id/txt_step_title"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Titolo dello step"
+            android:textSize="24sp"
+            android:textStyle="bold"
+            android:textColor="#f5f3ee"
+            android:gravity="center"
+            android:layout_marginBottom="16dp" />
+
+        <!-- Indicatore di stato (rosso/verde) -->
+        <TextView
+            android:id="@+id/txt_step_status"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="🔴"
+            android:textSize="20sp"
+            android:layout_marginBottom="16dp"
+            android:visibility="gone" />
+
+        <!-- Testo descrittivo -->
+        <TextView
+            android:id="@+id/txt_step_body"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Descrizione dello step"
+            android:textSize="16sp"
+            android:textColor="#cccccc"
+            android:gravity="center"
+            android:lineSpacingExtra="6dp"
+            android:layout_marginBottom="12dp" />
+
+        <!-- Modello rilevato (visibile solo nello step welcome) -->
+        <TextView
+            android:id="@+id/txt_device_detected"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text=""
+            android:textSize="14sp"
+            android:textColor="#c8a96e"
+            android:gravity="center"
+            android:padding="12dp"
+            android:layout_marginBottom="16dp"
+            android:background="#12121a"
+            android:visibility="gone" />
+
+        <!-- Avviso speciale (es. permesso CRITICO saltato) -->
+        <TextView
+            android:id="@+id/txt_step_warning"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text=""
+            android:textSize="13sp"
+            android:textColor="#ff9800"
+            android:gravity="center"
+            android:padding="12dp"
+            android:background="#1e1a0e"
+            android:layout_marginTop="8dp"
+            android:layout_marginBottom="16dp"
+            android:visibility="gone" />
+
+        <!-- Progress caricamento rubrica -->
+        <LinearLayout
+            android:id="@+id/layout_loading_progress"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:layout_marginTop="16dp"
+            android:visibility="gone">
+
+            <com.google.android.material.progressindicator.LinearProgressIndicator
+                android:id="@+id/loading_progress_bar"
+                android:layout_width="match_parent"
+                android:layout_height="6dp"
+                android:indeterminate="true"
+                xmlns:app="http://schemas.android.com/apk/res-auto"
+                app:indicatorColor="#c8a96e"
+                app:trackColor="#1e1e1e" />
+
+            <TextView
+                android:id="@+id/txt_loading_count"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Caricamento in corso..."
+                android:textSize="14sp"
+                android:textColor="#cccccc"
+                android:gravity="center"
+                android:layout_marginTop="12dp" />
+        </LinearLayout>
+
+        <!-- Spazio elastico -->
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_weight="1"
+            android:minHeight="32dp" />
+
+        <!-- Pulsante primario -->
+        <Button
+            android:id="@+id/btn_primary"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Iniziamo →"
+            android:textSize="16sp"
+            android:textStyle="bold"
+            android:textColor="#0a0a0f"
+            android:backgroundTint="#c8a96e"
+            android:paddingVertical="16dp"
+            android:layout_marginTop="16dp" />
+
+        <!-- Pulsante secondario (Ho già fatto / Salta) -->
+        <Button
+            android:id="@+id/btn_secondary"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Ho già fatto →"
+            android:textSize="14sp"
+            android:textColor="#888888"
+            android:background="@android:color/transparent"
+            android:paddingVertical="12dp"
+            android:layout_marginTop="4dp"
+            android:visibility="gone" />
+
+    </LinearLayout>
+</androidx.core.widget.NestedScrollView>
