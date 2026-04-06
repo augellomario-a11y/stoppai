@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:background="#0a0a0f">
+
+    <!-- Indicatore di progresso in alto -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:padding="16dp"
+        android:background="#12121a">
+
+        <TextView
+            android:id="@+id/txt_progress_label"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Passo 1 di 8"
+            android:textSize="12sp"
+            android:textColor="#c8a96e"
+            android:textStyle="bold"
+            android:gravity="center"
+            android:letterSpacing="0.1"
+            android:layout_marginBottom="6dp" />
+
+        <com.google.android.material.progressindicator.LinearProgressIndicator
+            android:id="@+id/progress_bar"
+            android:layout_width="match_parent"
+            android:layout_height="6dp"
+            android:indeterminate="false"
+            android:progress="0"
+            android:max="100"
+            app:indicatorColor="#c8a96e"
+            app:trackColor="#1e1e1e"
+            app:trackCornerRadius="3dp"
+            xmlns:app="http://schemas.android.com/apk/res-auto" />
+    </LinearLayout>
+
+    <!-- Container per il fragment dello step corrente -->
+    <FrameLayout
+        android:id="@+id/onboarding_container"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1" />
+
+</LinearLayout>

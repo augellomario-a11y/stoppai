@@ -31,6 +31,15 @@ class MainActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+
+        // TASK-SA-125: al primo avvio assoluto lancia il wizard onboarding
+        val wizardPrefs = getSharedPreferences("stoppai_prefs", Context.MODE_PRIVATE)
+        if (!wizardPrefs.getBoolean("wizard_completed", false)) {
+            startActivity(Intent(this, OnboardingActivity::class.java))
+            finish()
+            return
+        }
+
         setContentView(R.layout.activity_main)
 
         checkPermissions()
