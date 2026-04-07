@@ -37,7 +37,7 @@
         <TextView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="v5.7.4-ARIA — Build 95"
+            android:text="v5.7.5-ARIA — Build 96"
             android:textSize="10sp"
             android:textColor="#388E3C"
             android:gravity="center"
