@@ -38,6 +38,8 @@ class SettingsFragment : Fragment(R.layout.fragment_settings) {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
+        setupAccountSection(view)
+
         view.findViewById<Button>(R.id.ID_HOME_006).setOnClickListener {
             val intent = Intent(Intent.ACTION_DIAL)
             intent.data = Uri.fromParts("tel", "##61#", null)
@@ -77,6 +79,68 @@ class SettingsFragment : Fragment(R.layout.fragment_settings) {
                             android.widget.Toast.makeText(requireContext(), "Valori default ripristinati", android.widget.Toast.LENGTH_SHORT).show()
                         }
                     }
+                }
+                .setNegativeButton("Annulla", null)
+                .show()
+        }
+    }
+
+    /**
+     * Sezione Account: mostra stato login + pulsanti Accedi/Esci.
+     * Gestisce flag SharedPreferences logged_in, login_skipped, tester_*.
+     */
+    private fun setupAccountSection(view: View) {
+        val prefs = requireContext().getSharedPreferences("stoppai_prefs", Context.MODE_PRIVATE)
+        val txtStatus = view.findViewById<TextView>(R.id.txt_account_status)
+        val btnLogin = view.findViewById<Button>(R.id.btn_account_login)
+        val btnLogout = view.findViewById<Button>(R.id.btn_account_logout)
+
+        val loggedIn = prefs.getBoolean("logged_in", false)
+        val email = prefs.getString("tester_email", null)
+        val nome = prefs.getString("tester_nome", null)
+
+        if (loggedIn && !email.isNullOrBlank()) {
+            val display = if (!nome.isNullOrBlank()) "$nome ($email)" else email
+            txtStatus.text = "🟢 Loggato come:\n$display"
+            btnLogin.visibility = View.GONE
+            btnLogout.visibility = View.VISIBLE
+        } else {
+            txtStatus.text = "🔴 Non sei loggato. Accedi per sincronizzare le tue chiamate con il backend."
+            btnLogin.visibility = View.VISIBLE
+            btnLogout.visibility = View.GONE
+        }
+
+        btnLogin.setOnClickListener {
+            // Resetta flag skip e riavvia MainActivity per mostrare LoginFragment
+            prefs.edit()
+                .remove("login_skipped")
+                .remove("logged_in")
+                .apply()
+            val intent = Intent(requireContext(), MainActivity::class.java).apply {
+                flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
+            }
+            startActivity(intent)
+            requireActivity().finish()
+        }
+
+        btnLogout.setOnClickListener {
+            androidx.appcompat.app.AlertDialog.Builder(requireContext())
+                .setTitle("Esci dall'account")
+                .setMessage("Vuoi davvero uscire? Le tue chiamate locali rimarranno, ma non saranno più sincronizzate con il backend.")
+                .setPositiveButton("Esci") { _, _ ->
+                    prefs.edit()
+                        .remove("logged_in")
+                        .remove("tester_id")
+                        .remove("tester_email")
+                        .remove("tester_nome")
+                        .remove("login_skipped")
+                        .apply()
+                    android.widget.Toast.makeText(requireContext(), "Logout effettuato", android.widget.Toast.LENGTH_SHORT).show()
+                    val intent = Intent(requireContext(), MainActivity::class.java).apply {
+                        flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
+                    }
+                    startActivity(intent)
+                    requireActivity().finish()
                 }
                 .setNegativeButton("Annulla", null)
                 .show()

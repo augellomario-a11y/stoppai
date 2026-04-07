@@ -22,7 +22,7 @@ import java.net.URL
 class CallScreeningServiceImpl : CallScreeningService() {
 
     companion object {
-        const val BACKEND_URL = "http://46.225.14.90:6002"
+        const val BACKEND_URL = "https://stoppai.it"
     }
 
     override fun onCreate() {

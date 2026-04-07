@@ -5,7 +5,7 @@ services:
     container_name: stoppai-backend
     restart: unless-stopped
     ports:
-      - "6002:6002"
+      - "127.0.0.1:6002:6002"
     env_file:
       - .env
     volumes:

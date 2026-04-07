@@ -21,6 +21,7 @@ import com.ifs.stoppai.ui.MainActivity
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.runBlocking
 import java.net.URL
 
 /**
@@ -73,8 +74,11 @@ class AriaFcmService : FirebaseMessagingService() {
         val timestamp = message.data["timestamp"]?.toLongOrNull()
             ?: (System.currentTimeMillis() / 1000)
 
-        // Salvataggio nel database locale per il CRM (SA-118)
-        CoroutineScope(Dispatchers.IO).launch {
+        // FIX: salvataggio SINCRONO con runBlocking - garantisce persistenza prima
+        // che Android killi il processo dopo onMessageReceived (l'app potrebbe essere
+        // chiusa dal task manager). Senza questo, le coroutine async si perdono.
+        // Tempo tipico: 50-200ms, ben sotto il limite Firebase di 10s.
+        runBlocking(Dispatchers.IO) {
             try {
                 val db = StoppAiDatabase.getInstance(applicationContext)
 
@@ -109,9 +113,14 @@ class AriaFcmService : FirebaseMessagingService() {
                 )
                 db.ariaMessaggioDao().inserisci(messaggio)
 
+                // Forza checkpoint WAL → garantisce scrittura su disco SQLite
+                try {
+                    db.openHelper.writableDatabase.query("PRAGMA wal_checkpoint(FULL)").use { it.moveToFirst() }
+                } catch (_: Exception) {}
+
                 sendBroadcast(Intent("com.ifs.stoppai.CALL_LOGGED"))
 
-                android.util.Log.d("STOPPAI_FCM", "ARIA salvato: numero=$numeroNorm callLogId=$callLogId testo=${testo.take(50)}")
+                android.util.Log.d("STOPPAI_FCM", "ARIA salvato e persistito: numero=$numeroNorm callLogId=$callLogId testo=${testo.take(50)}")
             } catch (e: Exception) {
                 android.util.Log.e("STOPPAI_FCM", "Errore salvataggio DB SA-118: ${e.message}", e)
             }

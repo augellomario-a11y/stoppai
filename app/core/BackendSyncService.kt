@@ -16,7 +16,7 @@ import java.util.Calendar
 
 object BackendSyncService {
 
-    private const val BACKEND_URL = "http://46.225.14.90:6002"
+    private const val BACKEND_URL = "https://stoppai.it"
 
     suspend fun sync(context: Context) {
         val prefs = context.getSharedPreferences("stoppai_prefs", Context.MODE_PRIVATE)

@@ -16,7 +16,7 @@ import java.net.URL
 
 object AriaConfigApi {
 
-    private const val BACKEND_URL = "http://46.225.14.90:6002"
+    private const val BACKEND_URL = "https://stoppai.it"
 
     data class AriaConfig(
         val tipoMessaggio: String = "base",  // base / preset / custom

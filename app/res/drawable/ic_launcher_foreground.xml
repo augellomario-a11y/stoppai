@@ -1,0 +1,81 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Foreground adaptive icon StoppAI: scudo scalato 108x108 con safe area 66x66
+     Il vector originale e' 24x24, lo rendiamo 60x60 centrato (~56% = dentro safe zone adaptive) -->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:aapt="http://schemas.android.com/aapt"
+    android:width="108dp"
+    android:height="108dp"
+    android:viewportWidth="108"
+    android:viewportHeight="108">
+
+    <group
+        android:scaleX="2.5"
+        android:scaleY="2.5"
+        android:translateX="24"
+        android:translateY="24">
+
+        <!-- Meta Scudo Sinistra con Gradiente -->
+        <path
+            android:pathData="M12,1L3,5v6c0,5.55 3.84,10.74 9,12V1z">
+            <aapt:attr name="android:fillColor">
+                <gradient
+                    android:startX="3"
+                    android:startY="1"
+                    android:endX="12"
+                    android:endY="23"
+                    android:type="linear">
+                    <item android:offset="0" android:color="#9FE1CB" />
+                    <item android:offset="1" android:color="#1D9E75" />
+                </gradient>
+            </aapt:attr>
+        </path>
+
+        <!-- Meta Scudo Destra con Gradiente -->
+        <path
+            android:pathData="M12,1v22c5.16,-1.26 9,-6.45 9,-12V5L12,1z">
+            <aapt:attr name="android:fillColor">
+                <gradient
+                    android:startX="12"
+                    android:startY="1"
+                    android:endX="21"
+                    android:endY="23"
+                    android:type="linear">
+                    <item android:offset="0" android:color="#1D9E75" />
+                    <item android:offset="1" android:color="#0F6E56" />
+                </gradient>
+            </aapt:attr>
+        </path>
+
+        <!-- Ombra Inferiore -->
+        <path
+            android:fillColor="#3304342C"
+            android:pathData="M12,23c-5.16,-1.26 -9,-6.45 -9,-12v-1c0,5.55 3.84,10.74 9,12c5.16,-1.26 9,-6.45 9,-12v1c0,5.55 -3.84,10.74 -9,12z" />
+
+        <!-- Highlight Superiore -->
+        <path
+            android:fillColor="#4DFFFFFF"
+            android:pathData="M12,1L3,5l0,1l9,-4l9,4l0,-1L12,1z" />
+
+        <!-- Bordo Scudo -->
+        <path
+            android:strokeColor="#085041"
+            android:strokeWidth="0.5"
+            android:pathData="M12,1L3,5v6c0,5.55 3.84,10.74 9,12c5.16,-1.26 9,-6.45 9,-12V5L12,1z" />
+
+        <!-- Linea Centrale -->
+        <path
+            android:strokeColor="#E1F5EE"
+            android:strokeWidth="1"
+            android:pathData="M12,1v22" />
+
+        <!-- Lettera A -->
+        <path
+            android:fillColor="#FFFFFF"
+            android:pathData="M6.5,9l1.5,4h-3l1.5,-4M5,15h1l0.5,-1.5h3l0.5,1.5h1l-2.5,-7h-1.5l-2.5,7z" />
+
+        <!-- Lettera I -->
+        <path
+            android:fillColor="#FFFFFF"
+            android:pathData="M16,8h1v7h-1z" />
+    </group>
+</vector>
