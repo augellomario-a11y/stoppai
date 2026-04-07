@@ -14,16 +14,17 @@
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.ANSWER_PHONE_CALLS" />
     <uses-permission android:name="android.permission.READ_CALL_LOG" />
-    <uses-permission android:name="android.permission.SEND_SMS" />
-    <uses-permission android:name="android.permission.RECEIVE_SMS" />
+    <!-- SEND_SMS + RECEIVE_SMS rimossi per Play Store Internal Testing (opzione B)
+         Feature "SMS risposta rapida" disabilitata in questa release.
+         Re-include questi permessi quando Google approva il form SMS Policy. -->
     <uses-permission android:name="android.permission.RECORD_AUDIO" />
     <uses-permission android:name="android.permission.REQUEST_IGNORE_BATTERY_OPTIMIZATIONS" />
 
     <application
         android:name=".core.StoppAiApp"
         android:allowBackup="true"
-        android:icon="@drawable/ic_shield_logo"
-        android:roundIcon="@drawable/ic_shield_logo"
+        android:icon="@mipmap/ic_launcher"
+        android:roundIcon="@mipmap/ic_launcher_round"
         android:label="StoppAI"
         android:supportsRtl="true"
         android:usesCleartextTraffic="true"
@@ -60,6 +61,8 @@
             </intent-filter>
         </service>
 
+        <!-- SmsRispostaReceiver rimosso per Play Store Internal Testing (opzione B).
+             Re-include quando Google approva il form SMS Policy.
         <receiver
             android:name=".core.SmsRispostaReceiver"
             android:permission="android.permission.BROADCAST_SMS"
@@ -68,5 +71,6 @@
                 <action android:name="android.provider.Telephony.SMS_RECEIVED" />
             </intent-filter>
         </receiver>
+        -->
     </application>
 </manifest>

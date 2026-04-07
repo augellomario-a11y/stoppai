@@ -13,8 +13,32 @@ android {
         applicationId "com.ifs.stoppai"
         minSdk = 26
         targetSdk = 34
-        versionCode = 93
-        versionName = "5.7.2"
+        versionCode = 95
+        versionName = "5.7.4"
+    }
+
+    signingConfigs {
+        release {
+            storeFile file("../keystore/stoppai-release.jks")
+            storePassword System.getenv("STOPPAI_KS_PASS") ?: "StoppAI2026!SecureKey#91"
+            keyAlias "stoppai"
+            keyPassword System.getenv("STOPPAI_KS_PASS") ?: "StoppAI2026!SecureKey#91"
+        }
+    }
+
+    buildTypes {
+        debug {
+            applicationIdSuffix ""
+            debuggable true
+            minifyEnabled false
+        }
+        release {
+            signingConfig signingConfigs.release
+            minifyEnabled true
+            shrinkResources true
+            proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
+            debuggable false
+        }
     }
 
     compileOptions {
@@ -24,13 +48,19 @@ android {
     kotlinOptions {
         jvmTarget = '17'
     }
-    
+
     sourceSets {
         main {
             java.srcDirs = ['core', 'ui', 'crm', 'db']
             res.srcDirs = ['res']
             manifest.srcFile 'AndroidManifest.xml'
         }
+    }
+
+    bundle {
+        language { enableSplit = false }
+        density { enableSplit = true }
+        abi { enableSplit = true }
     }
 }
 

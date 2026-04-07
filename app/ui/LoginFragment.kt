@@ -20,7 +20,7 @@ import java.net.URL
 class LoginFragment : Fragment(R.layout.fragment_login) {
 
     companion object {
-        const val BACKEND_URL = "http://46.225.14.90:6002"
+        const val BACKEND_URL = "https://stoppai.it"
     }
 
     private var email = ""

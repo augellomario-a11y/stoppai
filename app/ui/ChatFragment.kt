@@ -26,7 +26,7 @@ import java.net.URL
 class ChatFragment : Fragment(R.layout.fragment_chat) {
 
     companion object {
-        const val BACKEND_URL = "http://46.225.14.90:6002"
+        const val BACKEND_URL = "https://stoppai.it"
         const val POLL_INTERVAL = 3000L
     }
 
