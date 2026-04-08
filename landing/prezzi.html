@@ -1,0 +1,197 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Prezzi StoppAI — Piani FREE, PRO e SHIELD</title>
+<meta name="description" content="StoppAI in 3 piani: FREE con 14 giorni di prova completa, PRO a 2,99€/mese o 18€/anno, SHIELD a 4,99€/mese o 29€/anno. Confronta tutte le funzionalità.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="./css/main.css">
+</head>
+<body>
+
+<nav>
+  <a href="/" class="logo">STOPP<span class="gold">AI</span></a>
+  <ul id="navMenu">
+    <li><a href="/come-funziona.html">Come funziona</a></li>
+    <li><a href="/aria.html">ARIA</a></li>
+    <li><a href="/prezzi.html" class="active">Prezzi</a></li>
+    <li><a href="/faq.html">FAQ</a></li>
+  </ul>
+  <div style="display:flex;gap:0.8rem;align-items:center">
+    <a href="/dashboard.html" class="btn btn-s nav-cta">Accedi</a>
+    <button class="hamburger" onclick="toggleMenu()">☰</button>
+  </div>
+</nav>
+
+<section class="page-header">
+  <div class="wrap">
+    <span class="eyebrow">Piani e prezzi</span>
+    <h1>Scegli il tuo livello di <span class="gold">protezione.</span></h1>
+    <p>Tutti partono con <strong>14 giorni di prova completa</strong>, automaticamente attivi dall'installazione dell'app. Poi decidi tu se restare gratuito o passare a un piano superiore.</p>
+  </div>
+</section>
+
+<section class="section">
+  <div class="wrap" style="text-align:center">
+    <div class="pricing-toggle">
+      <button id="tgMese" class="active" onclick="togglePrice('mese')">Mensile</button>
+      <button id="tgAnno" onclick="togglePrice('anno')">Annuale</button>
+    </div>
+
+    <div class="pricing">
+
+      <div class="p-card">
+        <h3>FREE</h3>
+        <div class="price">0€</div>
+        <div class="price-unit">sempre</div>
+        <div class="saving">&nbsp;</div>
+        <ul>
+          <li><strong>14 giorni di prova completa</strong></li>
+          <li>Poi: protezione SMS</li>
+          <li>Storico chiamate ricevute</li>
+          <li class="no">ARIA non inclusa</li>
+          <li class="no">Trascrizioni non incluse</li>
+        </ul>
+        <a href="index.html#partecipa" class="btn btn-s">Inizia gratis</a>
+      </div>
+
+      <div class="p-card featured">
+        <h3>PRO</h3>
+        <div class="price" data-mese="2,99€" data-anno="18€">2,99€</div>
+        <div class="price-unit" data-mese="al mese" data-anno="all'anno">al mese</div>
+        <div class="saving" data-mese="" data-anno="Risparmi 17,88€"></div>
+        <ul>
+          <li>Protezione SMS</li>
+          <li><strong>ARIA segreteria AI</strong></li>
+          <li>Filtro numeri esteri</li>
+          <li>Messaggio standard ARIA</li>
+          <li>Mini CRM chiamate</li>
+          <li>Chat di supporto</li>
+        </ul>
+        <a href="index.html#partecipa" class="btn btn-p">Scegli PRO</a>
+      </div>
+
+      <div class="p-card">
+        <h3>SHIELD</h3>
+        <div class="price" data-mese="4,99€" data-anno="29€">4,99€</div>
+        <div class="price-unit" data-mese="al mese" data-anno="all'anno">al mese</div>
+        <div class="saving" data-mese="" data-anno="Risparmi 30,88€"></div>
+        <ul>
+          <li>Tutto di PRO +</li>
+          <li>SMS personalizzato</li>
+          <li>8 voci preset ARIA</li>
+          <li><strong>Messaggio personale registrato</strong></li>
+          <li>Ascolto e lettura messaggi</li>
+          <li>Protezione totale</li>
+          <li>White list prefissi esteri</li>
+        </ul>
+        <a href="index.html#partecipa" class="btn btn-s">Scegli SHIELD</a>
+      </div>
+
+    </div>
+
+    <p style="margin-top:2rem;font-size:0.85rem;color:var(--grigio)">I prezzi annuali ti fanno risparmiare circa il 50% rispetto al mensile.</p>
+  </div>
+</section>
+
+<section class="section section-alt">
+  <div class="wrap">
+    <span class="eyebrow">Confronto completo</span>
+    <h2 class="section-title">Tutte le funzionalità, <span class="gold">a confronto.</span></h2>
+
+    <div style="overflow-x:auto">
+    <table class="compare-table">
+      <thead>
+        <tr>
+          <th>Funzionalità</th>
+          <th>FREE</th>
+          <th>PRO</th>
+          <th>SHIELD</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr><td>14 giorni di prova completa</td><td><span class="yes">✓</span></td><td><span class="yes">✓</span></td><td><span class="yes">✓</span></td></tr>
+        <tr><td>Storico chiamate ricevute</td><td><span class="yes">✓</span></td><td><span class="yes">✓</span></td><td><span class="yes">✓</span></td></tr>
+        <tr><td>Protezione SMS spam</td><td><span class="yes">✓</span></td><td><span class="yes">✓</span></td><td><span class="yes">✓</span></td></tr>
+        <tr><td>ARIA segreteria AI</td><td><span class="no">—</span></td><td><span class="yes">✓</span></td><td><span class="yes">✓</span></td></tr>
+        <tr><td>Trascrizione messaggi A.I.</td><td><span class="no">—</span></td><td><span class="yes">✓</span></td><td><span class="yes">✓</span></td></tr>
+        <tr><td>Messaggio standard ARIA</td><td><span class="no">—</span></td><td><span class="yes">✓</span></td><td><span class="yes">✓</span></td></tr>
+        <tr><td>8 voci preset ARIA</td><td><span class="no">—</span></td><td><span class="no">—</span></td><td><span class="yes">✓</span></td></tr>
+        <tr><td>Messaggio personale registrato</td><td><span class="no">—</span></td><td><span class="no">—</span></td><td><span class="yes">✓</span></td></tr>
+        <tr><td>SMS personalizzato</td><td><span class="no">—</span></td><td><span class="no">—</span></td><td><span class="yes">✓</span></td></tr>
+        <tr><td>Filtro numeri esteri</td><td><span class="no">—</span></td><td><span class="yes">✓</span></td><td><span class="yes">✓</span></td></tr>
+        <tr><td>White list prefissi esteri</td><td><span class="no">—</span></td><td><span class="no">—</span></td><td><span class="yes">✓</span></td></tr>
+        <tr><td>Mini CRM chiamate</td><td><span class="no">—</span></td><td><span class="yes">✓</span></td><td><span class="yes">✓</span></td></tr>
+        <tr><td>Ascolto e lettura messaggi (web)</td><td><span class="no">—</span></td><td><span class="no">—</span></td><td><span class="yes">✓</span></td></tr>
+        <tr><td>Chat di supporto</td><td><span class="no">—</span></td><td><span class="yes">✓</span></td><td><span class="yes">✓</span></td></tr>
+        <tr><td>Protezione totale</td><td><span class="no">—</span></td><td><span class="no">—</span></td><td><span class="yes">✓</span></td></tr>
+      </tbody>
+    </table>
+    </div>
+  </div>
+</section>
+
+<section class="section">
+  <div class="wrap" style="text-align:center">
+    <span class="eyebrow">Domande sui piani?</span>
+    <h2 class="section-title">Le risposte sono nelle <span class="gold">FAQ.</span></h2>
+    <p class="lead" style="margin-left:auto;margin-right:auto">Trovi tutte le risposte sulle modalità di pagamento, sul periodo di prova, sui rimborsi e sul piano gratuito.</p>
+    <a href="/faq.html" class="btn btn-s">Vai alle FAQ</a>
+  </div>
+</section>
+
+<section class="cta-strip">
+  <h2>Pronto a iniziare la <span class="gold">prova gratuita</span>?</h2>
+  <p>14 giorni di tutte le funzionalità, automaticamente attivi dall'installazione. Nessuna carta di credito richiesta.</p>
+  <a href="index.html#partecipa" class="btn btn-p">Partecipa ai test</a>
+</section>
+
+<footer>
+  <div class="footer-grid">
+    <div class="footer-about">
+      <div class="logo" style="font-family:'DM Sans';font-size:1.4rem;font-weight:800">STOPP<span class="gold">AI</span></div>
+      <p>Il tuo bodyguard digitale contro le chiamate indesiderate. Sviluppato in Italia da Internet Full Service.</p>
+    </div>
+    <div>
+      <h5>Prodotto</h5>
+      <ul>
+        <li><a href="/come-funziona.html">Come funziona</a></li>
+        <li><a href="/aria.html">ARIA</a></li>
+        <li><a href="/prezzi.html">Prezzi</a></li>
+        <li><a href="/faq.html">FAQ</a></li>
+      </ul>
+    </div>
+    <div>
+      <h5>Account</h5>
+      <ul>
+        <li><a href="/dashboard.html">Area personale</a></li>
+        <li><a href="index.html#partecipa">Partecipa ai test</a></li>
+      </ul>
+    </div>
+    <div>
+      <h5>Legale</h5>
+      <ul>
+        <li><a href="/privacy.html">Privacy Policy</a></li>
+        <li><a href="/elimina-account.html">Elimina account</a></li>
+      </ul>
+    </div>
+  </div>
+  <div class="footer-bottom">
+    <p>© 2026 Internet Full Service</p>
+  </div>
+</footer>
+
+<script>
+function toggleMenu(){ document.getElementById('navMenu').classList.toggle('open'); }
+function togglePrice(mode){
+  document.getElementById('tgMese').classList.toggle('active', mode==='mese');
+  document.getElementById('tgAnno').classList.toggle('active', mode==='anno');
+  document.querySelectorAll('[data-mese]').forEach(el => {
+    el.textContent = el.getAttribute('data-'+mode) || '';
+  });
+}
+</script>
+</body>
+</html>
