@@ -129,6 +129,7 @@ body{font-family:-apple-system,sans-serif;background:var(--bg);color:var(--bianc
 @keyframes modalFadeIn{from{opacity:0}to{opacity:1}}
 .modal-box{background:var(--card);border:1px solid var(--bordo);border-radius:14px;width:380px;max-width:90vw;overflow:hidden;box-shadow:0 20px 60px rgba(0,0,0,.5);animation:modalSlide .25s}
 @keyframes modalSlide{from{transform:translateY(-20px);opacity:0}to{transform:translateY(0);opacity:1}}
+@keyframes slideIn{from{transform:translateX(100%);opacity:0}to{transform:translateX(0);opacity:1}}
 .modal-header{padding:20px 24px 0;display:flex;align-items:center;gap:10px}
 .modal-header .icon{font-size:24px}
 .modal-header .title{font-size:16px;font-weight:700;color:var(--bianco)}
@@ -301,7 +302,7 @@ async function loadTesterList(){
   const accettati=testers.filter(t=>t.stato==='accettato').length;
   let h=`<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;gap:12px;flex-wrap:wrap">
     <div style="font-size:13px;color:var(--grigio)">${testers.length} tester totali · <b style="color:var(--verde)">${accettati} accettati</b></div>
-    <button class="btn btn-primary" onclick="exportTestersCsv()" ${accettati===0?'disabled style="opacity:0.5;cursor:not-allowed"':''}>⬇ Esporta CSV accettati</button>
+    <button class="btn btn-oro" onclick="exportTestersCsv()" ${accettati===0?'disabled style="opacity:0.5;cursor:not-allowed"':''}>⬇ Esporta CSV accettati</button>
   </div>
   <div class="tester-list">`;
   testers.forEach(t=>{
@@ -344,17 +345,18 @@ async function openTester(id){
       </div>
       <div class="field"><label>Telefono</label><div class="field-val">${t.telefono}</div></div>
       <div class="field"><label>Stato</label>
-        <select onchange="setStato(${t.id},this.value)">
+        <select id="editStato" data-original="${t.stato}" onchange="markDirty()">
           <option value="in_attesa" ${t.stato==='in_attesa'?'selected':''}>In attesa</option>
           <option value="accettato" ${t.stato==='accettato'?'selected':''}>Accettato</option>
           <option value="rifiutato" ${t.stato==='rifiutato'?'selected':''}>Rifiutato</option>
         </select></div>
       <div class="field"><label>Piano</label>
-        <select onchange="setPiano(${t.id},this.value)">
+        <select id="editPiano" data-original="${t.piano}" onchange="markDirty()">
           <option value="free" ${t.piano==='free'?'selected':''}>Free</option>
           <option value="pro" ${t.piano==='pro'?'selected':''}>Pro</option>
           <option value="shield" ${t.piano==='shield'?'selected':''}>Shield</option>
         </select></div>
+      <button id="btnSalvaTester" class="btn btn-oro" style="width:100%;margin-top:10px;opacity:0.5;cursor:not-allowed" disabled onclick="salvaTester(${t.id})">💾 Salva modifiche</button>
       <div class="field"><label>Iscritto il</label><div class="field-val">${t.data_iscrizione?.replace('T',' ').slice(0,16)||'-'}</div></div>
       <div class="field"><label>Accettato il</label><div class="field-val">${t.data_accettazione?.replace('T',' ').slice(0,16)||'-'}</div></div>
       <div class="field"><label>Modello telefono</label><div class="field-val">${t.modello_telefono||'Non disponibile'}</div></div>
@@ -524,8 +526,44 @@ function delAria(msgId,testerId){showModal({icon:'🗑️',title:'Elimina messag
 function clearAllAria(testerId){showModal({icon:'⚠️',title:'Cancella tutto',message:'Cancellare <strong>TUTTI</strong> i messaggi ARIA di questo tester? Questa azione non può essere annullata.',type:'danger',onConfirm:async()=>{await fetch(API+'/testers/'+testerId+'/aria',{method:'DELETE'});loadAria(testerId,document.getElementById('tabPanel'))}})}
 
 // --- AZIONI ---
-async function setStato(id,stato){await fetch(API+'/testers/'+id+'/stato',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({stato})});openTester(id)}
-async function setPiano(id,piano){await fetch(API+'/testers/'+id+'/piano',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({piano})})}
+function markDirty(){
+  const s=document.getElementById('editStato'),p=document.getElementById('editPiano'),b=document.getElementById('btnSalvaTester');
+  if(!s||!p||!b)return;
+  const dirty=s.value!==s.dataset.original||p.value!==p.dataset.original;
+  b.disabled=!dirty;
+  b.style.opacity=dirty?'1':'0.5';
+  b.style.cursor=dirty?'pointer':'not-allowed';
+}
+async function salvaTester(id){
+  const s=document.getElementById('editStato').value,p=document.getElementById('editPiano').value;
+  const origS=document.getElementById('editStato').dataset.original,origP=document.getElementById('editPiano').dataset.original;
+  const b=document.getElementById('btnSalvaTester');
+  b.disabled=true;b.textContent='Salvataggio...';
+  try{
+    if(s!==origS){
+      const r=await fetch(API+'/testers/'+id+'/stato',{method:'POST',headers:{'Content-Type':'application/json'},credentials:'include',body:JSON.stringify({stato:s})});
+      if(!r.ok)throw new Error('Errore stato');
+    }
+    if(p!==origP){
+      const r=await fetch(API+'/testers/'+id+'/piano',{method:'POST',headers:{'Content-Type':'application/json'},credentials:'include',body:JSON.stringify({piano:p})});
+      if(!r.ok)throw new Error('Errore piano');
+    }
+    showToast('✓ Modifiche salvate','success');
+    openTester(id);
+  }catch(e){
+    showToast('✗ '+e.message,'error');
+    b.disabled=false;b.textContent='💾 Salva modifiche';
+  }
+}
+function showToast(msg,type){
+  let t=document.getElementById('adminToast');
+  if(!t){t=document.createElement('div');t.id='adminToast';document.body.appendChild(t)}
+  t.textContent=msg;
+  t.style.cssText='position:fixed;bottom:24px;right:24px;padding:14px 22px;border-radius:8px;font-size:14px;font-weight:600;z-index:10000;box-shadow:0 4px 20px rgba(0,0,0,0.5);animation:slideIn 0.25s ease-out;'+(type==='error'?'background:#3a1212;color:#ff9b9b;border:1px solid #ff6b6b':'background:#0f2a15;color:#9bdf9b;border:1px solid #6bcf7f');
+  t.style.display='block';
+  clearTimeout(t._h);
+  t._h=setTimeout(()=>{t.style.display='none'},3500);
+}
 function delTester(id){showModal({icon:'🗑️',title:'Elimina tester',message:'Eliminare questo tester e tutti i suoi dati? Questa azione non può essere annullata.',type:'danger',onConfirm:async()=>{await fetch(API+'/testers/'+id,{method:'DELETE'});showView('testers')}})}
 
 // CHAT con polling
