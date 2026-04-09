@@ -20,7 +20,7 @@
     <li><a href="/faq.html">FAQ</a></li>
   </ul>
   <div style="display:flex;gap:0.8rem;align-items:center">
-    <a href="/dashboard.html" class="btn btn-s nav-cta">Accedi</a>
+    <a href="/accedi.html" class="btn btn-s nav-cta">Accedi</a>
     <button class="hamburger" onclick="toggleMenu()">☰</button>
   </div>
 </nav>
@@ -346,8 +346,11 @@
         </div>
         <div class="form-group">
           <label>Email Gmail</label>
-          <input type="email" name="email" required pattern=".+@gmail\.com$" title="Deve essere un indirizzo @gmail.com">
-          <span class="hint">Solo indirizzi @gmail.com — deve essere l'email attiva sul telefono di test.</span>
+          <div class="gmail-input-wrap">
+            <input type="text" name="email_user" id="emailUser" required autocomplete="username" placeholder="mario.rossi" pattern="[a-zA-Z0-9._+\-]+" title="Usa solo lettere, numeri, punti, trattini e underscore">
+            <span class="gmail-suffix">@gmail.com</span>
+          </div>
+          <span class="hint">Deve essere l'email Gmail attiva sul telefono di test (necessario per Google Play Internal Testing).</span>
         </div>
         <div class="form-checkbox">
           <input type="checkbox" id="cons" required>
@@ -386,7 +389,7 @@
     <div>
       <h5>Account</h5>
       <ul>
-        <li><a href="/dashboard.html">Area personale</a></li>
+        <li><a href="/accedi.html">Area personale</a></li>
         <li><a href="#partecipa">Partecipa ai test</a></li>
       </ul>
     </div>
@@ -417,11 +420,12 @@ function togglePrice(mode){
 async function submitForm(e){
   e.preventDefault();
   const f = e.target;
-  const email = f.email.value.trim().toLowerCase();
-  if (!email.endsWith('@gmail.com')) {
-    showToast('Devi usare un indirizzo @gmail.com', 'error');
+  const emailUser = f.email_user.value.trim().toLowerCase().replace(/@gmail\.com$/i, '');
+  if (!/^[a-z0-9._+\-]+$/.test(emailUser)) {
+    showToast('Inserisci solo la parte prima di @gmail.com (lettere, numeri, punti, trattini)', 'error');
     return;
   }
+  const email = emailUser + '@gmail.com';
   const btn = f.querySelector('button[type="submit"]');
   btn.disabled = true; btn.textContent = 'INVIO IN CORSO...';
   try {

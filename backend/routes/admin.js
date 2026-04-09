@@ -109,6 +109,21 @@ router.get('/testers', authAdmin, (req, res) => {
   res.json(testers);
 });
 
+// GET /api/admin/testers/export.csv — export email tester accettati per Play Console
+router.get('/testers/export.csv', authAdmin, (req, res) => {
+  const rows = db.prepare(`
+    SELECT email FROM testers
+    WHERE stato = 'accettato' AND email LIKE '%@gmail.com'
+    ORDER BY data_accettazione ASC
+  `).all();
+  const lines = rows.map(r => r.email.trim().toLowerCase());
+  const csv = lines.join('\n') + '\n';
+  const filename = `stoppai-testers-accettati-${new Date().toISOString().slice(0,10)}.csv`;
+  res.setHeader('Content-Type', 'text/csv; charset=utf-8');
+  res.setHeader('Content-Disposition', `attachment; filename="${filename}"`);
+  res.send(csv);
+});
+
 // GET /api/admin/stats — contatori rapidi
 router.get('/stats', authAdmin, (req, res) => {
   const totale = db.prepare('SELECT COUNT(*) as n FROM testers').get().n;

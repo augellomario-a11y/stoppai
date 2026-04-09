@@ -252,8 +252,21 @@ async function doLoginCode(){
   if(r.ok){document.getElementById('login').style.display='none';document.getElementById('app').style.display='block';showView('dashboard')}
   else{document.getElementById('loginErr').textContent='Codice non valido';document.getElementById('loginErr').style.display='block'}
 }
-async function doLogout(){await fetch(API+'/logout',{method:'POST'});location.reload()}
-fetch(API+'/stats').then(r=>{if(r.ok){document.getElementById('login').style.display='none';document.getElementById('app').style.display='block';showView('dashboard')}});
+async function doLogout(){
+  try{await fetch(API+'/logout',{method:'POST',credentials:'include'})}catch(e){}
+  window.location.href='/';
+}
+// Al caricamento: se cookie admin valido → mostra app; altrimenti redirect a /accedi.html
+fetch(API+'/stats',{credentials:'include'}).then(r=>{
+  if(r.ok){
+    document.getElementById('login').style.display='none';
+    document.getElementById('app').style.display='block';
+    showView('dashboard');
+  } else {
+    // non autenticato → manda al punto di ingresso pubblico
+    window.location.href='/accedi.html';
+  }
+}).catch(()=>{ window.location.href='/accedi.html'; });
 
 // --- VIEWS ---
 function showView(v){
@@ -285,7 +298,12 @@ async function loadDashboard(){
 // --- TESTER LIST ---
 async function loadTesterList(){
   testers=await(await fetch(API+'/testers')).json();
-  let h='<div class="tester-list">';
+  const accettati=testers.filter(t=>t.stato==='accettato').length;
+  let h=`<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;gap:12px;flex-wrap:wrap">
+    <div style="font-size:13px;color:var(--grigio)">${testers.length} tester totali · <b style="color:var(--verde)">${accettati} accettati</b></div>
+    <button class="btn btn-primary" onclick="exportTestersCsv()" ${accettati===0?'disabled style="opacity:0.5;cursor:not-allowed"':''}>⬇ Esporta CSV accettati</button>
+  </div>
+  <div class="tester-list">`;
   testers.forEach(t=>{
     h+=`<div class="t-row" onclick="openTester(${t.id})">
       <div class="t-avatar">${t.nome[0]}${t.cognome[0]}</div>
@@ -296,6 +314,20 @@ async function loadTesterList(){
   });
   h+='</div>';
   document.getElementById('viewContent').innerHTML=h;
+}
+
+async function exportTestersCsv(){
+  try {
+    const r=await fetch(API+'/testers/export.csv',{credentials:'include'});
+    if(!r.ok){alert('Errore export: '+r.status);return}
+    const blob=await r.blob();
+    const url=URL.createObjectURL(blob);
+    const a=document.createElement('a');
+    a.href=url;
+    a.download=`stoppai-testers-accettati-${new Date().toISOString().slice(0,10)}.csv`;
+    document.body.appendChild(a);a.click();a.remove();
+    URL.revokeObjectURL(url);
+  }catch(e){alert('Errore: '+e.message)}
 }
 
 // --- SCHEDA TESTER ---

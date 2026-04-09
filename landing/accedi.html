@@ -1,0 +1,243 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Accedi — StoppAI</title>
+<meta name="description" content="Accedi alla tua area personale StoppAI. Login sicuro con codice via email, senza password.">
+<meta name="robots" content="noindex, nofollow">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="./css/main.css">
+<style>
+.login-wrap { min-height: 100vh; display: flex; align-items: center; justify-content: center; padding: 110px 20px 60px; }
+.login-card { background: var(--nero2); border: 1px solid var(--bordo); border-radius: 12px; padding: 3rem 2.5rem; max-width: 460px; width: 100%; text-align: center; }
+.login-card .logo-big { font-family: 'DM Sans'; font-weight: 800; font-size: 2rem; letter-spacing: 0.02em; margin-bottom: 0.5rem; }
+.login-card h1 { font-size: 1.4rem; margin-bottom: 0.6rem; text-transform: none; letter-spacing: 0; }
+.login-card .sub { color: var(--grigio2); font-size: 0.95rem; margin-bottom: 2rem; }
+.login-card .form-group { text-align: left; margin-bottom: 1rem; }
+.login-card .form-group input {
+  width: 100%; padding: 0.95rem 1rem; background: var(--nero); border: 1px solid #2a2a2a;
+  color: var(--bianco); border-radius: 6px; font-family: 'DM Sans'; font-size: 1rem; transition: border-color 0.2s;
+}
+.login-card .form-group input:focus { outline: none; border-color: var(--oro); }
+.login-card .code-input { text-align: center; font-size: 1.6rem !important; letter-spacing: 0.8rem; font-weight: 700; font-family: monospace !important; padding-left: 1.5rem !important; }
+.login-card .btn { width: 100%; margin-top: 0.5rem; padding: 1rem; }
+.login-card .back-link { display: inline-block; margin-top: 1.2rem; color: var(--grigio); font-size: 0.85rem; text-decoration: none; }
+.login-card .back-link:hover { color: var(--oro); }
+.login-card .hint-text { font-size: 0.8rem; color: var(--grigio); margin-top: 1rem; line-height: 1.5; }
+.msg-box { padding: 1rem 1.2rem; border-radius: 6px; margin-bottom: 1.2rem; font-size: 0.9rem; display: none; }
+.msg-box.show { display: block; }
+.msg-box.error { background: rgba(255,107,107,0.1); border: 1px solid rgba(255,107,107,0.4); color: #ff9b9b; }
+.msg-box.success { background: rgba(107,207,127,0.1); border: 1px solid rgba(107,207,127,0.4); color: #9bdf9b; }
+.msg-box.info { background: rgba(200,169,110,0.08); border: 1px solid rgba(200,169,110,0.3); color: var(--oro); }
+.step-email, .step-code, .step-success-tester { display: none; }
+.step-email.active, .step-code.active, .step-success-tester.active { display: block; }
+.email-echo { color: var(--oro); font-weight: 600; }
+.btn-link { background: none; border: none; color: var(--oro); cursor: pointer; font-size: 0.85rem; text-decoration: underline; font-family: inherit; padding: 0; margin-top: 0.8rem; }
+.btn-link:hover { color: var(--bianco); }
+</style>
+</head>
+<body>
+
+<nav>
+  <a href="/" class="logo">STOPP<span class="gold">AI</span></a>
+  <ul id="navMenu">
+    <li><a href="/come-funziona.html">Come funziona</a></li>
+    <li><a href="/aria.html">ARIA</a></li>
+    <li><a href="/prezzi.html">Prezzi</a></li>
+    <li><a href="/faq.html">FAQ</a></li>
+  </ul>
+  <div style="display:flex;gap:0.8rem;align-items:center">
+    <a href="/accedi.html" class="btn btn-s nav-cta">Accedi</a>
+    <button class="hamburger" onclick="toggleMenu()">☰</button>
+  </div>
+</nav>
+
+<div class="login-wrap">
+  <div class="login-card">
+    <div class="logo-big">STOPP<span class="gold">AI</span></div>
+
+    <div id="msgBox" class="msg-box"></div>
+
+    <!-- STEP 1: inserimento email -->
+    <div id="stepEmail" class="step-email active">
+      <h1>Accedi alla tua area</h1>
+      <p class="sub">Inserisci la tua email per ricevere un codice di accesso.</p>
+      <form onsubmit="return richiediCodice(event)">
+        <div class="form-group">
+          <input type="email" id="emailInput" placeholder="tu@esempio.com" required autocomplete="email">
+        </div>
+        <button type="submit" class="btn btn-p" id="btnRichiedi">Ricevi codice →</button>
+      </form>
+      <p class="hint-text">Non hai ancora un account? <a href="index.html#partecipa" style="color:var(--oro)">Iscriviti al programma beta</a></p>
+    </div>
+
+    <!-- STEP 2: inserimento codice -->
+    <div id="stepCode" class="step-code">
+      <h1>Inserisci il codice</h1>
+      <p class="sub">Ti abbiamo inviato un codice a 6 cifre a <span class="email-echo" id="emailEcho"></span></p>
+      <form onsubmit="return verificaCodice(event)">
+        <div class="form-group">
+          <input type="text" id="codeInput" class="code-input" placeholder="000000" maxlength="6" pattern="[0-9]{6}" required autocomplete="one-time-code" inputmode="numeric">
+        </div>
+        <button type="submit" class="btn btn-p" id="btnVerifica">Accedi →</button>
+      </form>
+      <button type="button" class="btn-link" onclick="tornaAllaMail()">← Cambia email</button>
+    </div>
+
+    <!-- STEP 3: successo tester (dashboard non ancora disponibile) -->
+    <div id="stepSuccessTester" class="step-success-tester">
+      <h1>Benvenuto <span id="testerNome" class="gold"></span>!</h1>
+      <p class="sub">Accesso effettuato correttamente.</p>
+      <div class="msg-box info show" style="text-align:left;margin-top:0">
+        <strong style="display:block;margin-bottom:0.5rem;color:var(--oro)">🚧 Dashboard in arrivo</strong>
+        La tua area personale completa (messaggi ARIA, statistiche, chat con il supporto) sarà disponibile nei prossimi giorni. Ti avviseremo via email non appena sarà pronta.
+      </div>
+      <a href="/" class="btn btn-s" style="width:100%">Torna alla home</a>
+    </div>
+
+    <a href="/" class="back-link">← Torna al sito</a>
+  </div>
+</div>
+
+<script>
+const ADMIN_EMAIL = 'info@internetfullservice.it';
+let currentEmail = '';
+let isAdminLogin = false;
+
+function toggleMenu(){ document.getElementById('navMenu').classList.toggle('open'); }
+
+function showMsg(text, type='error') {
+  const box = document.getElementById('msgBox');
+  box.textContent = text;
+  box.className = 'msg-box show ' + type;
+}
+function hideMsg() {
+  document.getElementById('msgBox').className = 'msg-box';
+}
+function showStep(name) {
+  ['stepEmail','stepCode','stepSuccessTester'].forEach(id => {
+    document.getElementById(id).classList.toggle('active', id === name);
+  });
+}
+
+async function richiediCodice(e) {
+  e.preventDefault();
+  hideMsg();
+  const email = document.getElementById('emailInput').value.trim().toLowerCase();
+  if (!email) return false;
+
+  const btn = document.getElementById('btnRichiedi');
+  btn.disabled = true; btn.textContent = 'Invio...';
+
+  currentEmail = email;
+  isAdminLogin = (email === ADMIN_EMAIL);
+
+  try {
+    const endpoint = isAdminLogin
+      ? '/api/admin/request-code'
+      : '/api/tester/auth/request';
+    const r = await fetch(endpoint, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ email })
+    });
+    const data = await r.json();
+
+    if (r.ok) {
+      document.getElementById('emailEcho').textContent = email;
+      showStep('stepCode');
+      setTimeout(() => document.getElementById('codeInput').focus(), 100);
+    } else {
+      if (r.status === 404) {
+        showMsg('Email non registrata. Iscriviti al programma beta dalla home.', 'error');
+      } else if (r.status === 403) {
+        showMsg('Email non autorizzata ad accedere.', 'error');
+      } else {
+        showMsg(data.error || 'Errore durante la richiesta. Riprova.', 'error');
+      }
+    }
+  } catch (err) {
+    showMsg('Errore di connessione. Riprova tra poco.', 'error');
+  } finally {
+    btn.disabled = false; btn.textContent = 'Ricevi codice →';
+  }
+  return false;
+}
+
+async function verificaCodice(e) {
+  e.preventDefault();
+  hideMsg();
+  const codice = document.getElementById('codeInput').value.trim();
+  if (!/^\d{6}$/.test(codice)) {
+    showMsg('Il codice deve essere di 6 cifre.', 'error');
+    return false;
+  }
+
+  const btn = document.getElementById('btnVerifica');
+  btn.disabled = true; btn.textContent = 'Verifica...';
+
+  try {
+    if (isAdminLogin) {
+      // ADMIN: usa /api/admin/login con {codice} — setta cookie admin_token
+      const r = await fetch('/api/admin/login', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        credentials: 'include',
+        body: JSON.stringify({ codice })
+      });
+      const data = await r.json();
+      if (r.ok && data.success) {
+        showMsg('Accesso admin riuscito. Reindirizzamento...', 'success');
+        setTimeout(() => { window.location.href = '/admin.html'; }, 800);
+      } else {
+        showMsg(data.error || 'Codice non valido o scaduto.', 'error');
+      }
+    } else {
+      // TESTER: usa /api/tester/auth/verify con {email, codice}
+      const r = await fetch('/api/tester/auth/verify', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        credentials: 'include',
+        body: JSON.stringify({ email: currentEmail, codice })
+      });
+      const data = await r.json();
+      if (r.ok && data.success) {
+        if (data.stato !== 'accettato') {
+          showMsg('La tua candidatura è ancora in attesa di approvazione.', 'info');
+          return false;
+        }
+        // Salva sessione tester in sessionStorage per ora (finché non c'è la dashboard)
+        sessionStorage.setItem('stoppai_tester', JSON.stringify({
+          id: data.tester_id, nome: data.nome, cognome: data.cognome,
+          email: data.email, stato: data.stato, piano: data.piano
+        }));
+        document.getElementById('testerNome').textContent = data.nome;
+        showStep('stepSuccessTester');
+      } else {
+        showMsg(data.error || 'Codice non valido o scaduto.', 'error');
+      }
+    }
+  } catch (err) {
+    showMsg('Errore di connessione. Riprova tra poco.', 'error');
+  } finally {
+    btn.disabled = false; btn.textContent = 'Accedi →';
+  }
+  return false;
+}
+
+function tornaAllaMail() {
+  hideMsg();
+  document.getElementById('codeInput').value = '';
+  showStep('stepEmail');
+  setTimeout(() => document.getElementById('emailInput').focus(), 100);
+}
+
+// Auto-focus email al caricamento
+document.addEventListener('DOMContentLoaded', () => {
+  document.getElementById('emailInput').focus();
+});
+</script>
+</body>
+</html>
