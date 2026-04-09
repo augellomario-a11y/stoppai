@@ -124,6 +124,29 @@ router.get('/testers/export.csv', authAdmin, (req, res) => {
   res.send(csv);
 });
 
+// GET /api/admin/aria-accuracy — statistiche aggregate sui rating trascrizione ARIA
+router.get('/aria-accuracy', authAdmin, (req, res) => {
+  const row = db.prepare(`
+    SELECT
+      COUNT(*) AS rated,
+      AVG(accuracy_rating) AS avg_rating,
+      SUM(CASE WHEN accuracy_rating=100 THEN 1 ELSE 0 END) AS c100,
+      SUM(CASE WHEN accuracy_rating=80  THEN 1 ELSE 0 END) AS c80,
+      SUM(CASE WHEN accuracy_rating=60  THEN 1 ELSE 0 END) AS c60,
+      SUM(CASE WHEN accuracy_rating=40  THEN 1 ELSE 0 END) AS c40,
+      SUM(CASE WHEN accuracy_rating=20  THEN 1 ELSE 0 END) AS c20
+    FROM aria_messaggi
+    WHERE accuracy_rating IS NOT NULL
+  `).get();
+  const totMsgs = db.prepare('SELECT COUNT(*) AS n FROM aria_messaggi').get().n;
+  res.json({
+    total_messages: totMsgs,
+    rated: row.rated || 0,
+    avg_rating: row.avg_rating ? Math.round(row.avg_rating) : null,
+    distribution: { 100: row.c100||0, 80: row.c80||0, 60: row.c60||0, 40: row.c40||0, 20: row.c20||0 }
+  });
+});
+
 // GET /api/admin/stats — contatori rapidi
 router.get('/stats', authAdmin, (req, res) => {
   const totale = db.prepare('SELECT COUNT(*) as n FROM testers').get().n;
@@ -460,6 +483,83 @@ router.delete('/todos/:todoId', authAdmin, (req, res) => {
   res.json({ success: true });
 });
 
+// --- TEST TO-DO BROADCAST (lista globale visibile a tutti i tester accettati) ---
+
+// GET /api/admin/test-items — lista voci con stats aggregati
+router.get('/test-items', authAdmin, (req, res) => {
+  const items = db.prepare(`
+    SELECT
+      i.id, i.testo, i.cancellato, i.creato_at, i.aggiornato_at,
+      (SELECT COUNT(*) FROM test_items_done WHERE item_id = i.id) AS done_count,
+      (SELECT COUNT(*) FROM test_items_comments WHERE item_id = i.id) AS comment_count
+    FROM test_items i
+    ORDER BY i.id ASC
+  `).all();
+  const totTesters = db.prepare("SELECT COUNT(*) AS n FROM testers WHERE stato = 'accettato'").get().n;
+  res.json({ items, total_testers: totTesters });
+});
+
+// POST /api/admin/test-items — aggiunge una nuova voce broadcast
+router.post('/test-items', authAdmin, (req, res) => {
+  const { testo } = req.body;
+  if (!testo?.trim()) return res.status(400).json({ error: 'Testo vuoto' });
+  const result = db.prepare('INSERT INTO test_items (testo) VALUES (?)').run(testo.trim());
+  res.json({ success: true, id: result.lastInsertRowid });
+});
+
+// PUT /api/admin/test-items/:id — modifica il testo mantenendo lo stesso numero
+router.put('/test-items/:id', authAdmin, (req, res) => {
+  const { testo } = req.body;
+  if (!testo?.trim()) return res.status(400).json({ error: 'Testo vuoto' });
+  const now = new Date().toISOString();
+  const r = db.prepare('UPDATE test_items SET testo = ?, aggiornato_at = ? WHERE id = ?').run(testo.trim(), now, req.params.id);
+  if (r.changes === 0) return res.status(404).json({ error: 'Voce non trovata' });
+  res.json({ success: true });
+});
+
+// DELETE /api/admin/test-items/:id — soft delete (il numero non viene riutilizzato)
+router.delete('/test-items/:id', authAdmin, (req, res) => {
+  const r = db.prepare('UPDATE test_items SET cancellato = 1 WHERE id = ?').run(req.params.id);
+  if (r.changes === 0) return res.status(404).json({ error: 'Voce non trovata' });
+  res.json({ success: true });
+});
+
+// POST /api/admin/test-items/:id/restore — ripristina una voce cancellata
+router.post('/test-items/:id/restore', authAdmin, (req, res) => {
+  db.prepare('UPDATE test_items SET cancellato = 0 WHERE id = ?').run(req.params.id);
+  res.json({ success: true });
+});
+
+// GET /api/admin/test-items/:id/progress — chi ha completato questa voce
+router.get('/test-items/:id/progress', authAdmin, (req, res) => {
+  const rows = db.prepare(`
+    SELECT d.tester_id, d.completato_at, t.nome, t.cognome, t.email
+    FROM test_items_done d
+    JOIN testers t ON t.id = d.tester_id
+    WHERE d.item_id = ?
+    ORDER BY d.completato_at DESC
+  `).all(req.params.id);
+  res.json(rows);
+});
+
+// GET /api/admin/test-items/:id/comments — commenti per una voce
+router.get('/test-items/:id/comments', authAdmin, (req, res) => {
+  const rows = db.prepare(`
+    SELECT c.id, c.testo, c.timestamp, c.tester_id, t.nome, t.cognome, t.email
+    FROM test_items_comments c
+    JOIN testers t ON t.id = c.tester_id
+    WHERE c.item_id = ?
+    ORDER BY c.timestamp ASC
+  `).all(req.params.id);
+  res.json(rows);
+});
+
+// DELETE /api/admin/test-items/comments/:commentId — admin può cancellare un commento
+router.delete('/test-items/comments/:commentId', authAdmin, (req, res) => {
+  db.prepare('DELETE FROM test_items_comments WHERE id = ?').run(req.params.commentId);
+  res.json({ success: true });
+});
+
 // POST /api/admin/broadcast — messaggio a tutti i tester
 router.post('/broadcast', authAdmin, (req, res) => {
   const { oggetto, testo } = req.body;
@@ -597,6 +697,24 @@ router.get('/testers/:id/aria', authAdmin, (req, res) => {
 router.delete('/aria/:msgId', authAdmin, (req, res) => {
   db.prepare('DELETE FROM aria_messaggi WHERE id = ?').run(req.params.msgId);
   res.json({ success: true });
+});
+
+// GET /api/admin/aria-audio/:msgId — serve il file WAV (solo admin) con supporto Range
+router.get('/aria-audio/:msgId', authAdmin, (req, res) => {
+  const path = require('path');
+  const fs = require('fs');
+  const msg = db.prepare('SELECT wav_filename FROM aria_messaggi WHERE id = ?').get(parseInt(req.params.msgId, 10));
+  if (!msg || !msg.wav_filename) return res.status(404).json({ error: 'File non trovato' });
+  const safeName = path.basename(msg.wav_filename);
+  const filePath = path.join('/opt/stoppai/asterisk/recordings', safeName);
+  if (!fs.existsSync(filePath)) return res.status(404).json({ error: 'WAV non trovato' });
+  res.sendFile(filePath, {
+    headers: {
+      'Content-Type': 'audio/wav',
+      'Cache-Control': 'no-store, no-cache, must-revalidate',
+      'Accept-Ranges': 'bytes'
+    }
+  });
 });
 
 // DELETE /api/admin/testers/:id/aria — cancella tutti i messaggi ARIA del tester

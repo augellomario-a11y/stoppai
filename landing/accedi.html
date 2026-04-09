@@ -205,16 +205,12 @@ async function verificaCodice(e) {
       const data = await r.json();
       if (r.ok && data.success) {
         if (data.stato !== 'accettato') {
-          showMsg('La tua candidatura è ancora in attesa di approvazione.', 'info');
+          showMsg('La tua candidatura è ancora in attesa di approvazione. Riceverai un\'email non appena sarà accettata.', 'info');
           return false;
         }
-        // Salva sessione tester in sessionStorage per ora (finché non c'è la dashboard)
-        sessionStorage.setItem('stoppai_tester', JSON.stringify({
-          id: data.tester_id, nome: data.nome, cognome: data.cognome,
-          email: data.email, stato: data.stato, piano: data.piano
-        }));
-        document.getElementById('testerNome').textContent = data.nome;
-        showStep('stepSuccessTester');
+        // Cookie tester_session già settato dal backend → redirect a dashboard
+        showMsg('Accesso riuscito. Reindirizzamento…', 'success');
+        setTimeout(() => { window.location.href = '/dashboard.html'; }, 600);
       } else {
         showMsg(data.error || 'Codice non valido o scaduto.', 'error');
       }

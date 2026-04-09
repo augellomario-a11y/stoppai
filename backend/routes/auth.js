@@ -1,4 +1,5 @@
 const express = require('express');
+const crypto = require('crypto');
 const router = express.Router();
 const db = require('../db/database');
 const { Resend } = require('resend');
@@ -90,6 +91,19 @@ router.post('/verify', (req, res) => {
 
   // Recupera dati tester
   const tester = db.prepare('SELECT id, nome, cognome, email, stato, piano FROM testers WHERE LOWER(email) = ?').get(emailNorm);
+
+  // Crea sessione web dashboard (cookie httpOnly valido 30 giorni)
+  const token = crypto.randomBytes(32).toString('hex');
+  const scade = new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString();
+  db.prepare('INSERT INTO tester_sessions (token, tester_id, scade_at) VALUES (?, ?, ?)')
+    .run(token, tester.id, scade);
+
+  res.cookie('tester_session', token, {
+    httpOnly: true,
+    sameSite: 'lax',
+    maxAge: 30 * 24 * 60 * 60 * 1000,
+    secure: process.env.NODE_ENV === 'production'
+  });
 
   res.json({
     success: true,

@@ -1,0 +1,271 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Guida installazione — StoppAI</title>
+<meta name="description" content="Guida passo-passo per installare StoppAI dal programma Google Play Internal Testing. Istruzioni dettagliate con screenshot.">
+<meta name="robots" content="noindex, nofollow">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="./css/main.css">
+<style>
+.help-wrap { padding: 100px 0 60px; }
+.help-intro { background: var(--nero2); border: 1px solid var(--bordo); border-radius: 10px; padding: 2rem; margin-bottom: 2rem; }
+.help-intro h1 { font-size: clamp(1.6rem, 3vw, 2.2rem); margin-bottom: 1rem; }
+.help-intro p { font-size: 1rem; color: var(--grigio2); line-height: 1.7; }
+.install-btn-big { display: inline-block; padding: 1.1rem 2rem; background: var(--oro); color: var(--nero); text-decoration: none; border-radius: 6px; font-weight: 700; font-size: 1rem; margin-top: 1rem; }
+.install-btn-big:hover { background: var(--oro2); }
+
+.step-box { background: var(--nero2); border: 1px solid var(--bordo); border-left: 4px solid var(--oro); border-radius: 8px; padding: 1.8rem 2rem; margin-bottom: 1.5rem; }
+.step-box .step-num { display: inline-block; background: var(--oro); color: var(--nero); width: 38px; height: 38px; border-radius: 50%; text-align: center; line-height: 38px; font-weight: 800; font-size: 1.1rem; margin-right: 0.8rem; vertical-align: middle; }
+.step-box h2 { display: inline-block; vertical-align: middle; font-size: 1.2rem; margin: 0; text-transform: none; letter-spacing: 0; }
+.step-box .body { margin-top: 1rem; font-size: 0.95rem; line-height: 1.7; color: var(--grigio2); }
+.step-box .body strong { color: var(--bianco); }
+.step-box .screen-placeholder { background: var(--nero3); border: 2px dashed var(--bordo); border-radius: 8px; padding: 3rem 1.5rem; text-align: center; color: var(--grigio); font-size: 0.85rem; margin-top: 1.2rem; font-style: italic; }
+.step-box .screen-placeholder .label { display: block; color: var(--oro); font-style: normal; font-weight: 600; font-size: 0.9rem; margin-bottom: 0.4rem; }
+.step-box .note { background: rgba(200,169,110,0.08); border: 1px solid rgba(200,169,110,0.3); border-radius: 6px; padding: 0.9rem 1.1rem; margin-top: 1rem; font-size: 0.87rem; color: var(--grigio2); }
+.step-box .note strong { color: var(--oro); }
+.step-box .warn { background: rgba(255,107,107,0.08); border: 1px solid rgba(255,107,107,0.35); border-radius: 6px; padding: 0.9rem 1.1rem; margin-top: 1rem; font-size: 0.87rem; color: #ffbaba; }
+.step-box .warn strong { color: var(--rosso); }
+
+.troubleshoot { background: var(--nero3); border: 1px solid var(--bordo); border-radius: 10px; padding: 2rem; margin-top: 2rem; }
+.troubleshoot h2 { font-size: 1.2rem; margin-bottom: 1rem; color: var(--oro); }
+.troubleshoot details { background: var(--nero2); border: 1px solid var(--bordo); border-radius: 6px; margin-bottom: 0.6rem; overflow: hidden; }
+.troubleshoot summary { padding: 1rem 1.2rem; cursor: pointer; font-weight: 700; color: var(--bianco); font-size: 0.95rem; list-style: none; display: flex; justify-content: space-between; align-items: center; }
+.troubleshoot summary::-webkit-details-marker { display: none; }
+.troubleshoot summary::after { content: "+"; font-size: 1.4rem; color: var(--oro); transition: transform 0.2s; }
+.troubleshoot details[open] summary::after { transform: rotate(45deg); }
+.troubleshoot details .body { padding: 0 1.2rem 1.2rem; color: var(--grigio2); font-size: 0.88rem; line-height: 1.7; }
+
+.back-dash { display: inline-block; margin-bottom: 1.5rem; color: var(--oro); text-decoration: none; font-size: 0.9rem; }
+.back-dash:hover { color: var(--bianco); }
+</style>
+</head>
+<body>
+
+<nav>
+  <a href="/" class="logo">STOPP<span class="gold">AI</span></a>
+  <ul id="navMenu">
+    <li><a href="/come-funziona.html">Come funziona</a></li>
+    <li><a href="/aria.html">ARIA</a></li>
+    <li><a href="/prezzi.html">Prezzi</a></li>
+    <li><a href="/faq.html">FAQ</a></li>
+  </ul>
+  <div style="display:flex;gap:0.8rem;align-items:center">
+    <a href="/accedi.html" class="btn btn-s nav-cta">Accedi</a>
+    <button class="hamburger" onclick="toggleMenu()">☰</button>
+  </div>
+</nav>
+
+<div class="wrap help-wrap">
+
+  <a href="/dashboard.html" class="back-dash">← Torna alla dashboard</a>
+
+  <div class="help-intro">
+    <h1>📱 Come installare StoppAI sul tuo Android</h1>
+    <p>StoppAI è disponibile in <strong>beta privata</strong> tramite Google Play Internal Testing. Segui questa guida passo-passo per installare l'app sul tuo telefono. L'intero processo richiede circa <strong>2 minuti</strong>.</p>
+    <a href="https://play.google.com/apps/internaltest/4701140799325601254" target="_blank" rel="noopener" class="install-btn-big">🚀 Apri il link installazione</a>
+  </div>
+
+  <!-- STEP 1 -->
+  <div class="step-box">
+    <span class="step-num">1</span><h2>Prepara il telefono giusto</h2>
+    <div class="body">
+      <p>Prima di tutto, assicurati di essere <strong>sul telefono Android</strong> che userai per i test. Non importa se Samsung, Xiaomi, Motorola, Google Pixel o altri — basta che sia Android 10 o successivo.</p>
+      <p>Verifica che <strong>l'account Gmail con cui ti sei iscritto</strong> sia attivo e loggato nel telefono:</p>
+      <ul style="margin-left:1.2rem;margin-top:0.6rem">
+        <li>Apri <em>Impostazioni → Account → Google</em></li>
+        <li>Controlla che compaia la tua email Gmail (quella che hai usato nel form)</li>
+        <li>Se non c'è, aggiungila prima di proseguire</li>
+      </ul>
+      <div class="screen-placeholder">
+        <span class="label">📷 Screenshot 1</span>
+        Schermata Impostazioni Android con account Gmail attivo
+      </div>
+      <div class="warn">
+        <strong>⚠️ Importante:</strong> se apri il link di installazione da un telefono diverso o con un account Gmail diverso, Google Play ti mostrerà "app non disponibile nel tuo paese" — non è un errore, è perché quell'account non è nel mailing list dei tester.
+      </div>
+    </div>
+  </div>
+
+  <!-- STEP 2 -->
+  <div class="step-box">
+    <span class="step-num">2</span><h2>Apri il link Internal Testing</h2>
+    <div class="body">
+      <p>Dal browser del telefono (Chrome o Samsung Internet), <strong>apri il link</strong> che hai ricevuto via email oppure clicca il bottone in cima a questa pagina.</p>
+      <p>Il link è:</p>
+      <p style="background:var(--nero3);padding:0.8rem 1rem;border-radius:6px;word-break:break-all;font-family:monospace;font-size:0.82rem;color:var(--oro)">https://play.google.com/apps/internaltest/4701140799325601254</p>
+      <div class="screen-placeholder">
+        <span class="label">📷 Screenshot 2</span>
+        Pagina Google Play "Diventa tester di StoppAI"
+      </div>
+    </div>
+  </div>
+
+  <!-- STEP 3 -->
+  <div class="step-box">
+    <span class="step-num">3</span><h2>Clicca "Diventa tester"</h2>
+    <div class="body">
+      <p>Si aprirà una pagina di Google Play con il nome dell'app e il messaggio <strong>"Diventa tester"</strong>. Clicca su quel bottone per accettare di partecipare al programma beta.</p>
+      <p>Dopo qualche secondo vedrai apparire un secondo bottone: <strong>"Scarica da Google Play"</strong>.</p>
+      <div class="screen-placeholder">
+        <span class="label">📷 Screenshot 3</span>
+        Bottoni "Diventa tester" e "Scarica da Google Play"
+      </div>
+      <div class="note">
+        <strong>💡 Suggerimento:</strong> se il bottone "Scarica da Google Play" non appare subito, aspetta 30 secondi e ricarica la pagina. Google a volte impiega un attimo a sincronizzare la tua iscrizione.
+      </div>
+    </div>
+  </div>
+
+  <!-- STEP 4 -->
+  <div class="step-box">
+    <span class="step-num">4</span><h2>Installa l'app</h2>
+    <div class="body">
+      <p>Clicca <strong>"Scarica da Google Play"</strong>. Si aprirà la scheda di StoppAI nel Play Store, con una piccola etichetta <strong>"(beta)"</strong> sotto il titolo.</p>
+      <p>Clicca <strong>Installa</strong> e aspetta il download (circa 8 MB).</p>
+      <div class="screen-placeholder">
+        <span class="label">📷 Screenshot 4</span>
+        Scheda StoppAI nel Play Store con bottone "Installa" e badge beta
+      </div>
+    </div>
+  </div>
+
+  <!-- STEP 5 -->
+  <div class="step-box">
+    <span class="step-num">5</span><h2>Apri StoppAI e completa il setup guidato</h2>
+    <div class="body">
+      <p>A installazione completata, clicca <strong>Apri</strong> (oppure trova l'icona di StoppAI nel menu app del telefono).</p>
+      <p>Al primo avvio l'app ti guiderà attraverso un <strong>setup a prova di scimmia</strong>: pochi passaggi essenziali che la configurano correttamente sul tuo telefono.</p>
+      <ul style="margin-left:1.2rem;margin-top:0.6rem">
+        <li><strong>Permesso chiamate</strong> — serve per rispondere al posto tuo</li>
+        <li><strong>Permesso contatti</strong> — per riconoscere chi è in rubrica</li>
+        <li><strong>Ruolo "App filtro chiamate"</strong> — Android ti chiederà di impostare StoppAI come predefinita</li>
+        <li><strong>Disattivazione risparmio batteria</strong> — altrimenti Android la spegne dopo qualche ora</li>
+      </ul>
+      <div class="screen-placeholder">
+        <span class="label">📷 Screenshot 5</span>
+        Schermate del setup guidato StoppAI
+      </div>
+      <div class="note">
+        <strong>💡 Importante:</strong> se il telefono è Samsung, durante il setup l'app ti chiederà di impostare "Senza restrizioni" per la batteria. Questo è normale e necessario — altrimenti Samsung la chiude dopo un po' di inattività.
+      </div>
+    </div>
+  </div>
+
+  <!-- STEP 6 -->
+  <div class="step-box">
+    <span class="step-num">6</span><h2>Accedi con il codice via email</h2>
+    <div class="body">
+      <p>Al termine del setup, StoppAI ti chiederà di <strong>accedere con la tua email Gmail</strong> (quella con cui ti sei iscritto).</p>
+      <p>Inserisci l'email, ricevi il <strong>codice a 6 cifre</strong> (via email o notifica push) e inseriscilo nell'app.</p>
+      <div class="screen-placeholder">
+        <span class="label">📷 Screenshot 6</span>
+        Schermata login StoppAI con campo codice
+      </div>
+    </div>
+  </div>
+
+  <!-- STEP 7 -->
+  <div class="step-box">
+    <span class="step-num">7</span><h2>Fatto! Inizia a testare</h2>
+    <div class="body">
+      <p>Sei dentro. Ora StoppAI è attiva e sta filtrando le chiamate sconosciute per te.</p>
+      <p>Torna alla <a href="/dashboard.html" style="color:var(--oro)">dashboard web</a> per vedere la tua <strong>checklist test</strong>: lì trovi le attività che ti chiediamo di fare durante il periodo di prova.</p>
+      <p>Se ti servono aiuti, usa la <strong>chat con il team</strong> in dashboard — ti rispondiamo al più presto.</p>
+    </div>
+  </div>
+
+  <!-- TROUBLESHOOTING -->
+  <div class="troubleshoot">
+    <h2>🔧 Problemi durante l'installazione?</h2>
+
+    <details>
+      <summary>Google Play dice "App non disponibile nel tuo paese"</summary>
+      <div class="body">
+        <p>Questo succede quando apri il link con un account Google diverso da quello con cui ti sei iscritto ai test. Verifica che sul telefono sia attivo il Gmail giusto (<em>Impostazioni → Account → Google</em>) e ricarica il link.</p>
+        <p>Se hai più account Gmail sul telefono, apri il link in <strong>modalità incognito</strong> e scegli l'account corretto dalla pagina di Google Play.</p>
+      </div>
+    </details>
+
+    <details>
+      <summary>Clicco "Diventa tester" ma non succede nulla</summary>
+      <div class="body">
+        <p>Aspetta 30-60 secondi e ricarica la pagina. A volte Google impiega qualche istante a registrare la tua iscrizione al programma beta.</p>
+        <p>Se dopo un minuto il bottone "Scarica da Google Play" non appare ancora, chiudi completamente l'app Google Play (forza arresto dalle impostazioni) e riapri il link.</p>
+      </div>
+    </details>
+
+    <details>
+      <summary>L'app si installa ma non riceve chiamate</summary>
+      <div class="body">
+        <p>Verifica due cose:</p>
+        <ul style="margin-left:1.2rem">
+          <li><strong>Ruolo app filtro chiamate</strong>: vai in <em>Impostazioni → App → App predefinite → ID chiamante e spam</em> e scegli StoppAI</li>
+          <li><strong>Risparmio batteria disattivato</strong>: <em>Impostazioni → Batteria → Ottimizzazione batteria</em> → trova StoppAI → imposta su "Non ottimizzare"</li>
+        </ul>
+      </div>
+    </details>
+
+    <details>
+      <summary>Non ho ricevuto l'email con il link</summary>
+      <div class="body">
+        <p>Controlla prima la cartella <strong>Spam/Promozioni</strong>. Il mittente è <em>info@internetfullservice.it</em>.</p>
+        <p>Se davvero non ti è arrivata, scrivi nella chat dalla tua <a href="/dashboard.html" style="color:var(--oro)">dashboard</a> e te la rinviamo subito.</p>
+      </div>
+    </details>
+
+    <details>
+      <summary>Posso installare StoppAI su più di un telefono?</summary>
+      <div class="body">
+        <p>Durante la fase beta, ogni email è associata a un telefono. Se hai bisogno di testare su più dispositivi, scrivici dalla chat dashboard e valutiamo caso per caso.</p>
+      </div>
+    </details>
+  </div>
+
+  <div style="text-align:center;margin-top:3rem">
+    <a href="/dashboard.html" class="btn btn-s">← Torna alla dashboard</a>
+  </div>
+</div>
+
+<footer>
+  <div class="footer-grid">
+    <div class="footer-about">
+      <div class="logo" style="font-family:'DM Sans';font-size:1.4rem;font-weight:800">STOPP<span class="gold">AI</span></div>
+      <p>Il tuo bodyguard digitale contro le chiamate indesiderate. Sviluppato in Italia da Internet Full Service.</p>
+    </div>
+    <div>
+      <h5>Prodotto</h5>
+      <ul>
+        <li><a href="/come-funziona.html">Come funziona</a></li>
+        <li><a href="/aria.html">ARIA</a></li>
+        <li><a href="/prezzi.html">Prezzi</a></li>
+        <li><a href="/faq.html">FAQ</a></li>
+      </ul>
+    </div>
+    <div>
+      <h5>Account</h5>
+      <ul>
+        <li><a href="/dashboard.html">Area personale</a></li>
+        <li><a href="/accedi.html">Accedi</a></li>
+      </ul>
+    </div>
+    <div>
+      <h5>Legale</h5>
+      <ul>
+        <li><a href="/privacy.html">Privacy Policy</a></li>
+        <li><a href="/elimina-account.html">Elimina account</a></li>
+      </ul>
+    </div>
+  </div>
+  <div class="footer-bottom">
+    <p>© 2026 Internet Full Service</p>
+  </div>
+</footer>
+
+<script>
+function toggleMenu(){ document.getElementById('navMenu').classList.toggle('open'); }
+</script>
+</body>
+</html>
