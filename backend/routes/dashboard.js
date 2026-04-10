@@ -96,18 +96,15 @@ router.post('/test-items/:id/toggle', authTester, (req, res) => {
   res.json({ success: true, fatto: 1 });
 });
 
-// GET /api/dashboard/test-items/:id/comments — commenti di tutti i tester su una voce
+// GET /api/dashboard/test-items/:id/comments — SOLO i commenti del tester corrente (mai vedere quelli degli altri)
 router.get('/test-items/:id/comments', authTester, (req, res) => {
   const rows = db.prepare(`
-    SELECT c.id, c.testo, c.timestamp, c.tester_id, t.nome
+    SELECT c.id, c.testo, c.timestamp
     FROM test_items_comments c
-    JOIN testers t ON t.id = c.tester_id
-    WHERE c.item_id = ?
+    WHERE c.item_id = ? AND c.tester_id = ?
     ORDER BY c.timestamp ASC
-  `).all(req.params.id);
-  // aggiunge flag 'mine' per distinguere i commenti del tester corrente
-  const withMine = rows.map(r => ({ ...r, mine: r.tester_id === req.tester.id }));
-  res.json(withMine);
+  `).all(req.params.id, req.tester.id);
+  res.json(rows.map(r => ({ ...r, mine: true })));
 });
 
 // POST /api/dashboard/test-items/:id/comments — aggiunge commento

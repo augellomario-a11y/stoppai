@@ -525,6 +525,14 @@ router.put('/test-items/:id', authAdmin, (req, res) => {
   res.json({ success: true });
 });
 
+// DELETE /api/admin/test-items/reset-all — cancella TUTTO: voci, progressi, commenti (PRIMA di :id!)
+router.delete('/test-items/reset-all', authAdmin, (req, res) => {
+  db.prepare('DELETE FROM test_items_comments').run();
+  db.prepare('DELETE FROM test_items_done').run();
+  db.prepare('DELETE FROM test_items').run();
+  res.json({ success: true });
+});
+
 // DELETE /api/admin/test-items/:id — soft delete (il numero non viene riutilizzato)
 router.delete('/test-items/:id', authAdmin, (req, res) => {
   const r = db.prepare('UPDATE test_items SET cancellato = 1 WHERE id = ?').run(req.params.id);

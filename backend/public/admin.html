@@ -870,6 +870,7 @@ async function loadTestItems(){
         <textarea id="newTestItem" rows="2" placeholder="Nuova voce della checklist test (es: Attiva la segreteria ARIA e verifica che risponda a un numero sconosciuto)" style="width:100%;background:#1a1a24;color:var(--bianco);border:1px solid var(--bordo);padding:10px;border-radius:4px;font-size:14px;resize:vertical;font-family:inherit"></textarea>
         <div style="display:flex;gap:8px;margin-top:10px;flex-wrap:wrap;align-items:center">
           <button class="btn btn-oro" onclick="addTestItem()">➕ Aggiungi voce</button>
+          <button class="btn btn-red" onclick="resetAllTestItems()" style="font-size:12px">🗑 Reset tutto</button>
           <span style="color:var(--grigio);font-size:12px">${countAtt} attive · ${countDel} cancellate · ${total} tester accettati</span>
           <label style="margin-left:auto;color:var(--grigio);font-size:12px;cursor:pointer;user-select:none">
             <input type="checkbox" ${testItemsShowDeleted?'checked':''} onchange="toggleShowDeleted(this.checked)" style="vertical-align:middle;margin-right:4px"> Mostra cancellate
@@ -933,6 +934,14 @@ function deleteTestItem(id){
     await fetch(API+'/test-items/'+id,{method:'DELETE'});
     showToast('Voce #'+id+' cancellata','success');
     loadTestItems();
+  }});
+}
+
+function resetAllTestItems(){
+  showModal({icon:'⚠️',title:'Reset checklist test',message:'Cancellare <strong>TUTTE</strong> le voci della checklist test, i progressi dei tester e tutti i commenti?<br><br>Questa azione è definitiva e non può essere annullata.',type:'danger',onConfirm:async()=>{
+    const r=await fetch(API+'/test-items/reset-all',{method:'DELETE',credentials:'include'});
+    if(r.ok){showToast('Checklist azzerata','success');loadTestItems()}
+    else showToast('Errore nel reset','error');
   }});
 }
 
