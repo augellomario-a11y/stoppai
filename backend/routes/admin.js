@@ -210,7 +210,15 @@ router.post('/testers/:id/stato', authAdmin, async (req, res) => {
 });
 
 // --- TEMPLATE EMAIL ---
-const PLAYSTORE_TEST_LINK = 'https://play.google.com/apps/internaltest/4701140799325601254';
+// Legge il link Play Store dal DB (app_config) — aggiornabile da admin senza deploy
+function getPlayStoreLink() {
+  try {
+    const row = db.prepare("SELECT valore FROM app_config WHERE chiave = 'playstore_link'").get();
+    return row?.valore || 'https://play.google.com/apps/internaltest/4701140799325601254';
+  } catch (e) {
+    return 'https://play.google.com/apps/internaltest/4701140799325601254';
+  }
+}
 
 function emailLayout(titolo, corpo) {
   return `
@@ -251,11 +259,11 @@ function emailAccettazione(nome) {
       </p>
     </div>
     <div style="text-align:center;margin:32px 0">
-      <a href="${PLAYSTORE_TEST_LINK}" style="display:inline-block;padding:16px 36px;background:#c8a96e;color:#0a0a0f;text-decoration:none;border-radius:6px;font-weight:bold;font-size:15px;letter-spacing:1px">🤖 INSTALLA STOPPAI</a>
+      <a href="${getPlayStoreLink()}" style="display:inline-block;padding:16px 36px;background:#c8a96e;color:#0a0a0f;text-decoration:none;border-radius:6px;font-weight:bold;font-size:15px;letter-spacing:1px">🤖 INSTALLA STOPPAI</a>
     </div>
     <p style="font-size:13px;line-height:1.6;color:#888;text-align:center;margin:24px 0">
       Se il bottone non funziona, copia e incolla questo link nel browser del tuo telefono:<br>
-      <a href="${PLAYSTORE_TEST_LINK}" style="color:#c8a96e;word-break:break-all">${PLAYSTORE_TEST_LINK}</a>
+      <a href="${getPlayStoreLink()}" style="color:#c8a96e;word-break:break-all">${getPlayStoreLink()}</a>
     </p>
     <p style="font-size:15px;line-height:1.7;color:#ddd;border-top:1px solid #1e1e1e;padding-top:20px;margin-top:24px">
       🎁 <strong style="color:#c8a96e">Bonus tester:</strong> se completerai tutte le fasi dei test, avrai diritto a
@@ -730,5 +738,96 @@ router.get('/aria', authAdmin, (req, res) => {
   ).all();
   res.json(messaggi);
 });
+
+// GET /api/admin/app-config — leggi configurazione app (link, versione, note)
+router.get('/app-config', authAdmin, (req, res) => {
+  const rows = db.prepare('SELECT chiave, valore FROM app_config').all();
+  const config = {};
+  rows.forEach(r => config[r.chiave] = r.valore);
+  res.json(config);
+});
+
+// POST /api/admin/app-config — salva configurazione app
+router.post('/app-config', authAdmin, (req, res) => {
+  const { playstore_link, app_version, release_notes } = req.body;
+  const now = new Date().toISOString();
+  if (playstore_link !== undefined) {
+    db.prepare('INSERT OR REPLACE INTO app_config (chiave, valore, aggiornato_at) VALUES (?, ?, ?)').run('playstore_link', playstore_link.trim(), now);
+  }
+  if (app_version !== undefined) {
+    db.prepare('INSERT OR REPLACE INTO app_config (chiave, valore, aggiornato_at) VALUES (?, ?, ?)').run('app_version', app_version.trim(), now);
+  }
+  if (release_notes !== undefined) {
+    db.prepare('INSERT OR REPLACE INTO app_config (chiave, valore, aggiornato_at) VALUES (?, ?, ?)').run('release_notes', release_notes.trim(), now);
+  }
+  res.json({ success: true });
+});
+
+// POST /api/admin/send-update — invia email aggiornamento app a tester selezionati
+router.post('/send-update', authAdmin, async (req, res) => {
+  const { tester_ids, link, versione, note } = req.body;
+  if (!link?.trim()) return res.status(400).json({ error: 'Link obbligatorio' });
+  if (!tester_ids || !tester_ids.length) return res.status(400).json({ error: 'Seleziona almeno un tester' });
+
+  // Recupera i tester selezionati
+  const placeholders = tester_ids.map(() => '?').join(',');
+  const testers = db.prepare(
+    `SELECT id, nome, email FROM testers WHERE id IN (${placeholders}) AND stato = 'accettato'`
+  ).all(...tester_ids);
+
+  if (!testers.length) return res.status(404).json({ error: 'Nessun tester accettato trovato' });
+
+  let sent = 0;
+  let errors = 0;
+
+  for (const t of testers) {
+    if (!resend || !t.email) { errors++; continue; }
+    try {
+      await resend.emails.send({
+        from: process.env.FROM_EMAIL,
+        to: t.email,
+        subject: `StoppAI — Aggiornamento app disponibile${versione ? ' (v' + versione + ')' : ''}`,
+        html: emailAggiornamentoApp(t.nome, link, versione, note)
+      });
+      sent++;
+    } catch (err) {
+      console.error(`[UPDATE-EMAIL] Errore invio a ${t.email}:`, err.message);
+      errors++;
+    }
+  }
+
+  res.json({ success: true, sent, errors, total: testers.length });
+});
+
+function emailAggiornamentoApp(nome, link, versione, note) {
+  return emailLayout(
+    `Aggiornamento disponibile!`,
+    `
+    <p style="font-size:15px;line-height:1.7;color:#ddd">
+      Ciao ${nome},<br>
+      è disponibile una nuova versione di StoppAI${versione ? ' (<strong style="color:#c8a96e">v' + versione + '</strong>)' : ''}.
+    </p>
+    ${note ? `
+    <div style="background:#12121a;border:1px solid #1e1e1e;border-radius:8px;padding:20px;margin:20px 0">
+      <p style="margin:0 0 8px 0;font-size:14px;color:#c8a96e;font-weight:bold">Novità in questa versione:</p>
+      <p style="margin:0;font-size:14px;line-height:1.8;color:#ccc">${note.replace(/\n/g, '<br>')}</p>
+    </div>` : ''}
+    <p style="font-size:15px;line-height:1.7;color:#ddd">
+      Per aggiornare, apri il link qui sotto dal tuo telefono Android:
+    </p>
+    <div style="text-align:center;margin:28px 0">
+      <a href="${link}" style="display:inline-block;padding:16px 36px;background:#c8a96e;color:#0a0a0f;text-decoration:none;border-radius:6px;font-weight:bold;font-size:15px;letter-spacing:1px">🔄 AGGIORNA STOPPAI</a>
+    </div>
+    <p style="font-size:13px;line-height:1.6;color:#888;text-align:center">
+      Se il bottone non funziona, copia e incolla questo link nel browser del telefono:<br>
+      <a href="${link}" style="color:#c8a96e;word-break:break-all">${link}</a>
+    </p>
+    <p style="font-size:13px;color:#888;margin-top:20px">
+      L'aggiornamento potrebbe richiedere qualche minuto per essere disponibile su Google Play.<br>
+      Per qualsiasi dubbio rispondi a questa email.
+    </p>
+    `
+  );
+}
 
 module.exports = router;

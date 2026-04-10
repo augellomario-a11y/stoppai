@@ -173,6 +173,25 @@ try {
   db.exec("ALTER TABLE testers ADD COLUMN fcm_token TEXT");
 }
 
+// Configurazione app (link Play Store, versione, note rilascio) — salvata da admin, usata in tutte le email
+db.exec(`
+  CREATE TABLE IF NOT EXISTS app_config (
+    chiave TEXT PRIMARY KEY,
+    valore TEXT,
+    aggiornato_at TEXT DEFAULT (datetime('now'))
+  );
+`);
+// Valori di default se non esistono
+const defaults = {
+  playstore_link: 'https://play.google.com/apps/internaltest/4701140799325601254',
+  app_version: '5.8.0',
+  release_notes: ''
+};
+for (const [k, v] of Object.entries(defaults)) {
+  const existing = db.prepare('SELECT 1 FROM app_config WHERE chiave = ?').get(k);
+  if (!existing) db.prepare('INSERT INTO app_config (chiave, valore) VALUES (?, ?)').run(k, v);
+}
+
 // Sessioni dashboard web tester (Step 4)
 db.exec(`
   CREATE TABLE IF NOT EXISTS tester_sessions (

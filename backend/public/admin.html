@@ -206,7 +206,7 @@ const API='/api/admin';
 let testers=[], currentTester=null, currentTab='chat';
 
 // --- MODAL SYSTEM ---
-function showModal({icon,title,message,type,inputDefault,onConfirm,onCancel}){
+function showModal({icon,title,message,type,inputDefault,onConfirm,onCancel,confirmLabel}){
   const overlay=document.createElement('div');
   overlay.className='modal-overlay';
   const isDanger=type==='danger';
@@ -217,7 +217,7 @@ function showModal({icon,title,message,type,inputDefault,onConfirm,onCancel}){
     <div class="modal-body">${message||''}${isPrompt?`<textarea id="modalInput" rows="3">${inputDefault||''}</textarea>`:''}</div>
     <div class="modal-footer">
       ${isAlert?'':`<button class="modal-btn modal-btn-cancel" id="modalCancel">Annulla</button>`}
-      <button class="modal-btn ${isDanger?'modal-btn-danger':'modal-btn-ok'}" id="modalOk">${isDanger?'Elimina':isAlert?'OK':'Conferma'}</button>
+      <button class="modal-btn ${isDanger?'modal-btn-danger':'modal-btn-ok'}" id="modalOk">${confirmLabel||(isDanger?'Elimina':isAlert?'OK':'Conferma')}</button>
     </div>
   </div>`;
   document.body.appendChild(overlay);
@@ -752,18 +752,66 @@ const origSwitchTab=switchTab;
 switchTab=async function(tab,id){await origSwitchTab(tab,id);if(tab==='stats'){loadBattery(id);if(document.getElementById('statsChart')){cachedStats={};showChartView('pie',id)}}}
 
 // BROADCAST
-function loadBroadcast(){
+async function loadBroadcast(){
+  // Carica config salvata + lista tester
+  const config=await(await fetch(API+'/app-config')).json();
+  const allTesters=await(await fetch(API+'/testers')).json();
+  const accettati=allTesters.filter(t=>t.stato==='accettato');
+  const testerCheckboxes=accettati.map(t=>`
+    <label style="display:flex;align-items:center;gap:8px;padding:6px 0;cursor:pointer;font-size:13px;color:var(--bianco)">
+      <input type="checkbox" class="update-tester-cb" value="${t.id}" checked style="width:16px;height:16px">
+      ${escapeHtml(t.nome)} ${escapeHtml(t.cognome)} <span style="color:var(--grigio);font-size:11px">${t.email}</span>
+    </label>
+  `).join('');
+
   document.getElementById('viewContent').innerHTML=`
-    <div style="max-width:600px">
-      <h3 style="color:var(--oro);margin-bottom:16px">Invia comunicazione a tutti i tester</h3>
-      <div class="field"><label>Oggetto (visibile nella notifica push)</label>
-        <input id="bcSubject" style="width:100%;background:#1a1a24;color:var(--bianco);border:1px solid var(--bordo);padding:10px;border-radius:4px;font-size:14px" placeholder="Es: Aggiornamento importante"></div>
-      <div class="field"><label>Messaggio</label>
-        <textarea id="bcBody" rows="6" style="width:100%;background:#1a1a24;color:var(--bianco);border:1px solid var(--bordo);padding:10px;border-radius:4px;font-size:14px;resize:vertical" placeholder="Scrivi il messaggio che riceveranno tutti i tester..."></textarea></div>
-      <div style="display:flex;gap:8px;margin-top:12px">
-        <button class="btn btn-oro" onclick="sendBroadcast()">Invia a tutti</button>
-        <span id="bcStatus" style="color:var(--verde);font-size:13px;align-self:center"></span>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:24px;max-width:1200px">
+
+      <!-- COLONNA 1: Comunicazione chat broadcast -->
+      <div>
+        <h3 style="color:var(--oro);margin-bottom:16px">💬 Comunicazione chat</h3>
+        <p style="color:var(--grigio);font-size:12px;margin-bottom:12px">Invia un messaggio nella chat di tutti i tester accettati.</p>
+        <div class="field"><label>Oggetto</label>
+          <input id="bcSubject" style="width:100%;background:#1a1a24;color:var(--bianco);border:1px solid var(--bordo);padding:10px;border-radius:4px;font-size:14px" placeholder="Es: Aggiornamento importante"></div>
+        <div class="field"><label>Messaggio</label>
+          <textarea id="bcBody" rows="4" style="width:100%;background:#1a1a24;color:var(--bianco);border:1px solid var(--bordo);padding:10px;border-radius:4px;font-size:14px;resize:vertical" placeholder="Scrivi il messaggio che riceveranno tutti i tester..."></textarea></div>
+        <div style="display:flex;gap:8px;margin-top:12px">
+          <button class="btn btn-oro" onclick="sendBroadcast()">📢 Invia a tutti</button>
+          <span id="bcStatus" style="color:var(--verde);font-size:13px;align-self:center"></span>
+        </div>
       </div>
+
+      <!-- COLONNA 2: Email aggiornamento app -->
+      <div>
+        <h3 style="color:var(--oro);margin-bottom:16px">📧 Email aggiornamento app</h3>
+        <p style="color:var(--grigio);font-size:12px;margin-bottom:12px">Invia un'email con il link per aggiornare l'app dal Play Store.</p>
+        <div class="field"><label>Link Play Store</label>
+          <input id="updateLink" style="width:100%;background:#1a1a24;color:var(--bianco);border:1px solid var(--bordo);padding:10px;border-radius:4px;font-size:13px;font-family:monospace" value="${config.playstore_link||''}"></div>
+        <div class="field"><label>Versione corrente</label>
+          <input id="updateVersion" style="width:100%;background:#1a1a24;color:var(--bianco);border:1px solid var(--bordo);padding:10px;border-radius:4px;font-size:14px" placeholder="Es: 5.8.0" value="${config.app_version||''}"></div>
+        <div class="field"><label>Note di rilascio</label>
+          <textarea id="updateNotes" rows="3" style="width:100%;background:#1a1a24;color:var(--bianco);border:1px solid var(--bordo);padding:10px;border-radius:4px;font-size:14px;resize:vertical" placeholder="Es: Migliorata la segreteria ARIA, fix notifiche push...">${config.release_notes||''}</textarea></div>
+        <div style="margin-top:8px;margin-bottom:12px">
+          <button class="btn btn-ghost" onclick="saveAppConfig()" style="font-size:12px">💾 Salva impostazioni</button>
+          <span id="configStatus" style="color:var(--verde);font-size:12px;margin-left:8px"></span>
+        </div>
+        <div style="background:rgba(200,169,110,0.08);border:1px solid rgba(200,169,110,0.2);border-radius:4px;padding:8px 12px;margin-bottom:12px;font-size:11px;color:var(--grigio)">
+          💡 Salvando, il link verrà usato automaticamente anche nelle <strong style="color:var(--oro)">email di benvenuto</strong> quando accetti un nuovo tester. Zero deploy necessario.
+        </div>
+        <div class="field"><label>Destinatari (${accettati.length} tester accettati)</label>
+          <div style="background:#1a1a24;border:1px solid var(--bordo);border-radius:4px;padding:8px 12px;max-height:160px;overflow-y:auto">
+            <label style="display:flex;align-items:center;gap:8px;padding:6px 0;cursor:pointer;font-size:13px;color:var(--oro);font-weight:600;border-bottom:1px solid var(--bordo);margin-bottom:4px">
+              <input type="checkbox" id="updateSelectAll" checked onchange="toggleAllUpdateTesters(this.checked)" style="width:16px;height:16px"> Seleziona tutti
+            </label>
+            ${testerCheckboxes || '<p style="color:var(--grigio);font-size:12px">Nessun tester accettato</p>'}
+          </div>
+        </div>
+        <div style="display:flex;gap:8px;margin-top:12px">
+          <button class="btn btn-oro" onclick="sendUpdateEmail()">📧 Invia email aggiornamento</button>
+          <span id="updateStatus" style="color:var(--verde);font-size:13px;align-self:center"></span>
+        </div>
+      </div>
+
     </div>`;
 }
 
@@ -920,10 +968,65 @@ function sendBroadcast(){
   const subject=document.getElementById('bcSubject').value.trim();
   const body=document.getElementById('bcBody').value.trim();
   if(!subject||!body){showModal({icon:'📝',title:'Campi mancanti',message:'Compila sia l\'oggetto che il messaggio prima di inviare.',type:'alert'});return}
-  showModal({icon:'📢',title:'Conferma invio',message:'Inviare questo messaggio a <strong>TUTTI</strong> i tester accettati?',type:'danger',onConfirm:async()=>{
+  showModal({icon:'📢',title:'Conferma invio',message:'Inviare questo messaggio a <strong>TUTTI</strong> i tester accettati?',type:'danger',confirmLabel:'📢 Invia',onConfirm:async()=>{
     const r=await fetch(API+'/broadcast',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({oggetto:subject,testo:body})});
     const d=await r.json();
-    document.getElementById('bcStatus').textContent=d.success?'Inviato a '+d.count+' tester':'Errore: '+d.error;
+    document.getElementById('bcStatus').textContent=d.success?'✓ Inviato a '+d.count+' tester':'Errore: '+d.error;
+  }});
+}
+
+async function saveAppConfig(){
+  const link=document.getElementById('updateLink').value.trim();
+  const version=document.getElementById('updateVersion').value.trim();
+  const notes=document.getElementById('updateNotes').value.trim();
+  const status=document.getElementById('configStatus');
+  try{
+    const r=await fetch(API+'/app-config',{method:'POST',headers:{'Content-Type':'application/json'},credentials:'include',body:JSON.stringify({playstore_link:link,app_version:version,release_notes:notes})});
+    if(r.ok){
+      status.style.color='var(--verde)';
+      status.textContent='✓ Salvato! Il link sarà usato in tutte le email.';
+      showToast('Configurazione salvata','success');
+      setTimeout(()=>{status.textContent=''},5000);
+    }else{
+      status.style.color='var(--rosso)';
+      status.textContent='Errore nel salvataggio';
+    }
+  }catch(e){
+    status.style.color='var(--rosso)';
+    status.textContent='Errore di connessione';
+  }
+}
+
+function toggleAllUpdateTesters(checked){
+  document.querySelectorAll('.update-tester-cb').forEach(cb=>cb.checked=checked);
+}
+
+function sendUpdateEmail(){
+  const link=document.getElementById('updateLink').value.trim();
+  const versione=document.getElementById('updateVersion').value.trim();
+  const note=document.getElementById('updateNotes').value.trim();
+  if(!link){showToast('Inserisci il link Play Store','error');return}
+  const selectedIds=[...document.querySelectorAll('.update-tester-cb:checked')].map(cb=>parseInt(cb.value));
+  if(!selectedIds.length){showToast('Seleziona almeno un tester','error');return}
+  showModal({icon:'📧',title:'Conferma invio email',message:`Inviare l'email di aggiornamento a <strong>${selectedIds.length}</strong> tester?${versione?' Versione: <strong>'+versione+'</strong>':''}`,type:'danger',confirmLabel:'📧 Invia',onConfirm:async()=>{
+    const status=document.getElementById('updateStatus');
+    status.textContent='Invio in corso...';
+    status.style.color='var(--oro)';
+    try{
+      const r=await fetch(API+'/send-update',{method:'POST',headers:{'Content-Type':'application/json'},credentials:'include',body:JSON.stringify({tester_ids:selectedIds,link,versione,note})});
+      const d=await r.json();
+      if(d.success){
+        status.style.color='var(--verde)';
+        status.textContent=`✓ Inviate ${d.sent} email${d.errors?' ('+d.errors+' errori)':''}`;
+        showToast(`Email inviate a ${d.sent} tester`,'success');
+      }else{
+        status.style.color='var(--rosso)';
+        status.textContent='Errore: '+d.error;
+      }
+    }catch(e){
+      status.style.color='var(--rosso)';
+      status.textContent='Errore di connessione';
+    }
   }});
 }
 </script>
