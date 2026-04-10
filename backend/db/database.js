@@ -159,6 +159,20 @@ try {
   db.exec("ALTER TABLE aria_messaggi ADD COLUMN accuracy_rating INTEGER");
 }
 
+// Migrazione: aggiunge colonna spam_score a aria_messaggi (0-100, analisi automatica testo)
+try {
+  db.prepare("SELECT spam_score FROM aria_messaggi LIMIT 1").get();
+} catch (e) {
+  db.exec("ALTER TABLE aria_messaggi ADD COLUMN spam_score INTEGER");
+}
+
+// Migrazione: aggiunge colonna fcm_token a testers (per push notification per-tester)
+try {
+  db.prepare("SELECT fcm_token FROM testers LIMIT 1").get();
+} catch (e) {
+  db.exec("ALTER TABLE testers ADD COLUMN fcm_token TEXT");
+}
+
 // Sessioni dashboard web tester (Step 4)
 db.exec(`
   CREATE TABLE IF NOT EXISTS tester_sessions (

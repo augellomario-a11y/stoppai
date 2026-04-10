@@ -155,9 +155,9 @@ router.post('/chat', authTester, (req, res) => {
 // (non ancora associati dal worker) vengono comunque mostrati — stessa logica di admin.js
 router.get('/aria-messaggi', authTester, (req, res) => {
   const msgs = db.prepare(`
-    SELECT id, caller_number, caller_name, wav_filename, trascrizione, durata_secondi, dimensione_kb, timestamp, accuracy_rating
+    SELECT id, caller_number, caller_name, wav_filename, trascrizione, durata_secondi, dimensione_kb, timestamp, accuracy_rating, spam_score
     FROM aria_messaggi
-    WHERE (tester_id = ? OR tester_id IS NULL)
+    WHERE tester_id = ?
       AND timestamp > datetime('now','-24 hours')
     ORDER BY timestamp DESC
     LIMIT 200
@@ -201,8 +201,7 @@ router.get('/aria-download/:id', authTester, (req, res) => {
 router.delete('/aria-messaggi/:id', authTester, (req, res) => {
   const msg = db.prepare('SELECT id, tester_id FROM aria_messaggi WHERE id = ?').get(parseInt(req.params.id, 10));
   if (!msg) return res.status(404).json({ error: 'Messaggio non trovato' });
-  // stessa logica di lettura: consenti se tester_id coincide o è NULL (fase beta singolo tester)
-  if (msg.tester_id !== null && msg.tester_id !== req.tester.id) {
+  if (msg.tester_id !== req.tester.id) {
     return res.status(403).json({ error: 'Non autorizzato' });
   }
   db.prepare('DELETE FROM aria_messaggi WHERE id = ?').run(msg.id);

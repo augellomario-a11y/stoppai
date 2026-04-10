@@ -18,14 +18,14 @@ object CallLogHelper {
     /**
      * Registra una chiamata nel database in background
      */
-    fun saveCallLog(context: Context, rawNumber: String, outcome: String, smsSent: Boolean) {
+    fun saveCallLog(context: Context, rawNumber: String, outcome: String, smsSent: Boolean, direction: String = "ENTRATA") {
         if (rawNumber.isBlank()) return
-        
+
         CoroutineScope(Dispatchers.IO).launch {
             val displayName = getContactName(context, rawNumber)
             val logNumber = rawNumber.ifEmpty { "Numero nascosto" }
             val db = StoppAiDatabase.getInstance(context)
-            
+
             val entry = CallLogEntry(
                 phoneNumber = logNumber,
                 callType = NumberClassifier.getTipoNumero(rawNumber),
@@ -33,7 +33,7 @@ object CallLogHelper {
                 callOutcome = outcome,
                 displayName = displayName,
                 smsInviato = smsSent,
-                callDirection = "ENTRATA"
+                callDirection = direction
             )
             
             db.callLogDao().insertCallLog(entry)
