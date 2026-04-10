@@ -177,6 +177,43 @@ class OnboardingStepFragment : Fragment() {
                 btnSecondary.visibility = View.VISIBLE
                 btnSecondary.setOnClickListener { viewModel.next() }
             }
+            OnboardingViewModel.Step.ARIA_FORWARDING -> {
+                icon.text = "🎙️"
+                title.text = "Attiva la segreteria ARIA"
+                val alreadyDone = viewModel.isStepGranted(step)
+                if (alreadyDone) {
+                    body.text = "La segreteria ARIA è attiva.\nLe chiamate sconosciute verranno deviate ad ARIA automaticamente."
+                    btnPrimary.text = "✅ Segreteria ARIA attiva — Avanti →"
+                    btnPrimary.backgroundTintList = android.content.res.ColorStateList.valueOf(0xFF2a5a30.toInt())
+                    btnPrimary.setTextColor(0xFF9bdf9b.toInt())
+                    btnPrimary.setOnClickListener { viewModel.next() }
+                    btnSecondary.visibility = View.GONE
+                    warning.visibility = View.GONE
+                } else {
+                    body.text = "ARIA risponde al posto tuo quando non puoi.\n\nTocca il pulsante e attendi 10 secondi.\nFacciamo tutto noi."
+                    warning.visibility = View.GONE
+                    btnPrimary.text = "Attiva segreteria ARIA →"
+                    btnPrimary.setOnClickListener {
+                        btnPrimary.isEnabled = false
+                        btnPrimary.text = "⏳ Configurazione in corso..."
+                        btnPrimary.backgroundTintList = android.content.res.ColorStateList.valueOf(0xFF1a1a24.toInt())
+                        btnPrimary.setTextColor(0xFFc8a96e.toInt())
+                        com.ifs.stoppai.core.UssdManager.activateForward(requireContext())
+                        // Dopo 12 secondi: mostra completato
+                        v.postDelayed({
+                            btnPrimary.isEnabled = true
+                            btnPrimary.text = "✅ Segreteria ARIA attiva — Avanti →"
+                            btnPrimary.backgroundTintList = android.content.res.ColorStateList.valueOf(0xFF2a5a30.toInt())
+                            btnPrimary.setTextColor(0xFF9bdf9b.toInt())
+                            btnPrimary.setOnClickListener { viewModel.next() }
+                            btnSecondary.visibility = View.GONE
+                            warning.visibility = View.GONE
+                            updateStatusIcon(v, step)
+                        }, 12000)
+                    }
+                    btnSecondary.visibility = View.GONE
+                }
+            }
             OnboardingViewModel.Step.SUMMARY -> {
                 icon.text = "✅"
                 title.text = "Sei protetto."
@@ -241,6 +278,7 @@ class OnboardingStepFragment : Fragment() {
 
     private fun updateStatusIcon(v: View, step: OnboardingViewModel.Step) {
         val statusView = v.findViewById<TextView>(R.id.txt_step_status)
+        val btnPrimary = v.findViewById<Button>(R.id.btn_primary)
         val showStatus = step in listOf(
             OnboardingViewModel.Step.CONTACTS,
             OnboardingViewModel.Step.PHONE_STATE,
@@ -248,11 +286,22 @@ class OnboardingStepFragment : Fragment() {
             OnboardingViewModel.Step.CALL_PHONE,
             OnboardingViewModel.Step.NOTIFICATIONS,
             OnboardingViewModel.Step.SMS,
-            OnboardingViewModel.Step.BATTERY
+            OnboardingViewModel.Step.BATTERY,
+            OnboardingViewModel.Step.ARIA_FORWARDING
         )
         if (showStatus) {
-            statusView.text = if (viewModel.isStepGranted(step)) "🟢 Attivo" else "🔴 Non attivo"
+            val granted = viewModel.isStepGranted(step)
+            statusView.text = if (granted) "🟢 Attivo" else "🔴 Non attivo"
             statusView.visibility = View.VISIBLE
+            // Feedback visivo: pulsante verde quando il permesso è concesso + nasconde secondario
+            if (granted && step != OnboardingViewModel.Step.ARIA_FORWARDING) {
+                btnPrimary.backgroundTintList = android.content.res.ColorStateList.valueOf(0xFF2a5a30.toInt())
+                btnPrimary.setTextColor(0xFF9bdf9b.toInt())
+                btnPrimary.text = "✅ Fatto — Avanti →"
+                btnPrimary.setOnClickListener { viewModel.next() }
+                val btnSec = v.findViewById<Button>(R.id.btn_secondary)
+                btnSec.visibility = View.GONE
+            }
         } else {
             statusView.visibility = View.GONE
         }
@@ -309,6 +358,7 @@ class OnboardingStepFragment : Fragment() {
         OnboardingViewModel.Step.NOTIFICATIONS -> "Notifiche"
         OnboardingViewModel.Step.SMS -> "Invio SMS"
         OnboardingViewModel.Step.BATTERY -> "Ottimizzazione batteria"
+        OnboardingViewModel.Step.ARIA_FORWARDING -> "Segreteria ARIA"
         else -> s.name
     }
 

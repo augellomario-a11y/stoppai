@@ -129,6 +129,7 @@ body{font-family:-apple-system,sans-serif;background:var(--bg);color:var(--bianc
 @keyframes modalFadeIn{from{opacity:0}to{opacity:1}}
 .modal-box{background:var(--card);border:1px solid var(--bordo);border-radius:14px;width:380px;max-width:90vw;overflow:hidden;box-shadow:0 20px 60px rgba(0,0,0,.5);animation:modalSlide .25s}
 @keyframes modalSlide{from{transform:translateY(-20px);opacity:0}to{transform:translateY(0);opacity:1}}
+@keyframes slideIn{from{transform:translateX(100%);opacity:0}to{transform:translateX(0);opacity:1}}
 .modal-header{padding:20px 24px 0;display:flex;align-items:center;gap:10px}
 .modal-header .icon{font-size:24px}
 .modal-header .title{font-size:16px;font-weight:700;color:var(--bianco)}
@@ -184,6 +185,7 @@ body{font-family:-apple-system,sans-serif;background:var(--bg);color:var(--bianc
         <div class="sb-item active" onclick="showView('dashboard')">📊 Dashboard</div>
         <div class="sb-item" onclick="showView('testers')">👥 Tester</div>
         <div class="sb-item" onclick="showView('broadcast')">📢 Comunicazioni</div>
+        <div class="sb-item" onclick="showView('testitems')">🧪 Test TO-DO</div>
         <div class="sb-item" onclick="showView('referral')">🔗 Referral</div>
         <div class="sb-item" onclick="showView('links')">🛡️ Link pericolosi</div>
       </div>
@@ -252,25 +254,55 @@ async function doLoginCode(){
   if(r.ok){document.getElementById('login').style.display='none';document.getElementById('app').style.display='block';showView('dashboard')}
   else{document.getElementById('loginErr').textContent='Codice non valido';document.getElementById('loginErr').style.display='block'}
 }
-async function doLogout(){await fetch(API+'/logout',{method:'POST'});location.reload()}
-fetch(API+'/stats').then(r=>{if(r.ok){document.getElementById('login').style.display='none';document.getElementById('app').style.display='block';showView('dashboard')}});
+async function doLogout(){
+  try{await fetch(API+'/logout',{method:'POST',credentials:'include'})}catch(e){}
+  window.location.href='/';
+}
+// Al caricamento: se cookie admin valido → mostra app; altrimenti redirect a /accedi.html
+fetch(API+'/stats',{credentials:'include'}).then(r=>{
+  if(r.ok){
+    document.getElementById('login').style.display='none';
+    document.getElementById('app').style.display='block';
+    showView('dashboard');
+  } else {
+    // non autenticato → manda al punto di ingresso pubblico
+    window.location.href='/accedi.html';
+  }
+}).catch(()=>{ window.location.href='/accedi.html'; });
 
 // --- VIEWS ---
+let dashboardPollTimer=null,testItemsPollTimer=null,testerListPollTimer=null;
+function stopAllViewPolls(){
+  if(dashboardPollTimer){clearInterval(dashboardPollTimer);dashboardPollTimer=null}
+  if(testItemsPollTimer){clearInterval(testItemsPollTimer);testItemsPollTimer=null}
+  if(testerListPollTimer){clearInterval(testerListPollTimer);testerListPollTimer=null}
+}
 function showView(v){
-  stopChatPoll();stopAriaPoll();
-  document.querySelectorAll('.sb-item').forEach((el,i)=>{el.classList.toggle('active',['dashboard','testers','broadcast','referral','links'][i]===v)});
+  stopChatPoll();stopAriaPoll();stopAllViewPolls();
+  document.querySelectorAll('.sb-item').forEach((el,i)=>{el.classList.toggle('active',['dashboard','testers','broadcast','testitems','referral','links'][i]===v)});
   currentTester=null;
-  if(v==='dashboard')loadDashboard();
-  else if(v==='testers')loadTesterList();
+  if(v==='dashboard'){loadDashboard();dashboardPollTimer=setInterval(loadDashboard,15000)}
+  else if(v==='testers'){loadTesterList();testerListPollTimer=setInterval(loadTesterList,15000)}
   else if(v==='broadcast')loadBroadcast();
+  else if(v==='testitems'){loadTestItems();testItemsPollTimer=setInterval(loadTestItems,20000)}
   else if(v==='referral')document.getElementById('viewContent').innerHTML='<p style="color:var(--grigio);padding:40px;text-align:center">Gestione Referral — in arrivo</p>';
   else if(v==='links')document.getElementById('viewContent').innerHTML='<p style="color:var(--grigio);padding:40px;text-align:center">Gestione Link e messaggi pericolosi — in arrivo</p>';
-  document.getElementById('viewTitle').textContent={dashboard:'Dashboard',testers:'Tester',broadcast:'Comunicazioni',referral:'Referral',links:'Link pericolosi'}[v];
+  document.getElementById('viewTitle').textContent={dashboard:'Dashboard',testers:'Tester',broadcast:'Comunicazioni',testitems:'Test TO-DO (broadcast)',referral:'Referral',links:'Link pericolosi'}[v];
 }
 
 // --- DASHBOARD ---
 async function loadDashboard(){
   const s=await(await fetch(API+'/stats')).json();
+  const acc=await(await fetch(API+'/aria-accuracy')).json();
+  const avg=acc.avg_rating!==null?acc.avg_rating+'%':'—';
+  const color=acc.avg_rating===null?'var(--grigio)':(acc.avg_rating>=80?'var(--verde)':(acc.avg_rating>=60?'var(--oro)':'var(--rosso)'));
+  const max=Math.max(1,acc.distribution[100],acc.distribution[80],acc.distribution[60],acc.distribution[40],acc.distribution[20]);
+  const bar=(n,v,col)=>`
+    <div style="display:flex;align-items:center;gap:8px;margin-bottom:6px;font-size:11px">
+      <div style="width:34px;color:var(--grigio);text-align:right">${n}%</div>
+      <div style="flex:1;background:#1a1a24;border-radius:3px;height:14px;overflow:hidden"><div style="width:${v/max*100}%;background:${col};height:100%"></div></div>
+      <div style="width:28px;color:var(--bianco);font-weight:600">${v}</div>
+    </div>`;
   document.getElementById('viewContent').innerHTML=`
     <div class="stats">
       <div class="stat"><div class="n">${s.totale}</div><div class="label">Totale</div></div>
@@ -279,13 +311,42 @@ async function loadDashboard(){
       <div class="stat"><div class="n">${s.piani.shield}</div><div class="label">Shield</div></div>
       <div class="stat"><div class="n">${s.piani.pro}</div><div class="label">Pro</div></div>
       <div class="stat"><div class="n">${s.piani.free}</div><div class="label">Free</div></div>
+    </div>
+
+    <div style="margin-top:24px;background:var(--card);border:1px solid var(--bordo);border-radius:8px;padding:20px;max-width:560px">
+      <h3 style="color:var(--oro);font-size:13px;margin-bottom:12px;text-transform:uppercase;letter-spacing:0.05em">🎙️ Qualità trascrizione ARIA</h3>
+      <div style="display:flex;align-items:center;gap:20px;margin-bottom:14px">
+        <div>
+          <div style="font-size:34px;font-weight:800;color:${color};line-height:1">${avg}</div>
+          <div style="font-size:11px;color:var(--grigio);margin-top:2px">Media fedeltà</div>
+        </div>
+        <div style="flex:1">
+          <div style="font-size:13px;color:var(--bianco)">${acc.rated} valutazioni</div>
+          <div style="font-size:11px;color:var(--grigio);margin-top:2px">su ${acc.total_messages} messaggi totali</div>
+        </div>
+      </div>
+      ${acc.rated>0?`
+      <div style="margin-top:16px">
+        ${bar(100,acc.distribution[100],'var(--verde)')}
+        ${bar(80,acc.distribution[80],'#9bdf9b')}
+        ${bar(60,acc.distribution[60],'var(--oro)')}
+        ${bar(40,acc.distribution[40],'#ffb86c')}
+        ${bar(20,acc.distribution[20],'var(--rosso)')}
+      </div>`:'<div style="color:var(--grigio);font-size:12px;font-style:italic;text-align:center;padding:10px">Nessuna valutazione ancora. I tester possono votare la fedeltà delle trascrizioni dalla loro dashboard.</div>'}
     </div>`;
 }
 
 // --- TESTER LIST ---
 async function loadTesterList(){
+  // se sono dentro una scheda tester (openTester), non rimpiazzare il contenuto
+  if(currentTester)return;
   testers=await(await fetch(API+'/testers')).json();
-  let h='<div class="tester-list">';
+  const accettati=testers.filter(t=>t.stato==='accettato').length;
+  let h=`<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;gap:12px;flex-wrap:wrap">
+    <div style="font-size:13px;color:var(--grigio)">${testers.length} tester totali · <b style="color:var(--verde)">${accettati} accettati</b></div>
+    <button class="btn btn-oro" onclick="exportTestersCsv()" ${accettati===0?'disabled style="opacity:0.5;cursor:not-allowed"':''}>⬇ Esporta CSV accettati</button>
+  </div>
+  <div class="tester-list">`;
   testers.forEach(t=>{
     h+=`<div class="t-row" onclick="openTester(${t.id})">
       <div class="t-avatar">${t.nome[0]}${t.cognome[0]}</div>
@@ -296,6 +357,20 @@ async function loadTesterList(){
   });
   h+='</div>';
   document.getElementById('viewContent').innerHTML=h;
+}
+
+async function exportTestersCsv(){
+  try {
+    const r=await fetch(API+'/testers/export.csv',{credentials:'include'});
+    if(!r.ok){alert('Errore export: '+r.status);return}
+    const blob=await r.blob();
+    const url=URL.createObjectURL(blob);
+    const a=document.createElement('a');
+    a.href=url;
+    a.download=`stoppai-testers-accettati-${new Date().toISOString().slice(0,10)}.csv`;
+    document.body.appendChild(a);a.click();a.remove();
+    URL.revokeObjectURL(url);
+  }catch(e){alert('Errore: '+e.message)}
 }
 
 // --- SCHEDA TESTER ---
@@ -312,17 +387,18 @@ async function openTester(id){
       </div>
       <div class="field"><label>Telefono</label><div class="field-val">${t.telefono}</div></div>
       <div class="field"><label>Stato</label>
-        <select onchange="setStato(${t.id},this.value)">
+        <select id="editStato" data-original="${t.stato}" onchange="markDirty()">
           <option value="in_attesa" ${t.stato==='in_attesa'?'selected':''}>In attesa</option>
           <option value="accettato" ${t.stato==='accettato'?'selected':''}>Accettato</option>
           <option value="rifiutato" ${t.stato==='rifiutato'?'selected':''}>Rifiutato</option>
         </select></div>
       <div class="field"><label>Piano</label>
-        <select onchange="setPiano(${t.id},this.value)">
+        <select id="editPiano" data-original="${t.piano}" onchange="markDirty()">
           <option value="free" ${t.piano==='free'?'selected':''}>Free</option>
           <option value="pro" ${t.piano==='pro'?'selected':''}>Pro</option>
           <option value="shield" ${t.piano==='shield'?'selected':''}>Shield</option>
         </select></div>
+      <button id="btnSalvaTester" class="btn btn-oro" style="width:100%;margin-top:10px;opacity:0.5;cursor:not-allowed" disabled onclick="salvaTester(${t.id})">💾 Salva modifiche</button>
       <div class="field"><label>Iscritto il</label><div class="field-val">${t.data_iscrizione?.replace('T',' ').slice(0,16)||'-'}</div></div>
       <div class="field"><label>Accettato il</label><div class="field-val">${t.data_accettazione?.replace('T',' ').slice(0,16)||'-'}</div></div>
       <div class="field"><label>Modello telefono</label><div class="field-val">${t.modello_telefono||'Non disponibile'}</div></div>
@@ -353,7 +429,7 @@ async function openTester(id){
 async function switchTab(tab,id){
   currentTab=tab;
   document.querySelectorAll('.tab').forEach(el=>el.classList.remove('active'));
-  document.querySelectorAll('.tab').forEach(el=>{if(el.textContent.includes({chat:'Chat',notes:'Note',todos:'To-Do',aria:'ARIA',stats:'Statistiche'}[tab]))el.classList.add('active')});
+  document.querySelectorAll('.tab').forEach(el=>{if(el.textContent.includes({chat:'Chat',notes:'Note',todos:'✅ To-Do',aria:'ARIA',stats:'Statistiche'}[tab]))el.classList.add('active')});
   const panel=document.getElementById('tabPanel');
   const ci=document.getElementById('chatInput');
   stopChatPoll();
@@ -452,7 +528,7 @@ async function switchTab(tab,id){
   } else if(tab==='todos'){
     if(ci)ci.style.display='none';
     const todos=await(await fetch(API+'/testers/'+id+'/todos')).json();
-    panel.innerHTML=todos.map(t=>`<div class="todo-item ${t.completato?'done':''}"><input type="checkbox" ${t.completato?'checked':''} onchange="toggleTodo(${t.id},${id})"><span>${t.testo}</span><span class="del" onclick="delTodo(${t.id},${id})">✕</span></div>`).join('')+`<div class="add-row"><input id="newTodo" placeholder="Nuova attivita'..." onkeydown="if(event.key==='Enter')addTodo(${id})"><button onclick="addTodo(${id})">Aggiungi</button></div>`;
+    panel.innerHTML='<div style="font-size:12px;color:var(--grigio);margin-bottom:8px;font-style:italic">La tua to-do personale per gestire questo tester. Non visibile al tester.</div>'+todos.map(t=>`<div class="todo-item ${t.completato?'done':''}"><input type="checkbox" ${t.completato?'checked':''} onchange="toggleTodo(${t.id},${id})"><span>${t.testo}</span><span class="del" onclick="delTodo(${t.id},${id})">✕</span></div>`).join('')+`<div class="add-row"><input id="newTodo" placeholder="Nuova attivita'..." onkeydown="if(event.key==='Enter')addTodo(${id})"><button onclick="addTodo(${id})">Aggiungi</button></div>`;
   } else if(tab==='aria'){
     if(ci)ci.style.display='none';
     loadAria(id,panel);
@@ -465,6 +541,9 @@ function startAriaPoll(id){stopAriaPoll();ariaPollTimer=setInterval(()=>{const p
 function stopAriaPoll(){if(ariaPollTimer){clearInterval(ariaPollTimer);ariaPollTimer=null}}
 
 async function loadAria(id,panel){
+  // Se c'è un audio in riproduzione, salta il refresh per non interromperlo
+  const playing=Array.from(panel.querySelectorAll('audio')).some(a=>!a.paused&&!a.ended);
+  if(playing)return;
   const msgs=await(await fetch(API+'/testers/'+id+'/aria')).json();
   if(!msgs.length){
     panel.innerHTML='<div class="aria-empty"><div style="font-size:40px;margin-bottom:12px">🎙️</div><p>Nessun messaggio ARIA registrato per questo tester.</p></div>';
@@ -483,6 +562,7 @@ async function loadAria(id,panel){
         <div class="aria-date">${data}</div>
       </div>
       ${info.length?`<div class="aria-wav">${info.join(' | ')}</div>`:''}
+      ${m.wav_filename?`<audio controls preload="none" src="${API}/aria-audio/${m.id}" style="width:100%;margin-top:6px;height:34px"></audio>`:''}
       ${m.trascrizione?`<div class="aria-trascrizione">🗨️ ${m.trascrizione}</div>`:'<div class="aria-trascrizione" style="color:var(--grigio)">Nessuna trascrizione disponibile</div>'}
       <div style="text-align:right;margin-top:8px"><span style="font-size:11px;cursor:pointer;color:var(--rosso);opacity:.5" onclick="delAria(${m.id},${id})">Elimina</span></div>
     </div>`;
@@ -492,8 +572,44 @@ function delAria(msgId,testerId){showModal({icon:'🗑️',title:'Elimina messag
 function clearAllAria(testerId){showModal({icon:'⚠️',title:'Cancella tutto',message:'Cancellare <strong>TUTTI</strong> i messaggi ARIA di questo tester? Questa azione non può essere annullata.',type:'danger',onConfirm:async()=>{await fetch(API+'/testers/'+testerId+'/aria',{method:'DELETE'});loadAria(testerId,document.getElementById('tabPanel'))}})}
 
 // --- AZIONI ---
-async function setStato(id,stato){await fetch(API+'/testers/'+id+'/stato',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({stato})});openTester(id)}
-async function setPiano(id,piano){await fetch(API+'/testers/'+id+'/piano',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({piano})})}
+function markDirty(){
+  const s=document.getElementById('editStato'),p=document.getElementById('editPiano'),b=document.getElementById('btnSalvaTester');
+  if(!s||!p||!b)return;
+  const dirty=s.value!==s.dataset.original||p.value!==p.dataset.original;
+  b.disabled=!dirty;
+  b.style.opacity=dirty?'1':'0.5';
+  b.style.cursor=dirty?'pointer':'not-allowed';
+}
+async function salvaTester(id){
+  const s=document.getElementById('editStato').value,p=document.getElementById('editPiano').value;
+  const origS=document.getElementById('editStato').dataset.original,origP=document.getElementById('editPiano').dataset.original;
+  const b=document.getElementById('btnSalvaTester');
+  b.disabled=true;b.textContent='Salvataggio...';
+  try{
+    if(s!==origS){
+      const r=await fetch(API+'/testers/'+id+'/stato',{method:'POST',headers:{'Content-Type':'application/json'},credentials:'include',body:JSON.stringify({stato:s})});
+      if(!r.ok)throw new Error('Errore stato');
+    }
+    if(p!==origP){
+      const r=await fetch(API+'/testers/'+id+'/piano',{method:'POST',headers:{'Content-Type':'application/json'},credentials:'include',body:JSON.stringify({piano:p})});
+      if(!r.ok)throw new Error('Errore piano');
+    }
+    showToast('✓ Modifiche salvate','success');
+    openTester(id);
+  }catch(e){
+    showToast('✗ '+e.message,'error');
+    b.disabled=false;b.textContent='💾 Salva modifiche';
+  }
+}
+function showToast(msg,type){
+  let t=document.getElementById('adminToast');
+  if(!t){t=document.createElement('div');t.id='adminToast';document.body.appendChild(t)}
+  t.textContent=msg;
+  t.style.cssText='position:fixed;bottom:24px;right:24px;padding:14px 22px;border-radius:8px;font-size:14px;font-weight:600;z-index:10000;box-shadow:0 4px 20px rgba(0,0,0,0.5);animation:slideIn 0.25s ease-out;'+(type==='error'?'background:#3a1212;color:#ff9b9b;border:1px solid #ff6b6b':'background:#0f2a15;color:#9bdf9b;border:1px solid #6bcf7f');
+  t.style.display='block';
+  clearTimeout(t._h);
+  t._h=setTimeout(()=>{t.style.display='none'},3500);
+}
 function delTester(id){showModal({icon:'🗑️',title:'Elimina tester',message:'Eliminare questo tester e tutti i suoi dati? Questa azione non può essere annullata.',type:'danger',onConfirm:async()=>{await fetch(API+'/testers/'+id,{method:'DELETE'});showView('testers')}})}
 
 // CHAT con polling
@@ -650,6 +766,156 @@ function loadBroadcast(){
       </div>
     </div>`;
 }
+
+// --- TEST TO-DO BROADCAST (sidebar view) ---
+let testItemsShowDeleted=false;
+async function loadTestItems(){
+  // preserva il testo che l'admin sta scrivendo + focus, così il polling non distrugge l'input
+  const prevTa=document.getElementById('newTestItem');
+  const savedText=prevTa?prevTa.value:'';
+  const savedFocus=prevTa&&document.activeElement===prevTa;
+  const savedSelStart=prevTa?prevTa.selectionStart:0;
+  // se c'è una edit in-place attiva su una voce, salta il refresh automatico
+  if(document.querySelector('textarea[id^="edit-"]'))return;
+
+  const data=await(await fetch(API+'/test-items')).json();
+  const allItems=data.items||[];
+  const items=testItemsShowDeleted?allItems:allItems.filter(i=>!i.cancellato);
+  const total=data.total_testers||0;
+  const countDel=allItems.filter(i=>i.cancellato).length;
+  const countAtt=allItems.filter(i=>!i.cancellato).length;
+  const rows=items.map(it=>{
+    const stato=it.cancellato?'<span style="color:var(--rosso);font-size:11px;font-weight:600">CANCELLATA</span>':'';
+    const azioni=it.cancellato
+      ?`<button class="btn btn-ghost" style="padding:4px 10px;font-size:11px" onclick="restoreTestItem(${it.id})">↺ Ripristina</button>`
+      :`<button class="btn btn-ghost" style="padding:4px 10px;font-size:11px" onclick="editTestItem(${it.id},this)">✎</button>
+        <button class="btn btn-red" style="padding:4px 10px;font-size:11px" onclick="deleteTestItem(${it.id})">🗑</button>`;
+    return `
+      <div class="ti-row" data-id="${it.id}" style="background:var(--card);border:1px solid var(--bordo);${it.cancellato?'opacity:0.5;':''}border-radius:8px;padding:14px 16px;margin-bottom:10px">
+        <div style="display:flex;align-items:flex-start;gap:12px">
+          <div style="background:var(--oro);color:var(--bg);width:34px;height:34px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:800;font-size:14px;flex-shrink:0">${it.id}</div>
+          <div style="flex:1;min-width:0">
+            <div class="ti-testo" style="color:var(--bianco);font-size:14px;line-height:1.5;${it.cancellato?'text-decoration:line-through;':''}">${escapeHtml(it.testo)}</div>
+            <div style="margin-top:8px;display:flex;gap:14px;font-size:11px;color:var(--grigio);flex-wrap:wrap">
+              <span>✓ ${it.done_count}/${total} completato</span>
+              <span>💬 ${it.comment_count} ${it.comment_count===1?'commento':'commenti'}</span>
+              ${stato}
+              ${it.comment_count>0?`<a href="#" onclick="showTestItemComments(${it.id});return false" style="color:var(--oro)">Vedi commenti</a>`:''}
+            </div>
+          </div>
+          <div style="display:flex;gap:6px;flex-shrink:0">${azioni}</div>
+        </div>
+      </div>`;
+  }).join('');
+
+  document.getElementById('viewContent').innerHTML=`
+    <div style="max-width:900px">
+      <div style="background:rgba(200,169,110,0.08);border:1px solid rgba(200,169,110,0.3);border-radius:8px;padding:14px 18px;margin-bottom:20px">
+        <div style="color:var(--oro);font-weight:600;font-size:14px;margin-bottom:4px">🧪 Lista broadcast visibile a tutti i tester accettati</div>
+        <div style="color:var(--grigio);font-size:12px;line-height:1.5">
+          Scrivi qui le attività che i tester devono eseguire. La lista è <strong>uguale per tutti</strong>: ogni tester la spunta indipendentemente e può aggiungere commenti per ogni voce.
+          I numeri (#id) sono <strong>stabili</strong>: se cancelli la voce 3, la 4 resta 4, non diventa 3. Così i tester possono riferirsi sempre alla stessa voce per numero.
+        </div>
+      </div>
+
+      <div style="background:var(--card2);border:1px solid var(--bordo);border-radius:8px;padding:16px;margin-bottom:20px">
+        <textarea id="newTestItem" rows="2" placeholder="Nuova voce della checklist test (es: Attiva la segreteria ARIA e verifica che risponda a un numero sconosciuto)" style="width:100%;background:#1a1a24;color:var(--bianco);border:1px solid var(--bordo);padding:10px;border-radius:4px;font-size:14px;resize:vertical;font-family:inherit"></textarea>
+        <div style="display:flex;gap:8px;margin-top:10px;flex-wrap:wrap;align-items:center">
+          <button class="btn btn-oro" onclick="addTestItem()">➕ Aggiungi voce</button>
+          <span style="color:var(--grigio);font-size:12px">${countAtt} attive · ${countDel} cancellate · ${total} tester accettati</span>
+          <label style="margin-left:auto;color:var(--grigio);font-size:12px;cursor:pointer;user-select:none">
+            <input type="checkbox" ${testItemsShowDeleted?'checked':''} onchange="toggleShowDeleted(this.checked)" style="vertical-align:middle;margin-right:4px"> Mostra cancellate
+          </label>
+        </div>
+      </div>
+
+      <div id="testItemsList">${items.length?rows:'<p style="color:var(--grigio);text-align:center;padding:40px">'+(testItemsShowDeleted||countDel===0?'Nessuna voce. Aggiungi la prima sopra.':'Nessuna voce attiva. Attiva "Mostra cancellate" per vedere quelle eliminate.')+'</p>'}</div>
+    </div>`;
+
+  // Ripristina il testo e il focus sulla textarea dopo il re-render (per non interrompere l'admin mentre scrive)
+  const newTa=document.getElementById('newTestItem');
+  if(newTa&&savedText){newTa.value=savedText;if(savedFocus){newTa.focus();try{newTa.setSelectionRange(savedSelStart,savedSelStart)}catch(e){}}}
+}
+
+function toggleShowDeleted(val){
+  testItemsShowDeleted=val;
+  loadTestItems();
+}
+
+async function addTestItem(){
+  const ta=document.getElementById('newTestItem');
+  if(!ta){showToast('Errore: campo non trovato','error');return}
+  const testo=ta.value.trim();
+  if(!testo){showToast('Scrivi il testo della voce prima di cliccare Aggiungi','error');ta.focus();return}
+  try{
+    const r=await fetch(API+'/test-items',{method:'POST',headers:{'Content-Type':'application/json'},credentials:'include',body:JSON.stringify({testo})});
+    if(r.ok){
+      ta.value='';
+      showToast('✓ Voce aggiunta','success');
+      loadTestItems();
+    } else {
+      let errMsg='Errore '+r.status;
+      try{const d=await r.json();if(d.error)errMsg=d.error}catch(e){}
+      showToast('Errore: '+errMsg,'error');
+    }
+  }catch(err){
+    showToast('Errore di connessione: '+err.message,'error');
+    console.error('addTestItem error',err);
+  }
+}
+
+function editTestItem(id,btn){
+  const row=document.querySelector('.ti-row[data-id="'+id+'"]');
+  const txtEl=row.querySelector('.ti-testo');
+  const currentText=txtEl.textContent;
+  txtEl.innerHTML=`<textarea id="edit-${id}" rows="2" style="width:100%;background:#1a1a24;color:var(--bianco);border:1px solid var(--oro);padding:8px;border-radius:4px;font-size:14px;font-family:inherit">${escapeHtml(currentText)}</textarea><div style="margin-top:6px;display:flex;gap:6px"><button class="btn btn-oro" style="padding:4px 10px;font-size:11px" onclick="saveTestItemEdit(${id})">Salva</button><button class="btn btn-ghost" style="padding:4px 10px;font-size:11px" onclick="loadTestItems()">Annulla</button></div>`;
+  document.getElementById('edit-'+id).focus();
+}
+
+async function saveTestItemEdit(id){
+  const ta=document.getElementById('edit-'+id);
+  const testo=ta.value.trim();
+  if(!testo)return;
+  const r=await fetch(API+'/test-items/'+id,{method:'PUT',headers:{'Content-Type':'application/json'},body:JSON.stringify({testo})});
+  if(r.ok){showToast('Voce aggiornata','success');loadTestItems()}
+}
+
+function deleteTestItem(id){
+  showModal({icon:'🗑️',title:'Cancella voce #'+id,message:'La voce verrà nascosta ai tester ma il numero <strong>'+id+'</strong> non sarà riutilizzato. Puoi ripristinarla in qualsiasi momento.',type:'danger',onConfirm:async()=>{
+    await fetch(API+'/test-items/'+id,{method:'DELETE'});
+    showToast('Voce #'+id+' cancellata','success');
+    loadTestItems();
+  }});
+}
+
+async function restoreTestItem(id){
+  await fetch(API+'/test-items/'+id+'/restore',{method:'POST'});
+  showToast('Voce #'+id+' ripristinata','success');
+  loadTestItems();
+}
+
+async function showTestItemComments(id){
+  const comments=await(await fetch(API+'/test-items/'+id+'/comments')).json();
+  if(!comments.length){showToast('Nessun commento','info');return}
+  const html=comments.map(c=>{
+    const time=c.timestamp?new Date(c.timestamp.replace(' ','T')).toLocaleString('it-IT',{hour:'2-digit',minute:'2-digit',day:'2-digit',month:'2-digit'}):'';
+    return `<div style="background:var(--card2);border-left:3px solid var(--oro);padding:10px 14px;margin-bottom:8px;border-radius:0 6px 6px 0">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px;font-size:11px;color:var(--grigio)">
+        <strong style="color:var(--oro)">${escapeHtml(c.nome)} ${escapeHtml(c.cognome||'')}</strong>
+        <span>${time} <button class="btn btn-red" style="padding:2px 8px;font-size:10px;margin-left:6px" onclick="delTestItemComment(${c.id},${id})">✕</button></span>
+      </div>
+      <div style="font-size:13px;color:var(--bianco);line-height:1.5">${escapeHtml(c.testo)}</div>
+    </div>`;
+  }).join('');
+  showModal({icon:'💬',title:'Commenti voce #'+id,message:'<div style="max-height:400px;overflow-y:auto;text-align:left">'+html+'</div>',type:'info',onConfirm:()=>{}});
+}
+
+async function delTestItemComment(commentId,itemId){
+  await fetch(API+'/test-items/comments/'+commentId,{method:'DELETE'});
+  showTestItemComments(itemId);
+}
+
+function escapeHtml(s){return String(s||'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]))}
 function sendBroadcast(){
   const subject=document.getElementById('bcSubject').value.trim();
   const body=document.getElementById('bcBody').value.trim();

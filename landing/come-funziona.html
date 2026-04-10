@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Come funziona StoppAI — Filtro chiamate Android e segreteria AI</title>
+<meta name="description" content="StoppAI usa una tecnologia proprietaria per intercettare le chiamate spam su Android prima che squillino. ARIA, la segreteria AI italiana, risponde, registra e trascrive automaticamente. Scopri il funzionamento passo per passo.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="./css/main.css">
+</head>
+<body>
+
+<nav>
+  <a href="/" class="logo">STOPP<span class="gold">AI</span></a>
+  <ul id="navMenu">
+    <li><a href="/come-funziona.html" class="active">Come funziona</a></li>
+    <li><a href="/aria.html">ARIA</a></li>
+    <li><a href="/prezzi.html">Prezzi</a></li>
+    <li><a href="/faq.html">FAQ</a></li>
+  </ul>
+  <div style="display:flex;gap:0.8rem;align-items:center">
+    <a href="/accedi.html" class="btn btn-s nav-cta">Accedi</a>
+    <button class="hamburger" onclick="toggleMenu()">☰</button>
+  </div>
+</nav>
+
+<section class="page-header">
+  <div class="wrap">
+    <span class="eyebrow">Come funziona</span>
+    <h1>Il telefono <span class="gold">non squilla nemmeno.</span></h1>
+    <p>StoppAI integra una <strong>tecnologia proprietaria</strong> sviluppata su una funzionalità nativa di Android che permette di intercettare ogni chiamata in arrivo prima che il sistema operativo possa farti suonare il telefono. È legale, è ufficiale, ed è straordinariamente efficace.</p>
+  </div>
+</section>
+
+<section class="section">
+  <div class="wrap">
+    <span class="eyebrow">Il flusso completo</span>
+    <h2 class="section-title">Cosa succede in <span class="gold">2 secondi</span></h2>
+    <p class="lead">Dal momento in cui un numero sconosciuto compone il tuo numero a quando ricevi la trascrizione del messaggio sullo schermo, passa meno di un minuto. E tu non senti nulla.</p>
+
+    <div class="timeline">
+      <div class="t-item" data-n="1">
+        <h3>Chiamata in arrivo dalla rete</h3>
+        <p>Il numero sconosciuto compone il tuo numero. La rete dell'operatore lo inoltra al tuo telefono. Fin qui, niente di nuovo.</p>
+      </div>
+      <div class="t-item" data-n="2">
+        <h3>StoppAI intercetta prima del sistema</h3>
+        <p>Grazie al nostro <strong>componente di intercettazione proprietario</strong>, StoppAI riceve la chiamata <strong>prima</strong> che Android possa generare lo squillo o la vibrazione. Verifica in millisecondi: il numero è in rubrica? Ha un prefisso autorizzato? È già stato classificato come spam?</p>
+      </div>
+      <div class="t-item" data-n="3">
+        <h3>Decisione: passa o blocca</h3>
+        <p>Se il numero è in rubrica → la chiamata passa normalmente. Se è sconosciuto o sospetto → StoppAI restituisce ad Android un comando di "rifiuto silenzioso": il telefono non suona, non vibra, non si accende lo schermo. <strong>Tu non sai che è successo nulla.</strong></p>
+      </div>
+      <div class="t-item" data-n="4">
+        <h3>Deviazione al numero ARIA</h3>
+        <p>La chiamata viene contestualmente deviata sulla nostra <strong>infrastruttura telefonica dedicata</strong> (un numero italiano del Veneto). La centrale di gestione la riceve ed entra in scena ARIA.</p>
+      </div>
+      <div class="t-item" data-n="5">
+        <h3>ARIA risponde</h3>
+        <p>La voce italiana di Isabella (o il messaggio che hai registrato tu, sui piani SHIELD) saluta il chiamante e lo invita a lasciare un messaggio. Tutto suona naturale, professionale, italiano.</p>
+      </div>
+      <div class="t-item" data-n="6">
+        <h3>Trascrizione automatica con A.I.</h3>
+        <p>Quando il chiamante riaggancia, il file audio viene processato sui nostri server europei con un modello di intelligenza artificiale ottimizzato per la lingua italiana. In pochi secondi il messaggio diventa testo.</p>
+      </div>
+      <div class="t-item" data-n="7">
+        <h3>Notifica push sul tuo telefono</h3>
+        <p>Ricevi una notifica con anteprima della trascrizione. Apri l'app, leggi l'intero testo, e decidi se richiamare. Il tuo telefono <strong>non ha mai squillato</strong>, ma sai esattamente chi ti ha cercato e perché.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="section section-alt">
+  <div class="wrap" style="text-align:center">
+    <span class="eyebrow">Cosa succede DOPO</span>
+    <h2 class="section-title">Tutto resta nella tua <span class="gold">app.</span></h2>
+    <p class="lead" style="margin-left:auto;margin-right:auto">Ogni messaggio ARIA viene salvato nel tuo Mini CRM personale. Trovi data, ora, numero del chiamante, durata, trascrizione completa e (sui piani SHIELD) anche il file audio originale da riascoltare quando vuoi. Niente cloud di terzi, niente condivisione esterna.</p>
+    <a href="index.html#partecipa" class="btn btn-p">Partecipa ai test</a>
+  </div>
+</section>
+
+<section class="section">
+  <div class="wrap">
+    <span class="eyebrow">Architettura</span>
+    <h2 class="section-title">Una <span class="gold">soluzione completa</span></h2>
+    <p class="lead">Ogni componente è stato progettato dal nostro team con un unico obiettivo: proteggerti dalle chiamate indesiderate, in modo efficace e nel pieno rispetto della tua privacy.</p>
+
+    <div class="security-grid">
+      <div class="sec-item">
+        <span class="ico">📱</span>
+        <h4>Componente di intercettazione</h4>
+        <p>Modulo Android proprietario che blocca la chiamata prima che il sistema operativo possa farti squillare il telefono.</p>
+      </div>
+      <div class="sec-item">
+        <span class="ico">📞</span>
+        <h4>Numero italiano dedicato</h4>
+        <p>Infrastruttura telefonica con numerazione italiana del Veneto. Le chiamate restano in territorio nazionale.</p>
+      </div>
+      <div class="sec-item">
+        <span class="ico">🎙️</span>
+        <h4>Centrale di gestione ARIA</h4>
+        <p>Sistema sviluppato internamente che gestisce risposta, registrazione, salvataggio e riaggancio di ogni messaggio.</p>
+      </div>
+      <div class="sec-item">
+        <span class="ico">🤖</span>
+        <h4>Trascrizione A.I.</h4>
+        <p>Modello di intelligenza artificiale ottimizzato per l'italiano, eseguito sui nostri server europei. Nessun dato condiviso con servizi terzi.</p>
+      </div>
+      <div class="sec-item">
+        <span class="ico">🔔</span>
+        <h4>Notifiche push istantanee</h4>
+        <p>Sistema di consegna in tempo reale che ti porta la trascrizione sul telefono in pochi secondi.</p>
+      </div>
+      <div class="sec-item">
+        <span class="ico">🔐</span>
+        <h4>Crittografia end-to-end</h4>
+        <p>Tutte le comunicazioni tra app e server sono cifrate con protocollo TLS 1.3, lo standard più aggiornato del web.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="cta-strip">
+  <h2>Pronto a vedere come funziona <span class="gold">davvero</span>?</h2>
+  <p>Iscriviti al programma beta tester e ricevi l'invito a installare StoppAI sul tuo Android.</p>
+  <a href="index.html#partecipa" class="btn btn-p">Partecipa ai test</a>
+</section>
+
+<footer>
+  <div class="footer-grid">
+    <div class="footer-about">
+      <div class="logo" style="font-family:'DM Sans';font-size:1.4rem;font-weight:800">STOPP<span class="gold">AI</span></div>
+      <p>Il tuo bodyguard digitale contro le chiamate indesiderate. Sviluppato in Italia da Internet Full Service.</p>
+    </div>
+    <div>
+      <h5>Prodotto</h5>
+      <ul>
+        <li><a href="/come-funziona.html">Come funziona</a></li>
+        <li><a href="/aria.html">ARIA</a></li>
+        <li><a href="/prezzi.html">Prezzi</a></li>
+        <li><a href="/faq.html">FAQ</a></li>
+      </ul>
+    </div>
+    <div>
+      <h5>Account</h5>
+      <ul>
+        <li><a href="/accedi.html">Area personale</a></li>
+        <li><a href="index.html#partecipa">Partecipa ai test</a></li>
+      </ul>
+    </div>
+    <div>
+      <h5>Legale</h5>
+      <ul>
+        <li><a href="/privacy.html">Privacy Policy</a></li>
+        <li><a href="/elimina-account.html">Elimina account</a></li>
+      </ul>
+    </div>
+  </div>
+  <div class="footer-bottom">
+    <p>© 2026 Internet Full Service</p>
+  </div>
+</footer>
+
+<script>
+function toggleMenu(){ document.getElementById('navMenu').classList.toggle('open'); }
+</script>
+</body>
+</html>

@@ -7,6 +7,7 @@ const db = require('./db/database');
 const testerRoutes = require('./routes/tester');
 const adminRoutes = require('./routes/admin');
 const authRoutes = require('./routes/auth');
+const dashboardRoutes = require('./routes/dashboard');
 
 const app = express();
 const PORT = process.env.PORT || 6002;
@@ -19,6 +20,7 @@ app.use(cookieParser());
 app.use('/api/tester', testerRoutes);
 app.use('/api/tester/auth', authRoutes);
 app.use('/api/admin', adminRoutes);
+app.use('/api/dashboard', dashboardRoutes);
 
 // Serve uploads (immagini chat)
 app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
@@ -55,6 +57,37 @@ app.get('/api/db-test', (req, res) => {
     testers: count.tot
   });
 });
+
+// Job: cleanup messaggi ARIA più vecchi di 24h (WAV + record DB)
+function cleanupAriaMessages() {
+  try {
+    const fs = require('fs');
+    const pathModule = require('path');
+    const oldMsgs = db.prepare(
+      "SELECT id, wav_filename FROM aria_messaggi WHERE timestamp <= datetime('now','-24 hours')"
+    ).all();
+    if (oldMsgs.length === 0) return;
+
+    let deleted = 0;
+    for (const m of oldMsgs) {
+      if (m.wav_filename) {
+        const safeName = pathModule.basename(m.wav_filename);
+        const filePath = pathModule.join('/opt/stoppai/asterisk/recordings', safeName);
+        try { if (fs.existsSync(filePath)) fs.unlinkSync(filePath); } catch (e) {
+          console.error('[cleanup] errore unlink', filePath, e.message);
+        }
+      }
+      db.prepare('DELETE FROM aria_messaggi WHERE id = ?').run(m.id);
+      deleted++;
+    }
+    console.log(`[cleanup] cancellati ${deleted} messaggi ARIA > 24h`);
+  } catch (e) {
+    console.error('[cleanup] errore:', e.message);
+  }
+}
+// Eseguilo subito all'avvio e poi ogni ora
+setTimeout(cleanupAriaMessages, 5000);
+setInterval(cleanupAriaMessages, 60 * 60 * 1000);
 
 app.listen(PORT, () => {
   console.log(

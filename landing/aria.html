@@ -1,0 +1,195 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ARIA — La segreteria AI italiana di StoppAI</title>
+<meta name="description" content="ARIA è la segreteria telefonica intelligente di StoppAI: voce italiana naturale, 8 messaggi preset professionali o registrazione personalizzata. Trascrizione automatica con A.I. e notifica push istantanea.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="./css/main.css">
+</head>
+<body>
+
+<nav>
+  <a href="/" class="logo">STOPP<span class="gold">AI</span></a>
+  <ul id="navMenu">
+    <li><a href="/come-funziona.html">Come funziona</a></li>
+    <li><a href="/aria.html" class="active">ARIA</a></li>
+    <li><a href="/prezzi.html">Prezzi</a></li>
+    <li><a href="/faq.html">FAQ</a></li>
+  </ul>
+  <div style="display:flex;gap:0.8rem;align-items:center">
+    <a href="/accedi.html" class="btn btn-s nav-cta">Accedi</a>
+    <button class="hamburger" onclick="toggleMenu()">☰</button>
+  </div>
+</nav>
+
+<section class="page-header">
+  <div class="wrap">
+    <span class="eyebrow">La segreteria AI</span>
+    <h1>ARIA, <span class="gold">la voce italiana</span> che risponde per te.</h1>
+    <p>Una segreteria telefonica intelligente, professionale, italiana. Risponde con tono naturale, fa lasciare un messaggio, lo trascrive automaticamente. Tu leggi il testo sul telefono e decidi cosa fare. Niente di più semplice.</p>
+  </div>
+</section>
+
+<section class="section">
+  <div class="wrap">
+    <div class="problem-grid">
+      <div class="problem-img-wrap">
+        <img src="./img/aria-ai-donna.jpg" alt="ARIA - segreteria AI">
+      </div>
+      <div class="problem-text">
+        <span class="eyebrow">La voce</span>
+        <h2 class="section-title" style="font-size:clamp(1.6rem,2.6vw,2.2rem)">Si chiama <span class="gold">Isabella</span> e parla italiano.</h2>
+        <p style="margin:1rem 0 1.2rem">Niente accenti robotici, niente cadenze artificiali. Isabella è una voce neurale italiana di livello professionale che il chiamante percepisce come una vera segretaria. Il risultato? Chi chiama lascia un messaggio chiaro, completo e contestualizzato.</p>
+        <p style="margin-bottom:1.2rem">Non è una "voce sintetica" qualunque. È stata selezionata, testata e calibrata per il tono giusto: cortese, sicuro, mai invadente.</p>
+        <ul class="pain-list">
+          <li><span class="ico">🇮🇹</span> <div><strong>Italiano nativo</strong> — pronuncia perfetta, intonazione naturale</div></li>
+          <li><span class="ico">🎯</span> <div><strong>Tono professionale</strong> — non un robot, una segretaria virtuale</div></li>
+          <li><span class="ico">⚡</span> <div><strong>Risposta immediata</strong> — entra in linea entro 1 squillo</div></li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="section section-alt">
+  <div class="wrap">
+    <span class="eyebrow">8 preset disponibili</span>
+    <h2 class="section-title">Scegli il <span class="gold">tuo stile</span></h2>
+    <p class="lead">Ogni utente ha un'identità diversa. Per questo abbiamo registrato 8 messaggi di benvenuto già pronti, adatti a contesti diversi. Li puoi cambiare quando vuoi dalla tua app.</p>
+
+    <div class="preset-grid">
+      <div class="preset-card">
+        <h4>01 — Professionale</h4>
+        <p>"Buongiorno, sono la segretaria virtuale. In questo momento non posso rispondere. Lasci pure il suo messaggio dopo il segnale acustico."</p>
+      </div>
+      <div class="preset-card">
+        <h4>02 — Informale</h4>
+        <p>"Ciao! Non posso risponderti adesso. Lasciami un messaggio e ti richiamerò appena possibile."</p>
+      </div>
+      <div class="preset-card">
+        <h4>03 — Lavoro</h4>
+        <p>"Salve, sono al lavoro e non posso rispondere. La prego di lasciare un messaggio dettagliato."</p>
+      </div>
+      <div class="preset-card">
+        <h4>04 — Famiglia</h4>
+        <p>"Sono in famiglia e non posso rispondere ora. Lascia il tuo messaggio, ti richiamerò appena possibile."</p>
+      </div>
+      <div class="preset-card">
+        <h4>05 — Notturno</h4>
+        <p>"Salve, in queste ore non rispondo alle chiamate. Lasci un messaggio e la richiamerò in mattinata."</p>
+      </div>
+      <div class="preset-card">
+        <h4>06 — Vacanza</h4>
+        <p>"Buongiorno, in questo periodo sono in vacanza. Lasci pure un messaggio e la ricontatterò al mio rientro."</p>
+      </div>
+      <div class="preset-card">
+        <h4>07 — Riunione</h4>
+        <p>"Sono in riunione e non posso rispondere. Lasci un messaggio dettagliato e la richiamerò appena disponibile."</p>
+      </div>
+      <div class="preset-card">
+        <h4>08 — Generico</h4>
+        <p>"Non posso rispondere in questo momento. Lasci un messaggio dopo il segnale acustico, grazie."</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="section">
+  <div class="wrap" style="text-align:center">
+    <span class="eyebrow">Solo SHIELD</span>
+    <h2 class="section-title">Vuoi la <span class="gold">tua voce</span>? Registrala.</h2>
+    <p class="lead" style="margin-left:auto;margin-right:auto">Sui piani SHIELD puoi registrare il tuo messaggio personale direttamente dall'app. Pochi secondi, qualsiasi cosa tu voglia dire, con la tua voce. Niente robot, niente preset: il chiamante sente proprio te.</p>
+    <a href="/prezzi.html" class="btn btn-s">Vedi i piani</a>
+  </div>
+</section>
+
+<section class="section section-alt">
+  <div class="wrap">
+    <span class="eyebrow">Trascrizione automatica</span>
+    <h2 class="section-title">Da voce a testo, <span class="gold">in pochi secondi.</span></h2>
+    <p class="lead">Quando il chiamante riaggancia, il messaggio audio entra immediatamente nel nostro sistema di trascrizione automatica con intelligenza artificiale. Il modello è ottimizzato per la lingua italiana e gira sui nostri server in Europa.</p>
+
+    <div class="security-grid">
+      <div class="sec-item">
+        <span class="ico">⚡</span>
+        <h4>Veloce</h4>
+        <p>Trascrizione completa in 5-15 secondi a seconda della lunghezza del messaggio.</p>
+      </div>
+      <div class="sec-item">
+        <span class="ico">🇮🇹</span>
+        <h4>Precisa in italiano</h4>
+        <p>Modello A.I. specializzato sulla lingua italiana, gestisce dialetti, accenti regionali e numeri di telefono.</p>
+      </div>
+      <div class="sec-item">
+        <span class="ico">🔒</span>
+        <h4>Privata</h4>
+        <p>Nessun audio condiviso con OpenAI, Google o servizi di terze parti. Tutto sui nostri server europei.</p>
+      </div>
+      <div class="sec-item">
+        <span class="ico">🔔</span>
+        <h4>Notifica push</h4>
+        <p>Appena pronta, la trascrizione arriva sul tuo Android come notifica con anteprima.</p>
+      </div>
+      <div class="sec-item">
+        <span class="ico">💬</span>
+        <h4>Mini CRM</h4>
+        <p>Ogni messaggio è salvato nello storico chiamate dell'app, con data, ora, numero e testo completo.</p>
+      </div>
+      <div class="sec-item">
+        <span class="ico">🎧</span>
+        <h4>Audio originale (SHIELD)</h4>
+        <p>Riascolta il messaggio originale in qualsiasi momento dalla tua dashboard web.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="cta-strip">
+  <h2>Pronto a far rispondere <span class="gold">ARIA</span> per te?</h2>
+  <p>Iscriviti al programma beta tester e prova la segreteria AI italiana sul tuo Android.</p>
+  <a href="index.html#partecipa" class="btn btn-p">Partecipa ai test</a>
+</section>
+
+<footer>
+  <div class="footer-grid">
+    <div class="footer-about">
+      <div class="logo" style="font-family:'DM Sans';font-size:1.4rem;font-weight:800">STOPP<span class="gold">AI</span></div>
+      <p>Il tuo bodyguard digitale contro le chiamate indesiderate. Sviluppato in Italia da Internet Full Service.</p>
+    </div>
+    <div>
+      <h5>Prodotto</h5>
+      <ul>
+        <li><a href="/come-funziona.html">Come funziona</a></li>
+        <li><a href="/aria.html">ARIA</a></li>
+        <li><a href="/prezzi.html">Prezzi</a></li>
+        <li><a href="/faq.html">FAQ</a></li>
+      </ul>
+    </div>
+    <div>
+      <h5>Account</h5>
+      <ul>
+        <li><a href="/accedi.html">Area personale</a></li>
+        <li><a href="index.html#partecipa">Partecipa ai test</a></li>
+      </ul>
+    </div>
+    <div>
+      <h5>Legale</h5>
+      <ul>
+        <li><a href="/privacy.html">Privacy Policy</a></li>
+        <li><a href="/elimina-account.html">Elimina account</a></li>
+      </ul>
+    </div>
+  </div>
+  <div class="footer-bottom">
+    <p>© 2026 Internet Full Service</p>
+  </div>
+</footer>
+
+<script>
+function toggleMenu(){ document.getElementById('navMenu').classList.toggle('open'); }
+</script>
+</body>
+</html>

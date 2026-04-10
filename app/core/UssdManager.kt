@@ -1,7 +1,8 @@
 // FILE: UssdManager.kt
-// SCOPO: Gestione codici USSD per deviazione chiamate (Attivazione/Disattivazione)
+// SCOPO: Gestione codici USSD per deviazione chiamate condizionali verso ARIA
 // DIPENDENZE: Nessuna
-// ULTIMA MODIFICA: 2026-03-20
+// ULTIMA MODIFICA: 2026-04-10
+// NOTE: Il +39 è OBBLIGATORIO per compatibilità con tutti gli operatori italiani (Iliad lo richiede esplicitamente)
 
 package com.ifs.stoppai.core
 
@@ -14,65 +15,86 @@ import android.telephony.TelephonyManager
 import androidx.core.content.ContextCompat
 
 object UssdManager {
-    const val USSD_ACTIVATE = "**21*04211898065#"
-    const val USSD_DEACTIVATE = "##21#"
-    private var isListenerRegistered = false
+    // Numero ARIA con prefisso +39 (obbligatorio per Iliad e altri operatori)
+    private const val ARIA_NUMBER = "+3904211898065"
 
+    // Deviazioni CONDIZIONALI (non incondizionate!) — restano attive finché non disattivate
+    // *61* = su non risposta (5 secondi), *67* = su occupato, *62* = su non raggiungibile
+    private const val USSD_FWD_NO_REPLY = "*61*${ARIA_NUMBER}**11*5#"
+    private const val USSD_FWD_BUSY = "*67*${ARIA_NUMBER}#"
+    private const val USSD_FWD_UNREACHABLE = "*62*${ARIA_NUMBER}#"
+
+    // Disattivazione singole
+    private const val USSD_CANCEL_NO_REPLY = "##61#"
+    private const val USSD_CANCEL_BUSY = "##67#"
+    private const val USSD_CANCEL_UNREACHABLE = "##62#"
+
+    // Disattivazione totale (cancella tutte le deviazioni, inclusa segreteria operatore)
+    private const val USSD_CANCEL_ALL = "##002#"
+
+    /**
+     * Attiva le 3 deviazioni condizionali verso ARIA.
+     * Prima cancella tutto (segreteria operatore inclusa), poi imposta le nostre.
+     * I codici vengono inviati in sequenza con breve delay tra uno e l'altro.
+     */
     fun activateForward(context: Context) {
         val prefs = context.getSharedPreferences("stoppai_prefs", Context.MODE_PRIVATE)
-        prefs.edit().putBoolean("forward_active", true).apply()
-        sendUssd(context, USSD_ACTIVATE)
-        setupCallStateListener(context)
+        val handler = Handler(Looper.getMainLooper())
+
+        // Step 1: cancella tutte le deviazioni esistenti (inclusa segreteria operatore)
+        sendUssd(context, USSD_CANCEL_ALL)
+
+        // Step 2-4: imposta le 3 deviazioni condizionali con delay per evitare sovrapposizione
+        handler.postDelayed({ sendUssd(context, USSD_FWD_NO_REPLY) }, 3000)
+        handler.postDelayed({ sendUssd(context, USSD_FWD_BUSY) }, 6000)
+        handler.postDelayed({
+            sendUssd(context, USSD_FWD_UNREACHABLE)
+            prefs.edit().putBoolean("forward_active", true).apply()
+        }, 9000)
     }
 
+    /**
+     * Disattiva tutte le deviazioni verso ARIA.
+     * Il tester tornerà senza segreteria — dovrà riattivare quella del suo operatore se vuole.
+     */
     fun deactivateForward(context: Context) {
         val prefs = context.getSharedPreferences("stoppai_prefs", Context.MODE_PRIVATE)
         if (prefs.getBoolean("forward_active", false)) {
-            sendUssd(context, USSD_DEACTIVATE)
+            sendUssd(context, USSD_CANCEL_ALL)
             prefs.edit().putBoolean("forward_active", false).apply()
         }
     }
 
-    private fun setupCallStateListener(context: Context) {
-        if (isListenerRegistered) return
-        if (ContextCompat.checkSelfPermission(context, Manifest.permission.READ_PHONE_STATE) != PackageManager.PERMISSION_GRANTED) return
-
-        val appCtx = context.applicationContext
-        val tm = appCtx.getSystemService(Context.TELEPHONY_SERVICE) as TelephonyManager
-        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.S) {
-            tm.registerTelephonyCallback(
-                appCtx.mainExecutor,
-                object : android.telephony.TelephonyCallback(), android.telephony.TelephonyCallback.CallStateListener {
-                    override fun onCallStateChanged(state: Int) {
-                        if (state == TelephonyManager.CALL_STATE_IDLE) {
-                            deactivateForward(appCtx)
-                        }
-                    }
-                }
-            )
-        } else {
-            @Suppress("DEPRECATION")
-            tm.listen(object : android.telephony.PhoneStateListener() {
-                @Deprecated("Deprecated in Java")
-                override fun onCallStateChanged(state: Int, phoneNumber: String?) {
-                    if (state == TelephonyManager.CALL_STATE_IDLE) {
-                        deactivateForward(appCtx)
-                    }
-                }
-            }, android.telephony.PhoneStateListener.LISTEN_CALL_STATE)
-        }
-        isListenerRegistered = true
+    /**
+     * Verifica se le deviazioni sono state attivate (flag locale).
+     * Non verifica lo stato reale sulla rete — per quello serve *#61# manuale.
+     */
+    fun isForwardActive(context: Context): Boolean {
+        val prefs = context.getSharedPreferences("stoppai_prefs", Context.MODE_PRIVATE)
+        return prefs.getBoolean("forward_active", false)
     }
 
     private fun sendUssd(context: Context, code: String) {
-        if (ContextCompat.checkSelfPermission(context, Manifest.permission.CALL_PHONE) != PackageManager.PERMISSION_GRANTED) return
+        if (ContextCompat.checkSelfPermission(context, Manifest.permission.CALL_PHONE)
+            != PackageManager.PERMISSION_GRANTED) return
         val tm = context.getSystemService(Context.TELEPHONY_SERVICE) as TelephonyManager
         try {
             val handler = Handler(Looper.getMainLooper())
-            val callback = object : TelephonyManager.UssdResponseCallback() {}
+            val callback = object : TelephonyManager.UssdResponseCallback() {
+                override fun onReceiveUssdResponse(
+                    telephonyManager: TelephonyManager, request: String, response: CharSequence
+                ) {
+                    android.util.Log.d("UssdManager", "USSD OK: $request → $response")
+                }
+                override fun onReceiveUssdResponseFailed(
+                    telephonyManager: TelephonyManager, request: String, failureCode: Int
+                ) {
+                    android.util.Log.e("UssdManager", "USSD FAIL: $request code=$failureCode")
+                }
+            }
             tm.sendUssdRequest(code, callback, handler)
         } catch (e: Exception) {
-            // Fallback se necessario
+            android.util.Log.e("UssdManager", "USSD exception: ${e.message}")
         }
     }
 }

@@ -152,4 +152,68 @@ try {
   db.exec("ALTER TABLE aria_config ADD COLUMN custom_uploaded_at TEXT");
 }
 
+// Migrazione: aggiunge colonna accuracy_rating a aria_messaggi (valutazione trascrizione dal tester)
+try {
+  db.prepare("SELECT accuracy_rating FROM aria_messaggi LIMIT 1").get();
+} catch (e) {
+  db.exec("ALTER TABLE aria_messaggi ADD COLUMN accuracy_rating INTEGER");
+}
+
+// Sessioni dashboard web tester (Step 4)
+db.exec(`
+  CREATE TABLE IF NOT EXISTS tester_sessions (
+    token TEXT PRIMARY KEY,
+    tester_id INTEGER NOT NULL,
+    creato_at TEXT DEFAULT (datetime('now')),
+    scade_at TEXT NOT NULL,
+    FOREIGN KEY (tester_id) REFERENCES testers(id) ON DELETE CASCADE
+  );
+  CREATE INDEX IF NOT EXISTS idx_tester_sessions_tester ON tester_sessions(tester_id);
+`);
+
+// Checklist test per i tester (separata da admin_todos che è la TO-DO personale di Mario)
+db.exec(`
+  CREATE TABLE IF NOT EXISTS test_todos (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    tester_id INTEGER NOT NULL,
+    testo TEXT NOT NULL,
+    completato INTEGER DEFAULT 0,
+    timestamp TEXT DEFAULT (datetime('now')),
+    FOREIGN KEY (tester_id) REFERENCES testers(id) ON DELETE CASCADE
+  );
+  CREATE INDEX IF NOT EXISTS idx_test_todos_tester ON test_todos(tester_id);
+`);
+
+// Test TO-DO broadcast: lista unica che tutti i tester vedono.
+// I numeri (id) sono stabili e non vengono riutilizzati anche dopo cancellazione (soft delete).
+db.exec(`
+  CREATE TABLE IF NOT EXISTS test_items (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    testo TEXT NOT NULL,
+    cancellato INTEGER DEFAULT 0,
+    creato_at TEXT DEFAULT (datetime('now')),
+    aggiornato_at TEXT DEFAULT (datetime('now'))
+  );
+
+  CREATE TABLE IF NOT EXISTS test_items_done (
+    tester_id INTEGER NOT NULL,
+    item_id INTEGER NOT NULL,
+    completato_at TEXT DEFAULT (datetime('now')),
+    PRIMARY KEY (tester_id, item_id),
+    FOREIGN KEY (tester_id) REFERENCES testers(id) ON DELETE CASCADE,
+    FOREIGN KEY (item_id) REFERENCES test_items(id) ON DELETE CASCADE
+  );
+
+  CREATE TABLE IF NOT EXISTS test_items_comments (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    tester_id INTEGER NOT NULL,
+    item_id INTEGER NOT NULL,
+    testo TEXT NOT NULL,
+    timestamp TEXT DEFAULT (datetime('now')),
+    FOREIGN KEY (tester_id) REFERENCES testers(id) ON DELETE CASCADE,
+    FOREIGN KEY (item_id) REFERENCES test_items(id) ON DELETE CASCADE
+  );
+  CREATE INDEX IF NOT EXISTS idx_test_items_comments_item ON test_items_comments(item_id);
+`);
+
 module.exports = db;
