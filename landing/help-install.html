@@ -156,7 +156,32 @@
 
   <!-- STEP 6 -->
   <div class="step-box">
-    <span class="step-num">6</span><h2>Accedi con il codice via email</h2>
+    <span class="step-num">6</span><h2>Disattiva la segreteria del tuo operatore e attiva ARIA</h2>
+    <div class="body">
+      <p>Questo è il passaggio più importante. Per far rispondere <strong>ARIA</strong> al posto tuo, devi <strong>sostituire la segreteria telefonica del tuo operatore</strong> con la nostra.</p>
+      <p>Durante il setup guidato dell'app, troverai un pulsante <strong>"Attiva segreteria ARIA"</strong> che fa tutto automaticamente in circa 10 secondi. Se preferisci farlo manualmente, ecco i codici da digitare nel dialer del telefono:</p>
+      <div style="background:var(--nero3);padding:1.2rem 1.4rem;border-radius:6px;margin:1rem 0">
+        <p style="color:var(--oro);font-weight:700;margin-bottom:0.6rem;font-size:0.9rem">Passo 1 — Disattiva la segreteria del tuo operatore:</p>
+        <code style="font-size:1rem;color:var(--bianco);display:block;margin-bottom:1rem">##002#</code>
+        <p style="color:var(--oro);font-weight:700;margin-bottom:0.6rem;font-size:0.9rem">Passo 2 — Attiva le 3 deviazioni verso ARIA:</p>
+        <code style="font-size:0.9rem;color:var(--bianco);display:block;margin-bottom:0.5rem">*61*+3904211898065**11*5# &nbsp;← non risposta (5 sec)</code>
+        <code style="font-size:0.9rem;color:var(--bianco);display:block;margin-bottom:0.5rem">*67*+3904211898065# &nbsp;← occupato</code>
+        <code style="font-size:0.9rem;color:var(--bianco);display:block">*62*+3904211898065# &nbsp;← non raggiungibile</code>
+      </div>
+      <p><strong>Importante:</strong> il prefisso <code>+39</code> davanti al numero è obbligatorio per tutti gli operatori (Iliad, Ho, TIM, Vodafone, Wind Tre).</p>
+      <div class="screen-placeholder">
+        <span class="label">📷 Screenshot 5B</span>
+        Schermata wizard StoppAI "Attiva segreteria ARIA" con pulsante e stato
+      </div>
+      <div class="warn">
+        <strong>⚠️ Attenzione:</strong> disattivando la segreteria del tuo operatore, non avrai più la segreteria classica. Se disinstalli StoppAI, per riattivare la segreteria del tuo operatore chiama il servizio clienti oppure digita i codici specifici del tuo operatore (es. Iliad: <code>*61*+39351899401#</code>).
+      </div>
+    </div>
+  </div>
+
+  <!-- STEP 7 — login -->
+  <div class="step-box">
+    <span class="step-num">7</span><h2>Accedi con il codice via email</h2>
     <div class="body">
       <p>Al termine del setup, StoppAI ti chiederà di <strong>accedere con la tua email Gmail</strong> (quella con cui ti sei iscritto).</p>
       <p>Inserisci l'email, ricevi il <strong>codice a 6 cifre</strong> (via email o notifica push) e inseriscilo nell'app.</p>
@@ -169,7 +194,7 @@
 
   <!-- STEP 7 -->
   <div class="step-box">
-    <span class="step-num">7</span><h2>Fatto! Inizia a testare</h2>
+    <span class="step-num">8</span><h2>Fatto! Inizia a testare</h2>
     <div class="body">
       <p>Sei dentro. Ora StoppAI è attiva e sta filtrando le chiamate sconosciute per te.</p>
       <p>Torna alla <a href="/dashboard.html" style="color:var(--oro)">dashboard web</a> per vedere la tua <strong>checklist test</strong>: lì trovi le attività che ti chiediamo di fare durante il periodo di prova.</p>
@@ -194,6 +219,23 @@
       <div class="body">
         <p>Aspetta 30-60 secondi e ricarica la pagina. A volte Google impiega qualche istante a registrare la tua iscrizione al programma beta.</p>
         <p>Se dopo un minuto il bottone "Scarica da Google Play" non appare ancora, chiudi completamente l'app Google Play (forza arresto dalle impostazioni) e riapri il link.</p>
+      </div>
+    </details>
+
+    <details>
+      <summary>ARIA non risponde, entra la segreteria del mio operatore</summary>
+      <div class="body">
+        <p>Devi disattivare la segreteria del tuo operatore prima di attivare ARIA. Apri il dialer del telefono e digita:</p>
+        <ul style="margin-left:1.2rem">
+          <li><strong>##002#</strong> → premi chiama → aspetta "Deviazione disattivata"</li>
+        </ul>
+        <p>Poi imposta le 3 deviazioni verso ARIA:</p>
+        <ul style="margin-left:1.2rem">
+          <li><code>*61*+3904211898065**11*5#</code> → chiama</li>
+          <li><code>*67*+3904211898065#</code> → chiama</li>
+          <li><code>*62*+3904211898065#</code> → chiama</li>
+        </ul>
+        <p>Il <strong>+39</strong> davanti al numero è obbligatorio (soprattutto per Iliad e Ho). Verifica con <code>*#61#</code> che la deviazione sia impostata su <code>+3904211898065</code>.</p>
       </div>
     </details>
 

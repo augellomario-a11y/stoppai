@@ -35,7 +35,8 @@ class OnboardingViewModel(app: Application) : AndroidViewModel(app) {
         NOTIFICATIONS,     // 5 - POST_NOTIFICATIONS
         SMS,               // 6 - SEND_SMS
         BATTERY,           // 7 - ignore battery optimizations
-        SUMMARY            // 8 - tutto pronto
+        ARIA_FORWARDING,   // 8 - deviazione chiamate verso ARIA (disattiva segreteria operatore + imposta 3 deviazioni condizionali)
+        SUMMARY            // 9 - tutto pronto
     }
 
     private val _currentStep = MutableLiveData(Step.WELCOME)
@@ -83,6 +84,7 @@ class OnboardingViewModel(app: Application) : AndroidViewModel(app) {
         Step.NOTIFICATIONS,
         Step.SMS,
         Step.BATTERY,
+        Step.ARIA_FORWARDING,
         Step.SUMMARY
     )
 
@@ -111,6 +113,7 @@ class OnboardingViewModel(app: Application) : AndroidViewModel(app) {
             }
             Step.SMS -> hasPermission(ctx, Manifest.permission.SEND_SMS)
             Step.BATTERY -> isIgnoringBatteryOptimizations(ctx)
+            Step.ARIA_FORWARDING -> UssdManager.isForwardActive(ctx)
             Step.SUMMARY -> true
         }
     }
