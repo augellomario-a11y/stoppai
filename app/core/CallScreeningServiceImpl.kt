@@ -36,6 +36,19 @@ class CallScreeningServiceImpl : CallScreeningService() {
         val context = applicationContext
         val prefs = context.getSharedPreferences("stoppai_prefs", Context.MODE_PRIVATE)
 
+        // Rileva direzione chiamata (API 29+)
+        val isOutgoing = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+            callDetails.callDirection == Call.Details.DIRECTION_OUTGOING
+        } else false
+        val direction = if (isOutgoing) "USCITA" else "ENTRATA"
+
+        // Le chiamate in uscita: logga e lascia passare senza screening
+        if (isOutgoing) {
+            respondToCall(callDetails, CallResponse.Builder().setDisallowCall(false).build())
+            CallLogHelper.saveCallLog(context, normalizedNumber, "USCITA", false, "USCITA")
+            return
+        }
+
         // Raccolta Dati
         val tipo = NumberClassifier.getTipoNumero(normalizedNumber)
         val isContact = ContactCacheManager.isContact(normalizedNumber)

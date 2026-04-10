@@ -452,6 +452,10 @@ async function loadAria() {
       const dur = m.durata_secondi ? `${m.durata_secondi}s` : '—';
       const kb = m.dimensione_kb ? `${m.dimensione_kb.toFixed(1)} KB` : '—';
       const caller = m.caller_name ? escapeHtml(m.caller_name) : 'Sconosciuto';
+      const spam = m.spam_score || 0;
+      const spamColor = spam >= 70 ? '#ff6b6b' : spam >= 30 ? '#ffb86c' : '#6bcf7f';
+      const spamLabel = spam >= 70 ? '🔴 Probabile call center' : spam >= 30 ? '🟠 Sospetto' : '🟢 Probabilmente legittimo';
+      const spamBadge = m.trascrizione ? `<span class="am-spam" style="color:${spamColor};font-size:0.78rem;font-weight:600">${spamLabel} (${spam}%)</span>` : '';
       const trasc = m.trascrizione ? `<div class="am-trasc"><span class="q">“</span>${escapeHtml(m.trascrizione)}<span class="q">”</span></div>` : '<div class="am-trasc" style="opacity:0.6">Trascrizione in elaborazione…</div>';
       const audio = m.wav_filename ? `<audio controls preload="none" src="${API}/aria-audio/${m.id}"></audio>` : '';
       const download = m.wav_filename ? `<a class="am-dl-btn" href="${API}/aria-download/${m.id}" download>⬇ Scarica</a>` : '';
@@ -481,6 +485,7 @@ async function loadAria() {
             <div class="am-caller">${caller}<span class="num">${escapeHtml(m.caller_number || '—')}</span></div>
             <div class="am-time">${time}</div>
           </div>
+          ${spamBadge}
           ${trasc}
           ${audio}
           ${rating}

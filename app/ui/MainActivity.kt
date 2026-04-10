@@ -103,17 +103,23 @@ class MainActivity : AppCompatActivity() {
     private fun inviaTokenAlServerManuale(token: String) {
         CoroutineScope(Dispatchers.IO).launch {
             try {
-                val url = URL("${AriaFcmService.SERVER_URL}/fcm-token")
+                val prefs = getSharedPreferences("stoppai_prefs", Context.MODE_PRIVATE)
+                val email = prefs.getString("tester_email", "") ?: ""
+                val testerId = prefs.getInt("tester_id", 0)
+
+                val url = URL("${AriaFcmService.SERVER_URL}/api/tester/fcm-token")
                 val conn = url.openConnection() as java.net.HttpURLConnection
                 conn.requestMethod = "POST"
                 conn.doOutput = true
                 conn.setRequestProperty("Content-Type", "application/json")
-                val body = """{"token":"$token"}"""
+                conn.connectTimeout = 10000
+                conn.readTimeout = 10000
+                val body = """{"token":"$token","email":"$email","tester_id":$testerId}"""
                 conn.outputStream.write(body.toByteArray())
-                android.util.Log.e("STOPPAI_FCM", "FCM: Token inviato manualmente (Response: ${conn.responseCode})")
+                android.util.Log.d("STOPPAI_FCM", "FCM: Token inviato (${conn.responseCode}) email=$email id=$testerId")
                 conn.disconnect()
             } catch (e: Exception) {
-                android.util.Log.e("STOPPAI_FCM", "FCM ERROR: Invio manuale fallito: $e")
+                android.util.Log.e("STOPPAI_FCM", "FCM ERROR: Invio fallito: ${e.message}")
             }
         }
     }

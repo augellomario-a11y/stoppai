@@ -178,20 +178,27 @@ class AriaFcmService : FirebaseMessagingService() {
     private fun inviaTokenAlServer(token: String) {
         CoroutineScope(Dispatchers.IO).launch {
             try {
-                val url = URL("$SERVER_URL/fcm-token")
+                // Leggi email e tester_id dalle preferenze per associare il token al tester giusto
+                val prefs = getSharedPreferences("stoppai_prefs", MODE_PRIVATE)
+                val email = prefs.getString("tester_email", "") ?: ""
+                val testerId = prefs.getInt("tester_id", 0)
+
+                val url = URL("$SERVER_URL/api/tester/fcm-token")
                 val conn = url.openConnection() as java.net.HttpURLConnection
                 conn.requestMethod = "POST"
                 conn.doOutput = true
                 conn.setRequestProperty("Content-Type", "application/json")
-                
-                val body = """{"token":"$token"}"""
+                conn.connectTimeout = 10000
+                conn.readTimeout = 10000
+
+                val body = """{"token":"$token","email":"$email","tester_id":$testerId}"""
                 conn.outputStream.write(body.toByteArray())
-                
+
                 val responseCode = conn.responseCode
-                println("FCM: Token inviato al server ($responseCode)")
+                android.util.Log.d("FCM", "Token inviato al server ($responseCode) email=$email TesterId=$testerId")
                 conn.disconnect()
             } catch (e: Exception) {
-                println("FCM ERROR: Invio token fallito: $e")
+                android.util.Log.e("FCM", "Invio token fallito: ${e.message}")
             }
         }
     }

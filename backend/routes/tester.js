@@ -138,6 +138,62 @@ router.post('/:id/messaggi/img', uploadTester.single('immagine'), (req, res) => 
   res.json({ success: true, immagine: imgPath });
 });
 
+// POST /api/tester/fcm-token — l'app invia il token FCM per le push notification
+router.post('/fcm-token', (req, res) => {
+  const { token, email, tester_id } = req.body;
+  if (!token) return res.status(400).json({ error: 'token mancante' });
+
+  let id = tester_id;
+  if (!id && email) {
+    const t = db.prepare("SELECT id FROM testers WHERE LOWER(email) = ?").get(email.toLowerCase().trim());
+    if (t) id = t.id;
+  }
+  if (id) {
+    db.prepare('UPDATE testers SET fcm_token = ? WHERE id = ?').run(token, id);
+    console.log(`[FCM] Token aggiornato per tester_id=${id}`);
+    res.json({ success: true });
+  } else {
+    // Fallback: salva nel file globale (compatibilità con vecchio whisper_worker)
+    try {
+      require('fs').writeFileSync('/opt/stoppai/fcm_token.txt', token);
+      console.log('[FCM] Token salvato in file globale (no tester match)');
+    } catch (e) {}
+    res.json({ success: true, warning: 'tester non trovato, salvato globale' });
+  }
+});
+
+/**
+ * Invia push FCM a un tester specifico tramite FCM Bridge (porta 3000)
+ */
+function inviaPushAria(testerId, numero, testo) {
+  const tester = db.prepare('SELECT fcm_token FROM testers WHERE id = ?').get(testerId);
+  if (!tester?.fcm_token) {
+    console.log(`[PUSH] Nessun token FCM per tester_id=${testerId}`);
+    return;
+  }
+  const http = require('http');
+  const data = JSON.stringify({
+    token: tester.fcm_token,
+    tipo: 'aria_messaggio',
+    numero: String(numero),
+    testo: String(testo || '').substring(0, 200)
+  });
+  const options = {
+    hostname: '172.17.0.1',
+    port: 3000,
+    path: '/api/push',
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', 'Content-Length': data.length },
+    timeout: 5000
+  };
+  const req = http.request(options, (r) => {
+    console.log(`[PUSH] FCM Bridge risposta: ${r.statusCode} per tester_id=${testerId}`);
+  });
+  req.on('error', (e) => console.error(`[PUSH] Errore: ${e.message}`));
+  req.write(data);
+  req.end();
+}
+
 // POST /api/tester/sync — l'app invia device info + statistiche
 router.post('/sync', (req, res) => {
   const { tester_id, device, stats, batteria } = req.body;
@@ -220,13 +276,29 @@ router.post('/sync', (req, res) => {
 
 // POST /api/tester/aria — whisper_worker salva messaggio ARIA dopo trascrizione
 router.post('/aria', (req, res) => {
-  const { caller_number, caller_name, wav_filename, trascrizione, durata_secondi, dimensione_kb } = req.body;
+  const { caller_number, caller_name, wav_filename, trascrizione, durata_secondi, dimensione_kb, spam_score, rdnis } = req.body;
   if (!caller_number) return res.status(400).json({ error: 'caller_number obbligatorio' });
 
-  // Cerca il tester associato (per ora match opzionale)
-  const tester = db.prepare(
-    "SELECT id FROM testers WHERE telefono LIKE ? LIMIT 1"
-  ).get(`%${caller_number.slice(-10)}%`);
+  // Cerca il tester destinatario via rdnis (numero che ha deviato la chiamata ad ARIA)
+  // rdnis è il numero del TESTER, caller_number è il numero del CHIAMANTE
+  let tester = null;
+  if (rdnis) {
+    const rdnisNorm = rdnis.replace(/^\+?39/, '').slice(-10);
+    tester = db.prepare(
+      "SELECT id FROM testers WHERE telefono LIKE ? LIMIT 1"
+    ).get(`%${rdnisNorm}%`);
+    if (tester) {
+      console.log(`[ARIA] rdnis ${rdnis} → tester_id ${tester.id}`);
+    } else {
+      console.log(`[ARIA] rdnis ${rdnis} → nessun tester trovato, provo con caller`);
+    }
+  }
+  // Fallback: cerca per caller_number (vecchio metodo, meno affidabile)
+  if (!tester) {
+    tester = db.prepare(
+      "SELECT id FROM testers WHERE telefono LIKE ? LIMIT 1"
+    ).get(`%${caller_number.slice(-10)}%`);
+  }
 
   // Cerca nome contatto gia' noto da invii precedenti dell'app
   let nome = caller_name || null;
@@ -238,8 +310,8 @@ router.post('/aria', (req, res) => {
   }
 
   db.prepare(`
-    INSERT INTO aria_messaggi (tester_id, caller_number, caller_name, wav_filename, trascrizione, durata_secondi, dimensione_kb)
-    VALUES (?, ?, ?, ?, ?, ?, ?)
+    INSERT INTO aria_messaggi (tester_id, caller_number, caller_name, wav_filename, trascrizione, durata_secondi, dimensione_kb, spam_score)
+    VALUES (?, ?, ?, ?, ?, ?, ?, ?)
   `).run(
     tester?.id || null,
     caller_number,
@@ -247,8 +319,16 @@ router.post('/aria', (req, res) => {
     wav_filename || null,
     trascrizione || null,
     durata_secondi || null,
-    dimensione_kb || null
+    dimensione_kb || null,
+    spam_score ?? null
   );
+
+  // Invia push notification al tester se abbiamo il tester_id
+  if (tester?.id) {
+    try { inviaPushAria(tester.id, caller_number, trascrizione); } catch (e) {
+      console.error('[PUSH] Errore invio push ARIA:', e.message);
+    }
+  }
 
   res.json({ success: true });
 });
