@@ -32,7 +32,7 @@ class AriaFcmService : FirebaseMessagingService() {
     companion object {
         const val CHANNEL_ID = "aria_messaggi"
         const val CHANNEL_NAME = "Messaggi ARIA"
-        const val SERVER_URL = "http://46.225.14.90:8085"
+        const val SERVER_URL = "https://stoppai.it"
     }
 
     /**

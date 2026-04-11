@@ -176,18 +176,21 @@ function inviaPushAria(testerId, numero, testo) {
     token: tester.fcm_token,
     tipo: 'aria_messaggio',
     numero: String(numero),
-    testo: String(testo || '').substring(0, 200)
+    testo: String(testo || '').substring(0, 200),
+    timestamp: String(Math.floor(Date.now() / 1000))
   });
   const options = {
     hostname: '172.17.0.1',
     port: 3000,
     path: '/api/push',
     method: 'POST',
-    headers: { 'Content-Type': 'application/json', 'Content-Length': data.length },
+    headers: { 'Content-Type': 'application/json', 'Content-Length': Buffer.byteLength(data) },
     timeout: 5000
   };
   const req = http.request(options, (r) => {
-    console.log(`[PUSH] FCM Bridge risposta: ${r.statusCode} per tester_id=${testerId}`);
+    let body = '';
+    r.on('data', c => body += c);
+    r.on('end', () => console.log(`[PUSH] FCM Bridge: status=${r.statusCode} body=${body} tester_id=${testerId}`));
   });
   req.on('error', (e) => console.error(`[PUSH] Errore: ${e.message}`));
   req.write(data);

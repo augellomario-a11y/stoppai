@@ -171,6 +171,26 @@ class LoginFragment : Fragment(R.layout.fragment_login) {
                         android.util.Log.d("STOPPAI_LOGIN", "Login OK: tester_id=${json.getInt("tester_id")} piano=${json.getString("piano")}")
                         // Sync immediato dopo login
                         com.ifs.stoppai.core.BackendSyncService.sync(requireContext())
+                        // Invia FCM token con i dati tester corretti (ora che tester_id e email sono nelle prefs)
+                        com.google.firebase.messaging.FirebaseMessaging.getInstance().token.addOnSuccessListener { fcmToken ->
+                            kotlinx.coroutines.CoroutineScope(kotlinx.coroutines.Dispatchers.IO).launch {
+                                try {
+                                    val url = java.net.URL("${com.ifs.stoppai.core.AriaFcmService.SERVER_URL}/api/tester/fcm-token")
+                                    val conn = url.openConnection() as java.net.HttpURLConnection
+                                    conn.requestMethod = "POST"
+                                    conn.doOutput = true
+                                    conn.setRequestProperty("Content-Type", "application/json")
+                                    conn.connectTimeout = 10000
+                                    val email = json.getString("email")
+                                    val tid = json.getInt("tester_id")
+                                    conn.outputStream.write("""{"token":"$fcmToken","email":"$email","tester_id":$tid}""".toByteArray())
+                                    android.util.Log.d("STOPPAI_FCM", "Post-login FCM token inviato (${conn.responseCode}) tid=$tid")
+                                    conn.disconnect()
+                                } catch (e: Exception) {
+                                    android.util.Log.e("STOPPAI_FCM", "Post-login FCM error: ${e.message}")
+                                }
+                            }
+                        }
                         navigateToHome()
                     } else {
                         showError(json.optString("error", "Codice non valido"))
