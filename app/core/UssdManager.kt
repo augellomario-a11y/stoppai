@@ -15,14 +15,13 @@ import android.telephony.TelephonyManager
 import androidx.core.content.ContextCompat
 
 object UssdManager {
-    // Numero ARIA con prefisso +39 (obbligatorio per Iliad e altri operatori)
+    // Numero ARIA con +39 — funziona su tutti gli operatori italiani (Ho., Iliad, TIM, Vodafone, Wind)
     private const val ARIA_NUMBER = "+3904211898065"
 
-    // Deviazioni CONDIZIONALI (non incondizionate!) — restano attive finché non disattivate
-    // *61* = su non risposta (5 secondi), *67* = su occupato, *62* = su non raggiungibile
-    private const val USSD_FWD_NO_REPLY = "*61*${ARIA_NUMBER}**11*5#"
-    private const val USSD_FWD_BUSY = "*67*${ARIA_NUMBER}#"
-    private const val USSD_FWD_UNREACHABLE = "*62*${ARIA_NUMBER}#"
+    fun getAriaNumber(context: Context): String = ARIA_NUMBER
+
+    // I codici USSD vengono generati dinamicamente in base all'operatore
+    // *61* = su non risposta, *67* = su occupato, *62* = su non raggiungibile
 
     // Disattivazione singole
     private const val USSD_CANCEL_NO_REPLY = "##61#"
@@ -40,15 +39,16 @@ object UssdManager {
     fun activateForward(context: Context) {
         val prefs = context.getSharedPreferences("stoppai_prefs", Context.MODE_PRIVATE)
         val handler = Handler(Looper.getMainLooper())
+        val num = getAriaNumber(context)
 
-        // Step 1: cancella tutte le deviazioni esistenti (inclusa segreteria operatore)
+        // Step 1: cancella tutte le deviazioni esistenti
         sendUssd(context, USSD_CANCEL_ALL)
 
-        // Step 2-4: imposta le 3 deviazioni condizionali con delay per evitare sovrapposizione
-        handler.postDelayed({ sendUssd(context, USSD_FWD_NO_REPLY) }, 3000)
-        handler.postDelayed({ sendUssd(context, USSD_FWD_BUSY) }, 6000)
+        // Step 2-4: imposta le 3 deviazioni condizionali con delay
+        handler.postDelayed({ sendUssd(context, "*61*${num}**11*5#") }, 3000)
+        handler.postDelayed({ sendUssd(context, "*67*${num}#") }, 6000)
         handler.postDelayed({
-            sendUssd(context, USSD_FWD_UNREACHABLE)
+            sendUssd(context, "*62*${num}#")
             prefs.edit().putBoolean("forward_active", true).apply()
         }, 9000)
     }

@@ -29,6 +29,8 @@ app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 app.use('/aria-preset', express.static('/opt/stoppai/asterisk/recordings/preset'));
 // Serve ARIA custom audio (registrazioni personali tester)
 app.use('/aria-custom', express.static('/opt/stoppai/asterisk/recordings/custom'));
+// Serve ARIA recordings per player app (file WAV dei messaggi segreteria)
+app.use('/aria-recordings', express.static('/opt/stoppai/asterisk/recordings'));
 
 // Serve admin panel
 app.use(express.static(path.join(__dirname, 'public')));

@@ -18,7 +18,6 @@ import androidx.fragment.app.Fragment
 import com.ifs.stoppai.R
 import android.app.role.RoleManager
 import android.telecom.TelecomManager
-import androidx.annotation.RequiresApi
 import androidx.lifecycle.lifecycleScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -26,6 +25,8 @@ import kotlinx.coroutines.withContext
 import android.telephony.TelephonyManager
 
 class SettingsFragment : Fragment(R.layout.fragment_settings) {
+
+    private fun getAriaNum(): String = com.ifs.stoppai.core.UssdManager.getAriaNumber(requireContext())
 
     private val progressReceiver = object : android.content.BroadcastReceiver() {
         override fun onReceive(context: Context?, intent: Intent?) {
@@ -39,23 +40,11 @@ class SettingsFragment : Fragment(R.layout.fragment_settings) {
         super.onViewCreated(view, savedInstanceState)
 
         setupAccountSection(view)
-
-        view.findViewById<Button>(R.id.ID_HOME_006).setOnClickListener {
-            val intent = Intent(Intent.ACTION_DIAL)
-            intent.data = Uri.fromParts("tel", "##61#", null)
-            startActivity(intent)
-            
-            // AGGIORNA STATO (SA-068)
-            val prefs = requireContext().getSharedPreferences("stoppai_prefs", Context.MODE_PRIVATE)
-            prefs.edit().putBoolean("segreteria_attiva", false).apply()
-            android.widget.Toast.makeText(requireContext(), "Segreteria disattivata", android.widget.Toast.LENGTH_SHORT).show()
-        }
-
+        setupAriaSection(view)
         setupPermissionClickListeners(view)
         setupVolumeControl(view)
-        setupUssdConfig(view)
 
-        // Ripristina valori default (SA-067)
+        // Ripristina valori default
         view.findViewById<Button>(R.id.ID_SETT_001).setOnClickListener {
             androidx.appcompat.app.AlertDialog.Builder(requireContext())
                 .setTitle("Ripristina valori default")
@@ -69,11 +58,10 @@ class SettingsFragment : Fragment(R.layout.fragment_settings) {
                         .putString("sms_text_custom", "Ciao, sono l'assistente ARIA. Non posso rispondere ora, lasciami un messaggio.")
                         .putInt("payment_threshold", 25)
                         .apply()
-                    
                     val db = com.ifs.stoppai.db.StoppAiDatabase.getInstance(requireContext().applicationContext)
                     val repo = com.ifs.stoppai.db.AppSettingsRepository(db.appSettingsDao())
                     lifecycleScope.launch(Dispatchers.IO) {
-                        repo.setVolumePreferito(11) // circa 75% di 15
+                        repo.setVolumePreferito(11)
                         withContext(Dispatchers.Main) {
                             setupVolumeControl(view)
                             android.widget.Toast.makeText(requireContext(), "Valori default ripristinati", android.widget.Toast.LENGTH_SHORT).show()
@@ -85,10 +73,7 @@ class SettingsFragment : Fragment(R.layout.fragment_settings) {
         }
     }
 
-    /**
-     * Sezione Account: mostra stato login + pulsanti Accedi/Esci.
-     * Gestisce flag SharedPreferences logged_in, login_skipped, tester_*.
-     */
+    // ===== SEZIONE ACCOUNT =====
     private fun setupAccountSection(view: View) {
         val prefs = requireContext().getSharedPreferences("stoppai_prefs", Context.MODE_PRIVATE)
         val txtStatus = view.findViewById<TextView>(R.id.txt_account_status)
@@ -101,21 +86,17 @@ class SettingsFragment : Fragment(R.layout.fragment_settings) {
 
         if (loggedIn && !email.isNullOrBlank()) {
             val display = if (!nome.isNullOrBlank()) "$nome ($email)" else email
-            txtStatus.text = "🟢 Loggato come:\n$display"
+            txtStatus.text = "Loggato come:\n$display"
             btnLogin.visibility = View.GONE
             btnLogout.visibility = View.VISIBLE
         } else {
-            txtStatus.text = "🔴 Non sei loggato. Accedi per sincronizzare le tue chiamate con il backend."
+            txtStatus.text = "Non sei loggato. Accedi per sincronizzare le tue chiamate."
             btnLogin.visibility = View.VISIBLE
             btnLogout.visibility = View.GONE
         }
 
         btnLogin.setOnClickListener {
-            // Resetta flag skip e riavvia MainActivity per mostrare LoginFragment
-            prefs.edit()
-                .remove("login_skipped")
-                .remove("logged_in")
-                .apply()
+            prefs.edit().remove("login_skipped").remove("logged_in").apply()
             val intent = Intent(requireContext(), MainActivity::class.java).apply {
                 flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
             }
@@ -126,15 +107,12 @@ class SettingsFragment : Fragment(R.layout.fragment_settings) {
         btnLogout.setOnClickListener {
             androidx.appcompat.app.AlertDialog.Builder(requireContext())
                 .setTitle("Esci dall'account")
-                .setMessage("Vuoi davvero uscire? Le tue chiamate locali rimarranno, ma non saranno più sincronizzate con il backend.")
+                .setMessage("Vuoi davvero uscire? Le tue chiamate locali rimarranno, ma non saranno sincronizzate.")
                 .setPositiveButton("Esci") { _, _ ->
                     prefs.edit()
-                        .remove("logged_in")
-                        .remove("tester_id")
-                        .remove("tester_email")
-                        .remove("tester_nome")
-                        .remove("login_skipped")
-                        .apply()
+                        .remove("logged_in").remove("tester_id")
+                        .remove("tester_email").remove("tester_nome")
+                        .remove("login_skipped").apply()
                     android.widget.Toast.makeText(requireContext(), "Logout effettuato", android.widget.Toast.LENGTH_SHORT).show()
                     val intent = Intent(requireContext(), MainActivity::class.java).apply {
                         flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
@@ -147,6 +125,200 @@ class SettingsFragment : Fragment(R.layout.fragment_settings) {
         }
     }
 
+    // ===== SEZIONE SEGRETERIA ARIA =====
+    private fun setupAriaSection(view: View) {
+        val tm = requireContext().getSystemService(Context.TELEPHONY_SERVICE) as TelephonyManager
+        val operatore = tm.networkOperatorName ?: "Non rilevato"
+        view.findViewById<TextView>(R.id.ID_SETT_OPERATORE).text = "Operatore: $operatore"
+
+        val prefs = requireContext().getSharedPreferences("stoppai_prefs", Context.MODE_PRIVATE)
+        val ariaAttiva = prefs.getBoolean("forward_active", false)
+        val txtStatus = view.findViewById<TextView>(R.id.txt_aria_status)
+        txtStatus.text = if (ariaAttiva) "Stato: attiva" else "Stato: non attiva"
+
+        view.findViewById<Button>(R.id.btn_gestisci_aria).setOnClickListener {
+            mostraMenuSegreteria()
+        }
+    }
+
+    private fun mostraMenuSegreteria() {
+        val opzioni = arrayOf(
+            "Verifica deviazioni attive",
+            "Attiva deviazione su non risposta",
+            "Attiva deviazione su occupato",
+            "Attiva deviazione su non raggiungibile",
+            "Attiva tutte le deviazioni",
+            "Disattiva tutte le deviazioni"
+        )
+
+        androidx.appcompat.app.AlertDialog.Builder(requireContext())
+            .setTitle("Gestisci segreteria ARIA")
+            .setItems(opzioni) { _, which ->
+                when (which) {
+                    0 -> verificaDeviazioni()
+                    1 -> scegliSecondiEAttiva()
+                    2 -> eseguiUssd("*67*${getAriaNum()}#", "Deviazione su occupato")
+                    3 -> eseguiUssd("*62*${getAriaNum()}#", "Deviazione su non raggiungibile")
+                    4 -> attivaTutte()
+                    5 -> disattivaTutte()
+                }
+            }
+            .setNegativeButton("Chiudi", null)
+            .show()
+    }
+
+    private val codiciVerifica = listOf(
+        "*#61#" to "Non risposta",
+        "*#67#" to "Occupato",
+        "*#62#" to "Non raggiungibile"
+    )
+    private val risultatiVerifica = StringBuilder()
+    private var verificaIndex = 0
+
+    private fun verificaDeviazioni() {
+        val ctx = requireContext()
+        if (android.content.pm.PackageManager.PERMISSION_GRANTED !=
+            androidx.core.content.ContextCompat.checkSelfPermission(ctx, android.Manifest.permission.CALL_PHONE)) {
+            android.widget.Toast.makeText(ctx, "Servono i permessi telefonate", android.widget.Toast.LENGTH_SHORT).show()
+            return
+        }
+        risultatiVerifica.clear()
+        verificaIndex = 0
+        android.widget.Toast.makeText(ctx, "Verifica in corso...", android.widget.Toast.LENGTH_SHORT).show()
+        eseguiVerificaSingola()
+    }
+
+    private fun eseguiVerificaSingola() {
+        if (verificaIndex >= codiciVerifica.size) {
+            mostraRisultatiDeviazioni(risultatiVerifica.toString())
+            return
+        }
+        val ctx = try { requireContext() } catch (e: Exception) { return }
+        val tm = ctx.getSystemService(Context.TELEPHONY_SERVICE) as TelephonyManager
+        val (codice, nome) = codiciVerifica[verificaIndex]
+
+        try {
+            tm.sendUssdRequest(codice, object : TelephonyManager.UssdResponseCallback() {
+                override fun onReceiveUssdResponse(telephonyManager: TelephonyManager, request: String, response: CharSequence) {
+                    risultatiVerifica.append("$nome:\n$response\n\n")
+                    verificaIndex++
+                    // Aspetta 2 secondi prima del prossimo (il modem deve chiudere la sessione USSD)
+                    android.os.Handler(android.os.Looper.getMainLooper()).postDelayed({ eseguiVerificaSingola() }, 2000)
+                }
+                override fun onReceiveUssdResponseFailed(telephonyManager: TelephonyManager, request: String, failureCode: Int) {
+                    risultatiVerifica.append("$nome: errore (codice $failureCode)\n\n")
+                    verificaIndex++
+                    android.os.Handler(android.os.Looper.getMainLooper()).postDelayed({ eseguiVerificaSingola() }, 2000)
+                }
+            }, android.os.Handler(android.os.Looper.getMainLooper()))
+        } catch (e: Exception) {
+            risultatiVerifica.append("$nome: non supportato\n\n")
+            verificaIndex++
+            android.os.Handler(android.os.Looper.getMainLooper()).postDelayed({ eseguiVerificaSingola() }, 1000)
+        }
+    }
+
+    private fun mostraRisultatiDeviazioni(testo: String) {
+        try {
+            androidx.appcompat.app.AlertDialog.Builder(requireContext())
+                .setTitle("Stato deviazioni")
+                .setMessage(testo.trimEnd())
+                .setPositiveButton("OK", null)
+                .show()
+        } catch (e: Exception) {
+            // Fragment potrebbe non essere più attivo
+        }
+    }
+
+    private fun scegliSecondiEAttiva() {
+        val opzioni = arrayOf("5 secondi", "10 secondi", "15 secondi", "20 secondi")
+        val secondi = intArrayOf(5, 10, 15, 20)
+
+        androidx.appcompat.app.AlertDialog.Builder(requireContext())
+            .setTitle("Dopo quanti secondi deviare?")
+            .setItems(opzioni) { _, which ->
+                val sec = secondi[which]
+                val codice = "*61*${getAriaNum()}**11*${sec}#"
+                val prefs = requireContext().getSharedPreferences("stoppai_prefs", Context.MODE_PRIVATE)
+                prefs.edit().putInt("secondi_deviazione", sec).apply()
+                eseguiUssd(codice, "Deviazione non risposta (${sec}s)")
+            }
+            .setNegativeButton("Annulla", null)
+            .show()
+    }
+
+    private fun getCodiciAttivazione(): List<Pair<String, String>> {
+        val num = getAriaNum()
+        return listOf(
+            "##002#" to "Passo 1/4: Disattiva segreteria operatore",
+            "*61*${num}**11*10#" to "Passo 2/4: Deviazione su non risposta (10s)",
+            "*67*${num}#" to "Passo 3/4: Deviazione su occupato",
+            "*62*${num}#" to "Passo 4/4: Deviazione su non raggiungibile"
+        )
+    }
+    private var passoCorrente = 0
+
+    private fun attivaTutte() {
+        passoCorrente = 0
+        eseguiPassoAttivazione()
+    }
+
+    private fun eseguiPassoAttivazione() {
+        if (passoCorrente >= getCodiciAttivazione().size) {
+            // Completato tutti i passi
+            val prefs = requireContext().getSharedPreferences("stoppai_prefs", Context.MODE_PRIVATE)
+            prefs.edit().putBoolean("forward_active", true).apply()
+            view?.findViewById<TextView>(R.id.txt_aria_status)?.text = "Stato: attiva"
+            androidx.appcompat.app.AlertDialog.Builder(requireContext())
+                .setTitle("Attivazione completata")
+                .setMessage("Tutte le deviazioni sono state configurate.\n\nUsa 'Verifica deviazioni attive' per confermare.")
+                .setPositiveButton("OK", null)
+                .show()
+            return
+        }
+
+        val (codice, descrizione) = getCodiciAttivazione()[passoCorrente]
+        androidx.appcompat.app.AlertDialog.Builder(requireContext())
+            .setTitle(descrizione)
+            .setMessage("Premi 'Esegui' per aprire il dialer con il codice:\n\n$codice\n\nPoi premi il tasto verde di chiamata.")
+            .setPositiveButton("Esegui") { _, _ ->
+                eseguiUssd(codice, descrizione)
+                passoCorrente++
+                // Mostra il passo successivo dopo 3 secondi
+                view?.postDelayed({ eseguiPassoAttivazione() }, 3000)
+            }
+            .setNegativeButton("Annulla", null)
+            .setCancelable(false)
+            .show()
+    }
+
+    private fun disattivaTutte() {
+        androidx.appcompat.app.AlertDialog.Builder(requireContext())
+            .setTitle("Disattiva segreteria")
+            .setMessage("Verranno disattivate tutte le deviazioni verso ARIA.\n\nATTENZIONE: anche la segreteria del tuo operatore verrà disattivata. Dovrai riconfigurarla manualmente se necessario.")
+            .setPositiveButton("Disattiva") { _, _ ->
+                com.ifs.stoppai.core.UssdManager.deactivateForward(requireContext())
+                android.widget.Toast.makeText(requireContext(), "Segreteria disattivata", android.widget.Toast.LENGTH_SHORT).show()
+                view?.findViewById<TextView>(R.id.txt_aria_status)?.text = "Stato: non attiva"
+            }
+            .setNegativeButton("Annulla", null)
+            .show()
+    }
+
+    private fun eseguiUssd(codice: String, descrizione: String) {
+        try {
+            val intent = Intent(Intent.ACTION_DIAL)
+            // Uri.encode strappa il '+', lo preserviamo manualmente
+            val encoded = Uri.encode(codice, "+*#")
+            intent.data = Uri.parse("tel:$encoded")
+            startActivity(intent)
+            android.widget.Toast.makeText(requireContext(), "$descrizione: $codice", android.widget.Toast.LENGTH_LONG).show()
+        } catch (e: Exception) {
+            android.widget.Toast.makeText(requireContext(), "Errore apertura dialer", android.widget.Toast.LENGTH_SHORT).show()
+        }
+    }
+
+    // ===== VOLUME =====
     private fun setupVolumeControl(view: View) {
         val db = com.ifs.stoppai.db.StoppAiDatabase.getInstance(requireContext().applicationContext)
         val repo = com.ifs.stoppai.db.AppSettingsRepository(db.appSettingsDao())
@@ -170,9 +342,7 @@ class SettingsFragment : Fragment(R.layout.fragment_settings) {
             override fun onStartTrackingTouch(seekBar: SeekBar?) {}
             override fun onStopTrackingTouch(seekBar: SeekBar?) {
                 val progress = seekBar?.progress ?: 7
-                lifecycleScope.launch(Dispatchers.IO) {
-                    repo.setVolumePreferito(progress)
-                }
+                lifecycleScope.launch(Dispatchers.IO) { repo.setVolumePreferito(progress) }
             }
         })
 
@@ -180,23 +350,19 @@ class SettingsFragment : Fragment(R.layout.fragment_settings) {
             val cur = seek.progress
             if (cur > 0) {
                 seek.progress = cur - 1
-                lifecycleScope.launch(Dispatchers.IO) {
-                    repo.setVolumePreferito(cur - 1)
-                }
+                lifecycleScope.launch(Dispatchers.IO) { repo.setVolumePreferito(cur - 1) }
             }
         }
-
         btnPlus.setOnClickListener {
             val cur = seek.progress
             if (cur < 15) {
                 seek.progress = cur + 1
-                lifecycleScope.launch(Dispatchers.IO) {
-                    repo.setVolumePreferito(cur + 1)
-                }
+                lifecycleScope.launch(Dispatchers.IO) { repo.setVolumePreferito(cur + 1) }
             }
         }
     }
 
+    // ===== PERMESSI =====
     override fun onResume() {
         super.onResume()
         view?.let { aggiornaPermessi(it) }
@@ -210,10 +376,10 @@ class SettingsFragment : Fragment(R.layout.fragment_settings) {
     }
 
     private fun setupPermissionClickListeners(view: View) {
-        view.findViewById<TextView>(R.id.ID_PERM_001).setOnClickListener { 
-            openAppSettingsIfMissing(Manifest.permission.READ_CONTACTS) 
+        view.findViewById<TextView>(R.id.ID_PERM_001).setOnClickListener {
+            openAppSettingsIfMissing(Manifest.permission.READ_CONTACTS)
         }
-        view.findViewById<TextView>(R.id.ID_PERM_002).setOnClickListener { 
+        view.findViewById<TextView>(R.id.ID_PERM_002).setOnClickListener {
             if (!hasPerm(Manifest.permission.READ_PHONE_STATE) || !hasPerm(Manifest.permission.READ_PHONE_NUMBERS)) {
                 openAppSettings()
             }
@@ -226,12 +392,11 @@ class SettingsFragment : Fragment(R.layout.fragment_settings) {
                     startActivityForResult(intent, 200)
                 }
             } else {
-                val intent = Intent(Settings.ACTION_MANAGE_DEFAULT_APPS_SETTINGS)
-                startActivity(intent)
+                startActivity(Intent(Settings.ACTION_MANAGE_DEFAULT_APPS_SETTINGS))
             }
         }
-        view.findViewById<TextView>(R.id.ID_PERM_004).setOnClickListener { 
-            openAppSettingsIfMissing(Manifest.permission.CALL_PHONE) 
+        view.findViewById<TextView>(R.id.ID_PERM_004).setOnClickListener {
+            openAppSettingsIfMissing(Manifest.permission.CALL_PHONE)
         }
         view.findViewById<TextView>(R.id.ID_PERM_005).setOnClickListener {
             if (Build.VERSION.SDK_INT >= 33 && !hasPerm(Manifest.permission.POST_NOTIFICATIONS)) {
@@ -240,8 +405,8 @@ class SettingsFragment : Fragment(R.layout.fragment_settings) {
                 startActivity(intent)
             }
         }
-        view.findViewById<TextView>(R.id.ID_PERM_007).setOnClickListener { 
-            openAppSettingsIfMissing(Manifest.permission.SEND_SMS) 
+        view.findViewById<TextView>(R.id.ID_PERM_007).setOnClickListener {
+            openAppSettingsIfMissing(Manifest.permission.SEND_SMS)
         }
     }
 
@@ -260,18 +425,18 @@ class SettingsFragment : Fragment(R.layout.fragment_settings) {
     }
 
     private fun aggiornaPermessi(view: View) {
-        val red = android.graphics.Color.RED
-        val black = android.graphics.Color.BLACK
+        val ok = android.graphics.Color.parseColor("#333333")
+        val ko = android.graphics.Color.parseColor("#CC0000")
 
         val t1 = view.findViewById<TextView>(R.id.ID_PERM_001)
         val p1 = hasPerm(Manifest.permission.READ_CONTACTS)
         t1.text = "${if (p1) "🟢" else "🔴"} Accesso rubrica"
-        t1.setTextColor(if (p1) black else red)
+        t1.setTextColor(if (p1) ok else ko)
 
         val t2 = view.findViewById<TextView>(R.id.ID_PERM_002)
         val p2 = hasPerm(Manifest.permission.READ_PHONE_STATE) && hasPerm(Manifest.permission.READ_PHONE_NUMBERS)
         t2.text = "${if (p2) "🟢" else "🔴"} Stato telefono"
-        t2.setTextColor(if (p2) black else red)
+        t2.setTextColor(if (p2) ok else ko)
 
         val t3 = view.findViewById<TextView>(R.id.ID_PERM_003)
         val isScreeningActive = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
@@ -282,85 +447,45 @@ class SettingsFragment : Fragment(R.layout.fragment_settings) {
             telecomManager.defaultDialerPackage == requireActivity().packageName
         }
         t3.text = "${if (isScreeningActive) "🟢" else "🔴"} App verifica chiamate"
-        t3.setTextColor(if (isScreeningActive) black else red)
+        t3.setTextColor(if (isScreeningActive) ok else ko)
 
         val t4 = view.findViewById<TextView>(R.id.ID_PERM_004)
         val p4 = hasPerm(Manifest.permission.CALL_PHONE)
         t4.text = "${if (p4) "🟢" else "🔴"} Permesso telefonate"
-        t4.setTextColor(if (p4) black else red)
+        t4.setTextColor(if (p4) ok else ko)
 
         val t5 = view.findViewById<TextView>(R.id.ID_PERM_005)
         val p5 = Build.VERSION.SDK_INT < 33 || hasPerm(Manifest.permission.POST_NOTIFICATIONS)
         t5.text = "${if (p5) "🟢" else "🔴"} Permesso notifiche"
-        t5.setTextColor(if (p5) black else red)
+        t5.setTextColor(if (p5) ok else ko)
 
         val t7 = view.findViewById<TextView>(R.id.ID_PERM_007)
         val p7 = hasPerm(Manifest.permission.SEND_SMS)
         t7.text = "${if (p7) "🟢" else "🔴"} Invio SMS"
-        t7.setTextColor(if (p7) black else red)
-        
+        t7.setTextColor(if (p7) ok else ko)
+
         val t6 = view.findViewById<TextView>(R.id.ID_PERM_006)
         if (t6 != null) {
             val cacheSize = com.ifs.stoppai.core.ContactCacheManager.getSize()
             val rubricaOk = cacheSize > 0
             t6.text = if (rubricaOk) "🟢 Rubrica caricata ($cacheSize)" else "🔴 Rubrica in caricamento..."
-            t6.setTextColor(if (rubricaOk) black else red)
+            t6.setTextColor(if (rubricaOk) ok else ko)
         }
     }
 
     private fun updateProgressUI(view: View, current: Int, total: Int) {
         val t6 = view.findViewById<TextView>(R.id.ID_PERM_006)
-        // ProgressBar nel layout per visualizzare l'avanzamento sincronizzazione
         val pb = view.findViewById<android.widget.ProgressBar>(R.id.ID_SETT_RUB_PROGRESS)
-        
         if (current < total) {
             pb.visibility = View.VISIBLE
             pb.max = total
             pb.progress = current
             t6.text = "🔴 Caricamento rubrica: $current / $total"
-            t6.setTextColor(android.graphics.Color.RED)
+            t6.setTextColor(android.graphics.Color.parseColor("#CC0000"))
         } else {
             pb.visibility = View.GONE
             t6.text = "🟢 Rubrica: $total contatti"
-            t6.setTextColor(android.graphics.Color.BLACK)
-        }
-    }
-
-    private fun setupUssdConfig(view: View) {
-        val tm = requireContext().getSystemService(Context.TELEPHONY_SERVICE) as TelephonyManager
-        val tvOperatore = view.findViewById<TextView>(R.id.ID_SETT_OPERATORE)
-        val operatore = tm.networkOperatorName ?: "Non rilevato"
-        tvOperatore.text = "Operatore rilevato: $operatore"
-
-        val group = view.findViewById<android.widget.RadioGroup>(R.id.ID_SETT_SEC_GROUP)
-        val btnConfig = view.findViewById<Button>(R.id.ID_SETT_BTN_CONFIG_USSD)
-        
-        btnConfig.setOnClickListener {
-            val sec = when (group.checkedRadioButtonId) {
-                R.id.ID_SETT_SEC_5 -> 5
-                R.id.ID_SETT_SEC_10 -> 10
-                R.id.ID_SETT_SEC_20 -> 20
-                else -> 15
-            }
-            // Salva preferenza secondi
-            val prefs = requireContext().getSharedPreferences("stoppai_prefs", Context.MODE_PRIVATE)
-            prefs.edit()
-                .putInt("secondi_deviazione", sec)
-                .putBoolean("segreteria_attiva", true)
-                .apply()
-            
-            // Genera codice USSD (Standard italiano per deviazione su mancata risposta)
-            // Codice segreteria ARIA: 04211898065
-            val ussdCode = "*61*04211898065**$sec#"
-            
-            try {
-                val intent = Intent(Intent.ACTION_DIAL)
-                intent.data = Uri.parse("tel:${Uri.encode(ussdCode)}")
-                startActivity(intent)
-                android.widget.Toast.makeText(requireContext(), "Codice generato: $ussdCode", android.widget.Toast.LENGTH_LONG).show()
-            } catch (e: Exception) {
-                android.widget.Toast.makeText(requireContext(), "Errore apertura dialer", android.widget.Toast.LENGTH_SHORT).show()
-            }
+            t6.setTextColor(android.graphics.Color.parseColor("#333333"))
         }
     }
 }

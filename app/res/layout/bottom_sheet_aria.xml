@@ -12,8 +12,7 @@
         android:layout_gravity="center_horizontal"
         android:layout_marginTop="10dp"
         android:layout_marginBottom="12dp"
-        android:background="#CCCCCC"
-        android:backgroundTint="#CCCCCC" />
+        android:background="#CCCCCC" />
 
     <!-- HEADER -->
     <LinearLayout
@@ -23,7 +22,7 @@
         android:gravity="center_vertical"
         android:paddingStart="20dp"
         android:paddingEnd="20dp"
-        android:paddingBottom="12dp">
+        android:paddingBottom="8dp">
 
         <TextView
             android:layout_width="0dp"
@@ -32,7 +31,7 @@
             android:text="📝 Trascrizioni ARIA"
             android:textSize="18sp"
             android:textStyle="bold"
-            android:textColor="#333333" />
+            android:textColor="#1a1a2e" />
 
         <TextView
             android:id="@+id/btn_chiudi_aria"
@@ -53,16 +52,14 @@
         android:paddingStart="20dp"
         android:paddingEnd="20dp"
         android:paddingBottom="8dp"
-        android:textSize="13sp"
+        android:textSize="14sp"
         android:textStyle="bold"
-        android:textColor="#1976D2" />
+        android:textColor="#c8a96e" />
 
-    <!-- DIVIDER -->
     <View
         android:layout_width="match_parent"
         android:layout_height="1dp"
-        android:background="#EEEEEE"
-        android:layout_marginBottom="8dp" />
+        android:background="#EEEEEE" />
 
     <!-- CONTENUTO SCROLLABILE -->
     <androidx.core.widget.NestedScrollView
@@ -71,33 +68,215 @@
         android:layout_weight="1"
         android:fillViewport="true">
 
-        <TextView
-            android:id="@+id/txt_aria_contenuto"
+        <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:padding="20dp"
-            android:textSize="16sp"
-            android:textColor="#333333"
-            android:lineSpacingExtra="6dp"
-            android:text="Caricamento..." />
+            android:orientation="vertical"
+            android:padding="20dp">
 
+            <!-- DATA/ORA -->
+            <TextView
+                android:id="@+id/txt_aria_data"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:textSize="13sp"
+                android:textColor="#888888"
+                android:layout_marginBottom="12dp" />
+
+            <!-- TRASCRIZIONE -->
+            <TextView
+                android:id="@+id/txt_aria_contenuto"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:textSize="16sp"
+                android:textColor="#333333"
+                android:lineSpacingExtra="6dp"
+                android:text="Caricamento..."
+                android:layout_marginBottom="16dp" />
+
+            <!-- PLAYER AUDIO -->
+            <LinearLayout
+                android:id="@+id/layout_player"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:background="@drawable/card_player_bg"
+                android:padding="14dp"
+                android:layout_marginBottom="16dp"
+                android:visibility="gone">
+
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="AUDIO ORIGINALE"
+                    android:textSize="11sp"
+                    android:textStyle="bold"
+                    android:textColor="#c8a96e"
+                    android:letterSpacing="0.1"
+                    android:layout_marginBottom="10dp" />
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:gravity="center_vertical">
+
+                    <ImageView
+                        android:id="@+id/btn_play_pause"
+                        android:layout_width="44dp"
+                        android:layout_height="44dp"
+                        android:src="@android:drawable/ic_media_play"
+                        android:background="@drawable/circle_play_bg"
+                        android:padding="10dp"
+                        android:scaleType="centerInside"
+                        android:contentDescription="Play/Pausa" />
+
+                    <LinearLayout
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:orientation="vertical"
+                        android:layout_marginStart="12dp">
+
+                        <SeekBar
+                            android:id="@+id/seek_audio"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:progressTint="#c8a96e"
+                            android:thumbTint="#c8a96e"
+                            android:maxHeight="3dp" />
+
+                        <LinearLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:orientation="horizontal"
+                            android:layout_marginTop="2dp">
+
+                            <TextView
+                                android:id="@+id/txt_audio_time"
+                                android:layout_width="0dp"
+                                android:layout_height="wrap_content"
+                                android:layout_weight="1"
+                                android:text="0:00"
+                                android:textSize="11sp"
+                                android:textColor="#999999" />
+
+                            <TextView
+                                android:id="@+id/txt_audio_duration"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="0:00"
+                                android:textSize="11sp"
+                                android:textColor="#999999" />
+                        </LinearLayout>
+                    </LinearLayout>
+                </LinearLayout>
+            </LinearLayout>
+
+            <!-- RATING FEDELTÀ TRASCRIZIONE -->
+            <LinearLayout
+                android:id="@+id/layout_rating"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:layout_marginBottom="16dp"
+                android:visibility="gone">
+
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="Quanto è fedele la trascrizione?"
+                    android:textSize="13sp"
+                    android:textColor="#666666"
+                    android:layout_marginBottom="8dp" />
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:gravity="center">
+
+                    <Button android:id="@+id/btn_rate_100" android:layout_width="0dp" android:layout_height="36dp" android:layout_weight="1" android:text="100%" android:textSize="12sp" android:textColor="#666666" android:backgroundTint="#EEEEEE" android:layout_marginEnd="4dp"/>
+                    <Button android:id="@+id/btn_rate_80" android:layout_width="0dp" android:layout_height="36dp" android:layout_weight="1" android:text="80%" android:textSize="12sp" android:textColor="#666666" android:backgroundTint="#EEEEEE" android:layout_marginEnd="4dp"/>
+                    <Button android:id="@+id/btn_rate_60" android:layout_width="0dp" android:layout_height="36dp" android:layout_weight="1" android:text="60%" android:textSize="12sp" android:textColor="#666666" android:backgroundTint="#EEEEEE" android:layout_marginEnd="4dp"/>
+                    <Button android:id="@+id/btn_rate_40" android:layout_width="0dp" android:layout_height="36dp" android:layout_weight="1" android:text="40%" android:textSize="12sp" android:textColor="#666666" android:backgroundTint="#EEEEEE" android:layout_marginEnd="4dp"/>
+                    <Button android:id="@+id/btn_rate_20" android:layout_width="0dp" android:layout_height="36dp" android:layout_weight="1" android:text="20%" android:textSize="12sp" android:textColor="#666666" android:backgroundTint="#EEEEEE"/>
+                </LinearLayout>
+            </LinearLayout>
+
+            <!-- SPAM / ATTENDIBILE -->
+            <LinearLayout
+                android:id="@+id/layout_spam"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:layout_marginBottom="12dp">
+
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="Questa chiamata è..."
+                    android:textSize="13sp"
+                    android:textColor="#666666"
+                    android:layout_marginBottom="8dp" />
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:gravity="center">
+
+                    <Button
+                        android:id="@+id/btn_attendibile"
+                        android:layout_width="0dp"
+                        android:layout_height="44dp"
+                        android:layout_weight="1"
+                        android:text="✅ Attendibile"
+                        android:textSize="13sp"
+                        android:textColor="#2E7D32"
+                        android:textAllCaps="false"
+                        android:backgroundTint="#E8F5E9"
+                        android:layout_marginEnd="6dp" />
+
+                    <Button
+                        android:id="@+id/btn_spam"
+                        android:layout_width="0dp"
+                        android:layout_height="44dp"
+                        android:layout_weight="1"
+                        android:text="🚫 Spam"
+                        android:textSize="13sp"
+                        android:textColor="#C62828"
+                        android:textAllCaps="false"
+                        android:backgroundTint="#FFEBEE"
+                        android:layout_marginStart="6dp" />
+                </LinearLayout>
+
+                <TextView
+                    android:id="@+id/txt_spam_status"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:textSize="12sp"
+                    android:textColor="#888888"
+                    android:gravity="center"
+                    android:layout_marginTop="6dp"
+                    android:visibility="gone" />
+            </LinearLayout>
+
+        </LinearLayout>
     </androidx.core.widget.NestedScrollView>
 
-    <!-- DIVIDER -->
     <View
         android:layout_width="match_parent"
         android:layout_height="1dp"
-        android:background="#EEEEEE"
-        android:layout_marginTop="8dp" />
+        android:background="#EEEEEE" />
 
-    <!-- BOTTONE CHIUDI -->
     <Button
         android:id="@+id/btn_aria_chiudi_bottom"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:text="CHIUDI"
-        android:textColor="#1976D2"
-        android:backgroundTint="#E3F2FD"
+        android:textColor="#c8a96e"
+        android:backgroundTint="#FFF8E1"
         android:layout_margin="16dp" />
 
 </LinearLayout>

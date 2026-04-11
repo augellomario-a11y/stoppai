@@ -173,6 +173,19 @@ try {
   db.exec("ALTER TABLE testers ADD COLUMN fcm_token TEXT");
 }
 
+// Database numeri spam (crowd-sourced dai tester)
+db.exec(`
+  CREATE TABLE IF NOT EXISTS spam_numbers (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    numero TEXT NOT NULL,
+    segnalazioni_spam INTEGER DEFAULT 0,
+    segnalazioni_ok INTEGER DEFAULT 0,
+    prima_segnalazione TEXT,
+    ultima_segnalazione TEXT
+  );
+  CREATE INDEX IF NOT EXISTS idx_spam_numero ON spam_numbers(numero);
+`);
+
 // Configurazione app (link Play Store, versione, note rilascio) — salvata da admin, usata in tutte le email
 db.exec(`
   CREATE TABLE IF NOT EXISTS app_config (

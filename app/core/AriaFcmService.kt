@@ -65,7 +65,7 @@ class AriaFcmService : FirebaseMessagingService() {
             return
         }
 
-        val numero = message.data["numero"]
+        val numeroRaw = message.data["numero"]
             ?: message.notification?.title
             ?: "Sconosciuto"
         val testo = message.data["testo"]
@@ -73,19 +73,36 @@ class AriaFcmService : FirebaseMessagingService() {
             ?: "Nuovo messaggio"
         val timestamp = message.data["timestamp"]?.toLongOrNull()
             ?: (System.currentTimeMillis() / 1000)
+        val wavFilename = message.data["wav_filename"]?.takeIf { it.isNotBlank() }
 
-        // FIX: salvataggio SINCRONO con runBlocking - garantisce persistenza prima
-        // che Android killi il processo dopo onMessageReceived (l'app potrebbe essere
-        // chiusa dal task manager). Senza questo, le coroutine async si perdono.
-        // Tempo tipico: 50-200ms, ben sotto il limite Firebase di 10s.
+        // FIX: salvataggio SINCRONO con runBlocking
         runBlocking(Dispatchers.IO) {
             try {
                 val db = StoppAiDatabase.getInstance(applicationContext)
 
-                val numeroNorm = PhoneNumberUtils.normalizeNumber(numero)
+                val numeroNorm = PhoneNumberUtils.normalizeNumber(numeroRaw)
+
+                // FIX entry fantasma: se il numero è troppo corto (es. solo "+39" senza cifre reali)
+                // non creare nessuna entry nel CRM — è un push con dati incompleti
+                val cifrePulite = numeroNorm.replace("+", "").replace("39", "").replace("0", "")
+                if (cifrePulite.length < 5) {
+                    android.util.Log.w("STOPPAI_FCM", "Numero troppo corto dopo normalizzazione: $numeroNorm (raw: $numeroRaw) — skip entry CRM")
+                    // Salva comunque il messaggio ARIA senza collegamento a CallLog
+                    val messaggio = AriaMessaggio(
+                        numero = numeroRaw,
+                        testo = testo,
+                        timestamp = timestamp,
+                        wavFilename = wavFilename
+                    )
+                    db.ariaMessaggioDao().inserisci(messaggio)
+                    db.openHelper.writableDatabase.query("PRAGMA wal_checkpoint(FULL)").use { it.moveToFirst() }
+                    mostraNotifica(numeroRaw, testo)
+                    return@runBlocking
+                }
+
                 val trentaMinutiFA = System.currentTimeMillis() - (30 * 60 * 1000)
 
-                // Cerca CallLogEntry recente (finestra 30 min)
+                // Cerca CallLogEntry recente (finestra 30 min) — match sulle ultime 10 cifre
                 val entryEsistente = db.callLogDao().getMostRecentByNumber(numeroNorm)
 
                 android.util.Log.d("STOPPAI_FCM", "Cerco entry per $numeroNorm → trovata: ${entryEsistente?.id} (phone: ${entryEsistente?.phoneNumber}, ts: ${entryEsistente?.timestamp})")
@@ -109,7 +126,8 @@ class AriaFcmService : FirebaseMessagingService() {
                     numero = numeroNorm,
                     testo = testo,
                     timestamp = if (timestamp < 10000000000L) timestamp * 1000 else timestamp,
-                    callLogId = callLogId
+                    callLogId = callLogId,
+                    wavFilename = wavFilename
                 )
                 db.ariaMessaggioDao().inserisci(messaggio)
 
@@ -127,8 +145,8 @@ class AriaFcmService : FirebaseMessagingService() {
         }
 
         // Risolvi nome contatto dalla rubrica per la notifica
-        val nomeContatto = CallLogHelper.getContactName(applicationContext, PhoneNumberUtils.normalizeNumber(numero))
-        val displayCaller = if (!nomeContatto.isNullOrBlank()) "$nomeContatto ($numero)" else numero
+        val nomeContatto = CallLogHelper.getContactName(applicationContext, PhoneNumberUtils.normalizeNumber(numeroRaw))
+        val displayCaller = if (!nomeContatto.isNullOrBlank()) "$nomeContatto ($numeroRaw)" else numeroRaw
 
         mostraNotifica(displayCaller, testo)
     }

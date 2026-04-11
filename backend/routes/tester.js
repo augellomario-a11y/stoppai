@@ -514,4 +514,30 @@ router.get('/asterisk-message/:number', (req, res) => {
   res.type('text/plain').send(filePath);
 });
 
+// POST /api/tester/spam-report — l'app segnala un numero come spam
+router.post('/spam-report', (req, res) => {
+  const { caller_number } = req.body;
+  if (!caller_number) return res.status(400).json({ error: 'caller_number obbligatorio' });
+
+  const norm = caller_number.replace(/[^0-9+]/g, '').replace(/^\+?39/, '').slice(-10);
+  if (norm.length < 5) return res.status(400).json({ error: 'Numero non valido' });
+
+  // Cerca se esiste già nella tabella spam
+  const existing = db.prepare(
+    "SELECT id, segnalazioni_spam FROM spam_numbers WHERE numero LIKE ? LIMIT 1"
+  ).get('%' + norm + '%');
+
+  if (existing) {
+    db.prepare("UPDATE spam_numbers SET segnalazioni_spam = segnalazioni_spam + 1, ultima_segnalazione = datetime('now') WHERE id = ?")
+      .run(existing.id);
+  } else {
+    db.prepare(
+      "INSERT INTO spam_numbers (numero, segnalazioni_spam, prima_segnalazione, ultima_segnalazione) VALUES (?, 1, datetime('now'), datetime('now'))"
+    ).run(caller_number);
+  }
+
+  console.log('[SPAM] Segnalato: %s (norm: %s)', caller_number, norm);
+  res.json({ success: true });
+});
+
 module.exports = router;

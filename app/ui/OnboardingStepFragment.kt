@@ -68,8 +68,9 @@ class OnboardingStepFragment : Fragment() {
             OnboardingViewModel.Step.WELCOME -> {
                 icon.text = "👋"
                 title.text = "Benvenuto in StoppAI"
+                val versionName = try { requireContext().packageManager.getPackageInfo(requireContext().packageName, 0).versionName } catch (e: Exception) { "?" }
                 body.text = "Ti guidiamo in pochi passi rapidi per proteggere il tuo telefono.\nCi vogliono meno di 2 minuti."
-                device.text = "📱 Rilevato: ${viewModel.deviceName}"
+                device.text = "📱 Rilevato: ${viewModel.deviceName}\n🏷️ Versione: $versionName"
                 device.visibility = View.VISIBLE
                 btnPrimary.text = "Iniziamo →"
                 btnPrimary.setOnClickListener { viewModel.next() }

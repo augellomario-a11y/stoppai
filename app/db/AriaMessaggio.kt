@@ -19,5 +19,7 @@ data class AriaMessaggio(
     val timestamp: Long,
     val callLogId: Long = 0L,
     val letto: Boolean = false,
-    val stato: String = "DA_TRATTARE"
+    val stato: String = "DA_TRATTARE",
+    val wavFilename: String? = null,
+    val spamVoto: String? = null  // "spam" | "attendibile" | null
 )
