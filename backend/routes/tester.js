@@ -70,7 +70,37 @@ router.post('/iscriviti', async (req, res) => {
     }
   } catch (err) {
     console.error('Errore invio email:', err.message);
-    // Non blocchiamo la risposta se l'email fallisce (il tester è comunque nel DB)
+  }
+
+  // Notifica admin: nuovo tester iscritto
+  try {
+    if (resend) {
+      const adminEmail = process.env.ADMIN_EMAIL || 'info@internetfullservice.it';
+      await resend.emails.send({
+        from: process.env.FROM_EMAIL,
+        to: adminEmail,
+        subject: '🆕 Nuova iscrizione beta — ' + nome + ' ' + cognome,
+        html: `
+          <div style="font-family:'Helvetica Neue',Arial,sans-serif;max-width:560px;margin:0 auto;background:#0a0a0f;color:#f5f3ee;border-radius:12px;overflow:hidden">
+            <div style="background:#12121a;padding:24px;border-bottom:2px solid #c8a96e;text-align:center">
+              <h2 style="margin:0;color:#c8a96e">Nuova iscrizione beta test</h2>
+            </div>
+            <div style="padding:24px">
+              <table style="width:100%;font-size:14px;color:#ddd">
+                <tr><td style="padding:8px 0;color:#888">Nome</td><td style="padding:8px 0;font-weight:bold">${nome} ${cognome}</td></tr>
+                <tr><td style="padding:8px 0;color:#888">Email</td><td style="padding:8px 0"><a href="mailto:${emailNorm}" style="color:#c8a96e">${emailNorm}</a></td></tr>
+                <tr><td style="padding:8px 0;color:#888">Telefono</td><td style="padding:8px 0">${telefono}</td></tr>
+              </table>
+              <div style="margin-top:20px;text-align:center">
+                <a href="https://stoppai.it/accedi.html" style="display:inline-block;padding:12px 28px;background:#c8a96e;color:#0a0a0f;text-decoration:none;border-radius:6px;font-weight:bold">Apri CRM Admin →</a>
+              </div>
+            </div>
+          </div>
+        `
+      });
+    }
+  } catch (err) {
+    console.error('Errore notifica admin:', err.message);
   }
 
   res.json({
