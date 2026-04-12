@@ -911,7 +911,57 @@ async function loadBroadcast(){
         </div>
       </div>
 
+    </div>
+
+    <!-- RIGA 2: Mailing list libera (full width) -->
+    <div style="grid-column:1/-1;margin-top:8px">
+      <h3 style="color:var(--oro);margin-bottom:16px">✉️ Mailing list</h3>
+      <p style="color:var(--grigio);font-size:12px;margin-bottom:12px">Invia un'email personalizzata a tutti o a singoli tester. Supporta emoji. Ideale per istruzioni, comunicazioni, benvenuto.</p>
+      <div style="display:grid;grid-template-columns:1fr 280px;gap:16px">
+        <div>
+          <div class="field"><label>Oggetto email</label>
+            <input id="mlSubject" style="width:100%;background:#1a1a24;color:var(--bianco);border:1px solid var(--bordo);padding:10px;border-radius:4px;font-size:14px" placeholder="Es: Benvenuto nel programma beta StoppAI 🎉"></div>
+          <div class="field"><label>Corpo email (testo libero, supporta emoji)</label>
+            <textarea id="mlBody" rows="10" style="width:100%;background:#1a1a24;color:var(--bianco);border:1px solid var(--bordo);padding:12px;border-radius:4px;font-size:14px;resize:vertical;line-height:1.6" placeholder="Scrivi il testo dell'email...&#10;&#10;Puoi usare emoji: 🎯 ✅ 📱 🛡️&#10;Puoi incollare testo formattato."></textarea></div>
+          <div style="display:flex;gap:8px;margin-top:12px;align-items:center">
+            <button class="btn btn-oro" onclick="sendMailingList()">✉️ Invia email</button>
+            <span id="mlStatus" style="color:var(--verde);font-size:13px"></span>
+          </div>
+        </div>
+        <div>
+          <div class="field"><label>Destinatari</label>
+            <div style="background:#1a1a24;border:1px solid var(--bordo);border-radius:4px;padding:8px 12px;max-height:300px;overflow-y:auto">
+              <label style="display:flex;align-items:center;gap:8px;padding:6px 0;cursor:pointer;font-size:13px;color:var(--oro);font-weight:600;border-bottom:1px solid var(--bordo);margin-bottom:4px">
+                <input type="checkbox" id="mlSelectAll" checked onchange="document.querySelectorAll('.ml-tester-cb').forEach(c=>c.checked=this.checked)" style="width:16px;height:16px"> Tutti
+              </label>
+              ${accettati.map(t=>'<label style="display:flex;align-items:center;gap:8px;padding:5px 0;cursor:pointer;font-size:12px;color:var(--bianco)"><input type="checkbox" class="ml-tester-cb" value="'+t.id+'" data-email="'+t.email+'" checked style="width:15px;height:15px">'+escapeHtml(t.nome)+' '+escapeHtml(t.cognome)+' <span style="color:var(--grigio);font-size:10px">'+t.email+'</span></label>').join('')}
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
     </div>`;
+}
+
+// --- MAILING LIST ---
+async function sendMailingList(){
+  const subject=document.getElementById('mlSubject').value.trim();
+  const body=document.getElementById('mlBody').value.trim();
+  if(!subject||!body){showModal({icon:'⚠️',title:'Campi mancanti',message:'Inserisci oggetto e corpo dell\\'email.',type:'alert'});return}
+  const selected=Array.from(document.querySelectorAll('.ml-tester-cb:checked')).map(c=>parseInt(c.value));
+  if(!selected.length){showModal({icon:'⚠️',title:'Nessun destinatario',message:'Seleziona almeno un tester.',type:'alert'});return}
+  const status=document.getElementById('mlStatus');
+  status.textContent='Invio in corso...';status.style.color='var(--oro)';
+  try{
+    const r=await fetch(API+'/mailing-list',{method:'POST',headers:{'Content-Type':'application/json'},credentials:'include',body:JSON.stringify({subject,body,tester_ids:selected})});
+    const data=await r.json();
+    if(r.ok){
+      status.textContent='✓ '+data.sent+' email inviate!';status.style.color='var(--verde)';
+    }else{
+      status.textContent='✗ Errore: '+(data.error||'sconosciuto');status.style.color='var(--rosso)';
+    }
+  }catch(e){status.textContent='✗ '+e.message;status.style.color='var(--rosso)'}
 }
 
 // --- TEST TO-DO BROADCAST (sidebar view) ---

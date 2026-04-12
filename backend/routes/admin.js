@@ -867,6 +867,55 @@ function emailAggiornamentoApp(nome, link, versione, note) {
   );
 }
 
+// ===== MAILING LIST =====
+
+// POST /api/admin/mailing-list — invia email personalizzata a tester selezionati
+router.post('/mailing-list', authAdmin, async (req, res) => {
+  const { subject, body, tester_ids } = req.body;
+  if (!subject || !body || !tester_ids || !tester_ids.length) {
+    return res.status(400).json({ error: 'subject, body e tester_ids obbligatori' });
+  }
+
+  if (!resend) {
+    return res.status(500).json({ error: 'Resend non configurato' });
+  }
+
+  const placeholders = tester_ids.map(() => '?').join(',');
+  const testers = db.prepare(
+    `SELECT id, nome, email FROM testers WHERE id IN (${placeholders}) AND stato = 'accettato'`
+  ).all(...tester_ids);
+
+  let sent = 0;
+  let errors = [];
+
+  for (const t of testers) {
+    try {
+      // Converti newline in <br> e preserva emoji
+      const htmlBody = body
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/\n/g, '<br>');
+
+      await resend.emails.send({
+        from: process.env.FROM_EMAIL,
+        to: t.email,
+        subject: subject,
+        html: emailLayout(`
+          <p style="font-size:16px;line-height:1.8">${htmlBody}</p>
+        `, t.nome)
+      });
+      sent++;
+      console.log('[MAILING] Email inviata a %s (%s)', t.nome, t.email);
+    } catch (err) {
+      errors.push({ email: t.email, error: err.message });
+      console.error('[MAILING] Errore per %s: %s', t.email, err.message);
+    }
+  }
+
+  res.json({ success: true, sent, total: testers.length, errors });
+});
+
 // ===== TO-DO PERSONALE SUPER ADMIN =====
 
 // GET /api/admin/personal-todos — lista to-do (non completati prima, completati in fondo)
