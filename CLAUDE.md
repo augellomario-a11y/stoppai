@@ -250,6 +250,15 @@ stoppai/
 | 16 | FCM push per eventi admin (nuova voce broadcast, cambio piano) | Media |
 | 17 | Grafico progresso team Test TO-DO admin | Bassa |
 | 18 | Deviazioni ARIA automatiche in base al piano | Media |
+| 22 | Restyling pagina Invita/Referral completo | Alta |
+| 22a | — Regolamento affiliazione (studiare concorrenza) | Alta |
+| 22b | — Prezzi aggiornati (mensili + annuali nuovi) | Alta |
+| 22c | — Open Graph per social (immagini WhatsApp, IG, TikTok, FB, email) | Alta |
+| 22d | — Bottone "Condividi" nativo al posto di "Copia" | Alta |
+| 22e | — Simulatore guadagno per influencer | Alta |
+| 22f | — Percentuali referral da definire | Alta |
+| 22g | — Rimuovere Stripe Connect, aggiornare con Creem | Alta |
+| 23 | Pagina ringraziamenti influencer nell'app | Media |
 | 21 | Integrazione pagamenti Creem (ULTIMA COSA) | Finale |
 
 **Parcheggiati:**
