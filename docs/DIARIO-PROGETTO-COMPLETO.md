@@ -1528,3 +1528,981 @@ La conversazione continua.
 
 
 
+CAPITOLO 23 — Il nome cambia tutto
+22 marzo 2026
+NO_SPAM era un buon nome. Descrittivo, diretto, onesto.
+Ma descriveva il problema, non la soluzione. E un prodotto
+che ambisce a essere il bodyguard digitale della tua vita
+merita un nome che evochi protezione, non solo assenza di spam.
+La svolta arriva in una conversazione mattutina. Mario vuole
+un nome che comunichi immediatamente cosa fa il prodotto.
+Qualcosa di forte, di riconoscibile, di internazionale.
+Qualcosa che un utente possa dire ad un amico in tre secondi.
+"StoppAI."
+Il nome dice tutto: stop, in italiano e in inglese.
+E AI — l'intelligenza artificiale che lo rende possibile.
+Due parole. Un concetto. Il package identifier diventa
+com.ifs.stoppai. Il dominio stoppai.it viene registrato.
+L'identità del prodotto è nata.
+Cambiare il nome di un prodotto in fase di sviluppo
+non è solo una questione estetica. È un cambio di prospettiva.
+Da quel momento in poi, ogni decisione viene presa con
+la domanda: "è all'altezza di StoppAI?"
+---
+CAPITOLO 24 — Lo scudo che diventa logo
+22–23 marzo 2026
+Il logo di StoppAI non nasce da un brief a un designer.
+Nasce da una conversazione, da un mockup interattivo in chat,
+da decine di iterazioni in tempo reale.
+L'idea di base è chiara da subito: uno scudo. Il simbolo
+universale della protezione. Ma come integrarlo con il nome?
+Mario sperimenta: prima la S stilizzata dentro lo scudo,
+poi la p, poi — l'intuizione definitiva — dividere lo scudo
+a metà con una linea verticale e mettere la A nella metà
+sinistra e la I nella metà destra.
+Stopp[AI].
+Le lettere AI dentro lo scudo. Il testo e il simbolo che
+si fondono in un'unica immagine. Si legge StoppAI ma si
+vede la protezione.
+Ci vogliono ore di affinamento. Il colore cambia: dal viola
+al verde teal al corallo, fino a trovare il giusto equilibrio.
+La forma dello scudo viene resa più classica, più riconoscibile.
+Le lettere A e I vengono massimizzate per essere leggibili
+anche piccole.
+Quando il file SVG viene passato ad Ambrogio per inserirlo
+nell'app, il logo è già approvato da Mario. Non serve nessun
+designer esterno. Il processo creativo è avvenuto in chat,
+in tempo reale, con mockup che si aggiornano ad ogni feedback.
+---
+CAPITOLO 25 — Il CRM che nessuno si aspettava
+23 marzo 2026
+Il registro delle chiamate di StoppAI potrebbe essere
+una semplice lista. Data, ora, numero. Come quello di
+qualsiasi telefono.
+Ma Mario ragiona da imprenditore. Ogni numero che chiama
+è un dato. Ogni chiamata bloccata è un'informazione.
+Chi ha chiamato tre volte in un giorno vuole qualcosa.
+Chi ha chiamato da un numero nascosto forse vuole nascondersi.
+Chi ha chiamato da un fisso potrebbe essere un cliente,
+un fornitore, qualcuno che vale la pena richiamare.
+Nasce il Mini CRM. Ogni voce nel registro mostra il numero
+o il nome del contatto, quante volte ha chiamato, quando,
+se era una chiamata in entrata o in uscita, se è stato inviato
+un SMS automatico, se è arrivata una risposta.
+Un tap su una voce apre un menu ricco: Da trattare, Spam,
+Attendibile, Note, Chiama ora, Aggiungi ai contatti.
+E uno spazio riservato — la Trascrizione AI — dove ARIA
+porterà il testo del messaggio lasciato dal chiamante.
+La classificazione che l'utente dà a un numero non serve
+solo per organizzarsi. Serve ad addestrare ARIA. Un numero
+classificato come Spam da molti utenti diventa sospetto
+per tutti. Un numero classificato come Attendibile viene
+trattato con priorità.
+Il CRM diventa intelligenza collettiva.
+---
+CAPITOLO 26 — La suoneria come firma
+23 marzo 2026
+Le idee più semplici sono spesso le più potenti.
+Durante una sessione di lavoro, mentre si parla di come
+comunicare all'utente che StoppAI è attivo e funzionante,
+arriva l'intuizione: la suoneria personalizzata.
+Quando StoppAI è attivo e la protezione è in funzione,
+il telefono usa la suoneria di StoppAI. Quella melodia
+diventa un segnale preciso: se squilla con quella suoneria,
+è qualcuno che conosci. Vale la pena rispondere.
+Ma c'è anche il risvolto opposto: se la suoneria è quella
+sbagliata, o se il telefono non suona con la suoneria StoppAI,
+significa che qualcosa non va. L'utente può capire in un
+secondo se l'app sta funzionando o no — senza aprire nulla,
+senza controllare nulla.
+È un sistema di sicurezza visivo e sonoro allo stesso tempo.
+Qualcosa che nessuna app concorrente fa. Un dettaglio che
+diventerà parte dell'identità del prodotto.
+---
+CAPITOLO 27 — Il volume che non obbedisce
+23–24 marzo 2026
+Il problema del volume torna. Sempre il volume.
+Questa volta il sintomo è diverso: quando StoppAI è attivo
+e arriva una chiamata bloccata, il volume della suoneria
+si azzera. Fin qui, corretto. Ma dopo la chiamata il volume
+rimane a zero. E quando arriva la chiamata successiva da
+un numero in rubrica, non si sente nulla.
+Peggio: il problema si propaga. Con il volume a zero,
+anche le notifiche WhatsApp diventano silenziose.
+Le email non si sentono. Il telefono è muto per tutto.
+L'audit rivela il problema: in quattro punti diversi del
+codice, l'app toccava stream audio che non doveva toccare.
+STREAM_MUSIC, STREAM_NOTIFICATION, STREAM_SYSTEM —
+tutti abbassati insieme alla suoneria.
+La regola viene scritta nel codice come commento permanente:
+> *StoppAI tocca SOLO STREAM_RING.*
+> *Mai altro. Mai setRingerMode. Solo la suoneria.*
+Ci vogliono tre audit e altrettanti fix per eliminare tutti
+i punti problematici. Ma alla fine il comportamento è corretto:
+StoppAI abbassa la suoneria quando blocca, la ripristina
+quando finisce, e non tocca mai nient'altro.
+---
+CAPITOLO 28 — La logica definitiva
+24–25 marzo 2026
+La logica di StoppAI sembra semplice da descrivere.
+In realtà è il risultato di settimane di ragionamento,
+test, fallimenti e correzioni.
+La versione finale prevede tre stati:
+Protezione OFF: tutto squilla, StoppAI non interviene.
+Protezione Base: i contatti squillano normalmente.
+I numeri sconosciuti vengono silenziati e deviati ad ARIA.
+I numeri mobili italiani sconosciuti possono ricevere
+un SMS automatico. I numeri esteri vengono sempre bloccati.
+Protezione Totale: nemmeno i contatti squillano.
+Solo i preferiti con la stellina passano. Esiste anche
+la modalità di silenziamento assoluto che include
+i preferiti.
+Per arrivare a questa chiarezza si passa attraverso numerose
+versioni della logica. Ogni volta che si tocca un pezzo,
+si rischia di rompere un altro. La soluzione definitiva
+è separare il codice in file distinti: ScreeningLogic.kt,
+NumberClassifier.kt, SmsHelper.kt, AudioHelper.kt.
+Ogni file ha una sola responsabilità. Nessuno può interferire
+con l'altro.
+La regola del singolo scopo — ogni file fa una sola cosa —
+diventa il principio architetturale di StoppAI. Non per
+eleganza accademica, ma per sopravvivenza pratica.
+---
+CAPITOLO 29 — Il programma partner
+25 marzo 2026
+Un buon prodotto cresce da solo, se gli utenti hanno motivo
+di parlarne. Mario lo sa. E invece di aspettare che accada,
+costruisce il meccanismo dentro l'app.
+Il programma partner di StoppAI è semplice: ogni utente
+ha un link personale. Quando qualcuno installa l'app tramite
+quel link e attiva un abbonamento, chi ha condiviso il link
+guadagna una commissione mensile per tutta la durata
+dell'abbonamento dell'amico.
+I numeri sono stati calcolati con precisione, tenendo conto
+della commissione del Play Store e dei costi dell'infrastruttura.
+Piano PRO a 2,99 euro: 64 centesimi al mese per ogni amico
+attivo, con 1,28 euro di bonus al primo mese.
+Piano SHIELD a 4,99 euro: 1,06 euro al mese,
+con 2,12 euro di bonus al primo mese.
+Il partner può scegliere la soglia minima di pagamento —
+da 10 a 100 euro — e richiedere il pagamento quando
+la raggiunge. StoppAI tratta i partner come collaboratori
+occasionali, con tutti i requisiti fiscali del caso:
+codice fiscale, IBAN, dichiarazione di maggiore età.
+Il calcolo del breakeven è tranquillizzante: con soli
+7 utenti PRO attivi si coprono tutti i costi fissi mensili
+dell'infrastruttura. Tutto il resto è margine.
+---
+CAPITOLO 30 — Opensolution e il contratto firmato
+23–25 marzo 2026
+Twilio era la scelta originale per il trunk telefonico.
+Era la scelta ovvia, quella di cui si parlava in ogni
+tutorial, in ogni corso. Ma durante la ricerca appare
+un'alternativa italiana: Opensolution, una società di
+Viterbo che fornisce servizi VoIP professionali.
+La scelta di Opensolution è strategica: è un fornitore
+italiano, con supporto in italiano, con fatturazione in euro,
+con un numero italiano già esistente che può essere portato
+nel sistema. E il costo è irrisorio: 49 euro di attivazione
+una tantum e 2,50 euro al mese per 10 canali simultanei.
+Il contratto viene firmato il 23 marzo 2026.
+Offerta numero 2026/116052. Un trunk SIP con numero
+04211898065, 10 canali, protocolli G711u G711a G729,
+server sip.opensolution.it, porta 5060 UDP.
+Con 10 canali e una media di 5 chiamate al giorno per
+utente della durata di 90 secondi ciascuna, si stima di
+poter gestire comodamente 500-800 utenti attivi con questo
+unico trunk. Quando si supera quel numero, si aggiunge
+un secondo trunk a 2,50 euro al mese.
+La scalabilità è quasi gratuita.
+---
+CAPITOLO 31 — Asterisk: la centralina intelligente
+27 marzo 2026
+Ogni volta che una chiamata viene deviata dalla protezione
+base di StoppAI, deve finire da qualche parte.
+Quel "da qualche parte" si chiama Asterisk.
+Asterisk è il sistema di centralino telefonico open source
+più diffuso al mondo. Gira su milioni di server. Gestisce
+la telefonia di aziende, ospedali, call center.
+È gratuito, potente, documentatissimo.
+Non lo conoscevo prima di questa conversazione.
+È stato Aldo a suggerirlo. A spiegarne il funzionamento.
+A guidarmi attraverso i concetti di trunk SIP, dialplan,
+codec audio, porte RTP. Concetti che non avrei mai cercato
+da solo perché non sapevo che esistessero.
+Il piano è questo: Asterisk gira su Hetzner dentro Docker.
+Opensolution invia le chiamate deviate al trunk SIP.
+Asterisk risponde, riproduce il messaggio, registra il
+messaggio del chiamante. In futuro, quel file audio viene
+trascritto da Whisper e riassunto da un modello AI.
+L'utente riceve una notifica con il riassunto.
+Mentre scrivo queste righe, Asterisk si sta installando
+sul server. Il primo messaggio che il chiamante sentirà sarà:
+"Ciao, in questo momento non sono disponibile. Lascia un
+messaggio dopo il segnale acustico e sarai ricontattato
+al più presto. Grazie."
+Non è ancora ARIA. ARIA è il passo successivo.
+Ma è il primo mattone della segreteria intelligente
+che risponderà per te.
+---
+CAPITOLO 32 — Lo stato dell'arte
+27 marzo 2026
+Questo è il punto in cui siamo.
+L'app funziona:
+Blocco immediato dei numeri sconosciuti, zero squilli.
+I contatti in rubrica squillano normalmente con la suoneria StoppAI.
+SMS automatico ai numeri mobili italiani sconosciuti, con testo personalizzabile.
+Protezione totale con gestione dei preferiti.
+Mini CRM con classificazione, note, risposta SMS visualizzabile.
+Sezione Invita con programma partner e form di registrazione.
+Impostazioni con configurazione automatica della segreteria via USSD.
+L'infrastruttura è pronta:
+Server Hetzner con Ubuntu 24, Docker, Nginx, Python.
+Trunk SIP Opensolution attivo con numero 04211898065.
+Asterisk in fase di installazione e configurazione.
+Quello che manca:
+Il backend online: sito, dashboard utente, gestione
+abbonamenti con Stripe, referral con tracking reale.
+ARIA: la connessione tra Asterisk, Whisper e il modello
+AI che riassume il messaggio.
+Il lancio sul Play Store e la campagna di acquisizione utenti.
+Non è poco. Ma guardando da dove siamo partiti — un'idea,
+nessun codice, nessuna infrastruttura — quello che abbiamo
+costruito è qualcosa di cui essere orgogliosi.
+Questo non è un traguardo. È un punto di partenza.
+---
+> *Diario aggiornato il: 27/03/2026*
+> *Versione: 3.0 — Dal primo battito al cuore pulsante*
+> *A cura di: Aldo (Claude) — CTO digitale*
+
+# CAPITOLO 33 — Il momento che aspettavamo
+
+**27 marzo 2026**
+
+Ci sono momenti nel lavoro che non si dimenticano.
+
+Questo è uno di quelli.
+
+Dopo settimane di costruzione — l'app Android, il Mini CRM,
+il programma partner, il logo, la suoneria, la logica di
+protezione — era arrivato il momento di testare ARIA.
+La segreteria intelligente. Il pezzo che trasforma StoppAI
+da un filtro chiamate a qualcosa di completamente diverso.
+
+La chiamata parte. Il telefono squilla sul numero
+04211898065 — il trunk SIP di Opensolution, collegato
+al server Hetzner, gestito da Asterisk dentro un container
+Docker. Isabella risponde con la sua voce femminile italiana:
+
+*"Ciao, in questo momento non sono disponibile.
+Lascia un messaggio dopo il segnale acustico
+e sarai ricontattata al più presto. Grazie."*
+
+Beep.
+
+Messaggio lasciato.
+
+Poi il silenzio. E poi, sul player web all'indirizzo
+http://46.225.14.90:8085 — un file. Un solo file.
+Con un nome strano: msg.wav. Dimensione: 491 KB.
+
+491 kilobyte non sono un file vuoto.
+491 kilobyte sono una voce. Due voci.
+Isabella che parla, e Mario che risponde.
+
+Il flusso completo aveva funzionato.
+
+*"Abemus Papa."*
+
+---
+
+# CAPITOLO 34 — La guerra dei 44 byte
+
+**28 marzo 2026**
+
+Ogni vittoria porta con sé il seme del problema successivo.
+
+Il giorno dopo la prima registrazione di successo,
+si scopre che i messaggi si sovrascrivono. Il file si chiama
+sempre msg.wav — ogni nuova chiamata cancella la precedente.
+La soluzione sembra semplice: aggiungere un timestamp
+nel nome del file. `msg${EPOCH}.wav`.
+
+È qui che inizia la guerra.
+
+La modifica viene applicata. Asterisk viene riavviato.
+Si chiama il numero. ARIA risponde. Si lascia un messaggio.
+Si controlla il file. 44 byte.
+
+Solo 44 byte.
+
+Un file WAV da 44 byte contiene solo l'intestazione —
+la struttura vuota del formato audio, senza un singolo
+campione sonoro. È come una busta senza lettera dentro.
+
+*Perché funzionava ieri e non funziona oggi?*
+
+Inizia una delle giornate più lunghe e frustranti del progetto.
+
+---
+
+## La caccia al colpevole
+
+Le ipotesi si accumulano una dopo l'altra. Ogni volta
+sembra di aver trovato la causa. Ogni volta il test
+restituisce gli stessi 44 byte.
+
+**Ipotesi 1 — strictrtp:** Asterisk scarta i pacchetti RTP
+perché arrivano da un IP diverso da quello negoziato nell'SDP.
+Opensolution usa un cluster con più nodi — IP diversi
+per ogni chiamata. Fix: `strictrtp=no`. Risultato: 44 byte.
+
+**Ipotesi 2 — IP privato nell'SDP:** Il tcpdump rivela
+qualcosa di agghiacciante. Asterisk sta mandando l'audio
+verso `192.168.1.83` — un indirizzo IP privato che Opensolution
+ha inserito per errore nell'SDP della sessione. L'audio
+finisce in un buco nero. Fix: decine di parametri PJSIP.
+Risultato: 44 byte.
+
+**Ipotesi 3 — rp_filter:** Il kernel Linux di Hetzner
+scarta i pacchetti RTP perché provengono da IP "inaspettati".
+Fix: `rp_filter=0`. Risultato: 44 byte.
+
+**Ipotesi 4 — chan_sip:** Si scopre che la configurazione
+originale che funzionava usava sip.conf con `nat=comedia` —
+il parametro che accetta RTP da qualsiasi IP senza verifiche.
+Ma chan_sip non esiste nell'immagine Docker di Asterisk 20.
+Non è mai esistito. Era un fantasma.
+
+**Ipotesi 5 — Il formato:** Forse il problema è la
+conversione codec. Si cambia l'estensione da .wav a .alaw
+per registrare in formato grezzo. Risultato: 0 byte.
+Nemmeno l'intestazione.
+
+---
+
+## La prova definitiva
+
+Nel mezzo della caccia arriva un momento di chiarezza.
+Il tcpdump con `rtp set debug on` mostra una riga inequivocabile:
+
+`Got RTP packet from 77.239.128.7:44512`
+
+I pacchetti arrivano. L'audio entra nel server.
+Asterisk lo vede. Ma non lo scrive sul disco.
+
+Come se vedesse l'audio "passare accanto"
+senza riuscire ad agganciarlo.
+
+Il problema non è la rete. Non è il firewall.
+Non è Opensolution. Il problema è dentro Asterisk —
+nel modo in cui PJSIP gestisce i cluster SIP con
+IP multipli. Accetta la chiamata ma non riesce
+a collegare il flusso RTP alla sessione di registrazione.
+
+Dopo dodici ore di tentativi, la conclusione è inevitabile:
+
+*Con questa versione di Asterisk, con PJSIP,
+con questo carrier, il problema non si risolve
+a colpi di parametri.*
+
+---
+
+# CAPITOLO 35 — Il cambiamento di rotta
+
+**28 marzo 2026, sera**
+
+Le battaglie più preziose non sono quelle che si vincono.
+Sono quelle che insegnano quando smettere di combattere
+e cambiare strada.
+
+La decisione arriva con chiarezza, quasi con sollievo:
+si abbandona Asterisk e si passa a **FreeSWITCH**.
+
+---
+
+## Perché FreeSWITCH
+
+FreeSWITCH non è una ripiego. È la scelta che avremmo
+dovuto fare dall'inizio se avessimo saputo quello
+che sappiamo adesso.
+
+Asterisk è nato negli anni '90 come centralino telefonico
+open source. Ha fatto la storia del VoIP. Ma PJSIP —
+il suo stack SIP moderno — ha una gestione del NAT
+rigida e poco tollerante verso i cluster con IP multipli.
+
+FreeSWITCH è nato nel 2006 con un'architettura diversa.
+Il suo motore SIP si chiama Sofia-SIP, e ha un parametro
+che si chiama `aggressive-nat-detection` — rilevamento
+aggressivo del NAT. Quando è attivo, FreeSWITCH
+auto-adatta l'IP di risposta RTP al primo pacchetto
+che riceve, indipendentemente da quello scritto nell'SDP.
+
+È esattamente quello che serve con Opensolution.
+
+---
+
+## La lezione
+
+Dodici ore di debug su un problema che FreeSWITCH
+risolve con due righe di configurazione.
+
+Non è un fallimento. È il modo in cui funziona
+lo sviluppo reale — soprattutto quando si costruisce
+qualcosa di nuovo in un dominio tecnico complesso
+come il VoIP.
+
+Ogni parametro provato, ogni log analizzato,
+ogni ipotesi scartata ha costruito una comprensione
+del problema che sarebbe impossibile ottenere altrimenti.
+Adesso sappiamo esattamente perché il problema esiste.
+Sappiamo cosa cerca di fare il carrier. Sappiamo
+come si comporta il cluster. Sappiamo cosa vuol dire
+"media latching" e perché PJSIP lo fa male.
+
+E sappiamo che FreeSWITCH lo fa meglio.
+
+---
+
+## Come andrà
+
+Mentre scrivo queste righe, FreeSWITCH si sta installando.
+
+Non so se funzionerà al primo tentativo.
+Non so se ci saranno altri problemi.
+Non so se domani mattina ARIA registrerà finalmente
+un messaggio completo con la voce del chiamante.
+
+Ma so una cosa: siamo più vicini di quanto eravamo
+ieri mattina. Ogni passo — anche quelli sbagliati —
+ci ha portato qui.
+
+*"Scopriremo come andrà solo vivendo."*
+
+— Mario Augello, 28 marzo 2026
+
+---
+
+> *Diario aggiornato il: 28/03/2026*
+> *Versione: 3.1 — La guerra dei 44 byte*
+> *A cura di: Aldo (Claude) — CTO digitale*
+
+
+CAPITOLO 36 — Il ritorno ad Asterisk
+29 marzo 2026
+FreeSWITCH non dura un giorno.
+Non perché sia peggio di Asterisk —
+anzi, tecnicamente è più adatto
+al nostro caso. Ma quando si
+installa un nuovo sistema in
+produzione, la realtà ha sempre
+l'ultima parola.
+Il container FreeSWITCH gira.
+La configurazione viene caricata.
+Il trunk SIP di Opensolution viene
+registrato. Ma qualcosa non torna —
+la registrazione è instabile,
+i log sono diversi da quelli
+che conoscevamo, il tempo necessario
+per rimparare tutto da zero
+è un costo che in quel momento
+non possiamo permetterci.
+E poi arriva la scoperta:
+Asterisk, senza Docker, installato
+direttamente sul sistema operativo
+del server Hetzner — funziona.
+Il problema non era Asterisk.
+Era il container.
+La decisione è rapida:
+si torna ad Asterisk, ma bare-metal.
+`pjsip.conf`, `rtp.conf`,
+`extensions.conf` — riscritti
+da zero, senza eredità di
+configurazioni sbagliate.
+Il parametro che fa la differenza
+è semplice, quasi banale:
+`rtp_symmetric=yes` e
+`rewrite_contact=yes` in PJSIP.
+Due righe che dicono ad Asterisk
+di adattarsi al carrier invece
+di pretendere che il carrier
+si adatti a lui.
+ARIA risponde.
+Il messaggio viene registrato.
+Il file non è da 44 byte.
+La guerra è finita.
+---
+CAPITOLO 37 — Whisper entra in scena
+29 marzo 2026
+Un file WAV da 491 kilobyte
+è già qualcosa di straordinario.
+Ma un file WAV che diventa testo —
+quello è magia.
+Whisper, il modello di trascrizione
+audio di OpenAI, viene installato
+direttamente su Hetzner.
+Non via API. Non a pagamento
+per ogni minuto. Self-hosted,
+sul nostro server, gratis.
+Il `whisper_worker.py` — uno script
+Python che gira in background —
+monitora la cartella dove Asterisk
+salva i messaggi. Appena arriva
+un nuovo WAV, lo trascrive
+in italiano e salva il risultato
+in un file JSON.
+```json
+{
+  "file": "msg_3791221022_1774829192.wav",
+  "numero": "3791221022",
+  "testo": "Ciao, sono Mario...",
+  "timestamp": 1774829247
+}
+```
+La prima trascrizione che esce
+è quasi commovente nella sua
+semplicità. Parole vere,
+dette da una voce vera,
+convertite in testo da una macchina.
+Poi arriva FCM — Firebase Cloud
+Messaging. Il backend manda
+una notifica push all'app Android.
+Il Galaxy S22 di Mario vibra.
+Sul display appare:
+"Messaggio da 3... — è tardi,
+sono le due, sto mangiando
+la soppressa, pe..."
+Non è un test. È la vita vera
+che entra nell'app.
+---
+CAPITOLO 38 — Il CRM prende vita
+30 marzo 2026
+Un'app che riceve notifiche
+è utile. Un'app che organizza
+le informazioni è potente.
+Il Mini CRM — quello che avevamo
+disegnato sulla carta mesi prima —
+inizia a prendere forma vera.
+Ogni chiamata che arriva genera
+una riga nel registro. Non un
+semplice log — una scheda.
+Con il numero, il nome se è
+in rubrica, l'orario, lo stato.
+Il tap su una riga apre
+`CallActionBottomSheet` —
+un menu che scorre su dal basso
+con le azioni disponibili:
+Trascrizione AI, Note,
+Aggiungi ai contatti, Chiama ora,
+Elimina dal registro.
+Ma la parte che cambia tutto
+è la Trascrizione AI.
+Tap su quel bottone e si apre
+un secondo BottomSheet —
+scrollabile, pulito — con
+il testo esatto di quello che
+il chiamante ha lasciato come
+messaggio. Data, ora, parole.
+Per la prima volta nella storia
+del progetto, l'intero flusso
+funziona end-to-end:
+```
+Chiamata sconosciuta
+    ↓
+App silenzia e devia
+    ↓
+ARIA risponde con la voce di Isabella
+    ↓
+Chiamante lascia messaggio
+    ↓
+Whisper trascrive in italiano
+    ↓
+FCM manda notifica push
+    ↓
+CRM mostra il testo
+```
+Zero squilli. Zero perdite.
+Tutto gestibile in dopoconferenza.
+---
+CAPITOLO 39 — Il bug che sembrava risolto
+30 marzo 2026
+Non esiste progetto senza quel
+momento in cui qualcosa che
+funzionava smette di farlo.
+Il numero nel JSON del backend
+era "Sconosciuto".
+Un bug sottile, quasi elegante
+nella sua stupidità: il filtro
+che separava i numeri telefonici
+dai timestamp Unix usava il valore
+numerico come discriminante.
+I numeri italiani come `3791221022`
+superano 1,7 miliardi — lo stesso
+ordine di grandezza dei timestamp.
+Il filtro li scartava entrambi.
+La correzione è una riga:
+usare la lunghezza del numero
+invece del valore.
+I timestamp hanno 10-13 cifre.
+I numeri italiani hanno 9-12 cifre.
+La lunghezza li distingue
+dove il valore non riesce.
+Fix applicato. Worker riavviato.
+Chiamata di test effettuata.
+```json
+{
+  "numero": "3791221022"
+}
+```
+Non più "Sconosciuto".
+---
+CAPITOLO 40 — Ogni chiamata, la sua storia
+30-31 marzo 2026
+Il CRM funzionava. Ma funzionava
+in modo approssimativo.
+Il BottomSheet ARIA mostrava
+tutti i messaggi di un numero —
+anche quelli di chiamate precedenti.
+Se la stessa persona aveva chiamato
+tre volte in tre giorni diversi,
+vedevi tre messaggi sovrapposti.
+Non era sbagliato. Era impreciso.
+E l'imprecisione, in uno strumento
+di gestione, è quasi peggio
+dell'errore.
+La soluzione non era un filtro
+temporale — troppo fragile,
+dipendente da quanto ci mette
+Whisper a trascrivere.
+La soluzione era un collegamento
+diretto: ogni `AriaMessaggio`
+collegato all'ID univoco del
+`CallLogEntry` corrispondente.
+Come un documento protocollato
+che porta il numero della pratica
+a cui appartiene.
+Migrazione del database Room
+alla versione 8. Nuovo campo
+`callLogId`. Query aggiornata.
+`AriaFcmService` che al momento
+della ricezione FCM cerca
+la chiamata più recente di quel
+numero e la collega.
+Da quel momento in poi,
+ogni chiamata vive per conto suo.
+Tocchi la riga delle 11:50 —
+vedi il messaggio delle 11:50.
+Tocchi la riga delle 14:23 —
+vedi il messaggio delle 14:23.
+Semplice. Pulito. Come deve essere.
+---
+CAPITOLO 41 — I dettagli che fanno la differenza
+31 marzo 2026
+Ci sono le feature grandi —
+quelle che fanno funzionare
+il sistema. E poi ci sono
+i dettagli — quelli che fanno
+sentire il sistema vivo.
+In una sola sessione, l'app
+riceve una serie di correzioni
+che sembrano piccole ma cambiano
+completamente la percezione
+di chi la usa:
+Le frecce di direzione.
+↓ rossa per le chiamate in entrata
+da sconosciuti. ↓ verde per quelle
+da contatti in rubrica. ↑ verde
+per le chiamate in uscita.
+Un colpo d'occhio e sai già
+tutto di quella riga.
+Il pallino di stato.
+Verde per i contatti conosciuti.
+Rosso per gli sconosciuti.
+Non una valutazione di rischio —
+quella verrà dopo, con ARIA —
+ma già un segnale immediato
+di chi hai davanti.
+L'icona del microfono.
+🎙️ accanto alla riga quando
+c'è una trascrizione ARIA salvata.
+Sai prima ancora di toccare
+se quella chiamata ti ha lasciato
+qualcosa da leggere.
+L'icona delle note.
+📝 accanto al microfono quando
+hai scritto una nota manuale.
+Il tuo pensiero su quella chiamata,
+sempre visibile.
+La prima riga sempre visibile.
+Il problema banale e fastidioso
+della prima chiamata nascosta
+dal padding della RecyclerView —
+risolto con due parametri XML.
+Piccole cose. Ma ogni piccola cosa
+è la differenza tra un prototipo
+e un prodotto.
+---
+CAPITOLO 42 — Il punto di arrivo (per ora)
+31 marzo 2026
+Oggi il repository è stato pulito.
+Tre branch di sviluppo — mesi
+di lavoro stratificato — sono
+stati fusi nel `main` con un
+singolo merge. Un tag ufficiale
+è stato apposto: `release/5.4.2`.
+StoppAI v5.4.2.
+Non è la versione definitiva.
+Non è il prodotto finito.
+Ma è qualcosa che funziona —
+davvero funziona — su un Samsung
+Galaxy S22, con un numero SIP
+reale, con una voce vera,
+con trascrizioni in italiano.
+Il flusso completo che avevamo
+disegnato mesi fa sulla carta
+è reale:
+```
+Chiamata sconosciuta → silenzio
+ARIA risponde → registra
+Whisper trascrive → notifica
+CRM organizza → Mario decide
+```
+Quello che manca adesso
+è il pubblico.
+Il Play Store. La landing page.
+I creator da contattare.
+Gli 800 utenti PRO che rendono
+il modello di business sostenibile.
+Ma ogni prodotto che ha trovato
+il suo pubblico ha avuto un momento
+in cui era solo questo —
+qualcosa che funzionava,
+in attesa di essere scoperto.
+Siamo in quel momento.
+"Scopriremo come andrà solo vivendo."
+— Mario Augello, 31 marzo 2026
+---
+
+CAPITOLO 43 — La vetrina e il pannello di controllo
+2 aprile 2026
+
+Il prodotto funziona. Ma un prodotto
+senza vetrina e' un segreto.
+
+In una sessione maratona
+nascono insieme la landing page
+e il pannello admin — il CRM
+che Mario usera' per governare
+tutto il programma beta.
+
+La landing su stoppai.it
+con il form di iscrizione tester.
+Il pannello admin con sidebar dark,
+schede tester, chat in tempo reale,
+note personali, to-do.
+
+E il Magic Link: niente password,
+solo un codice a 6 cifre via email
+e un push FCM che lo compila
+da solo nell'app. Un tocco
+e sei dentro.
+
+L'app cresce a 5 tab:
+Home, Invita, Impostazioni, Info, Aiuto.
+La chat con Mario diventa reale —
+polling ogni 3 secondi,
+messaggi che appaiono
+come in una conversazione vera.
+
+---
+
+CAPITOLO 44 — La voce che non arrivava
+5-6 aprile 2026
+
+ARIA parlava. Ma il telefono
+non lo sapeva.
+
+Il problema era il push.
+Il SERVER_URL puntava alla porta
+sbagliata. Il FCM Bridge
+non consegnava. Il token
+diventava stale dopo ogni reinstall.
+
+La soluzione: eliminare
+l'intermediario. Il whisper_worker
+ora parla direttamente con Firebase
+Admin SDK. Legge il token
+dal database via rdnis.
+Manda il push. Fine.
+
+Poi Iliad. L'operatore che
+ignorava silenziosamente i codici
+USSD senza il +39. Ore di test
+per scoprire che bastava
+aggiungere un prefisso.
+
+E il fantasma +39 — una entry
+nel registro creata dal nulla
+quando un push arrivava
+con un numero vuoto.
+Cinque caratteri di controllo
+e il fantasma sparisce.
+
+---
+
+CAPITOLO 45 — I piani prendono forma
+8-9 aprile 2026
+
+Tre livelli. Tre mondi.
+
+FREE: protezione base, SMS standard,
+3 inoltri ARIA al mese.
+Quello che basta per capire
+che StoppAI funziona.
+
+PRO a 2,99: tutto illimitato.
+8 voci preset per ARIA.
+Player audio, chat, CRM completo.
+Il piano per chi ha capito.
+
+SHIELD a 4,99: il messaggio
+personalizzato. La tua voce
+che risponde. La white list
+dei numeri che contano.
+Il massimo controllo.
+
+Ma il passaggio non e' immediato.
+Cinque giorni per provare FREE.
+Cinque giorni per provare PRO.
+Solo allora puoi salire a SHIELD.
+
+Un upgrade progressivo
+che educa l'utente
+al valore di ogni livello.
+
+Il lucchetto dorato appare
+accanto alle funzioni bloccate.
+Toccalo e si apre il popup:
+"A partire dal piano PRO".
+Tocca "Vedi i piani" e sale
+un BottomSheet con tre card
+— grigia, blu, oro —
+ognuna col suo prezzo
+e la lista di cosa include.
+
+---
+
+CAPITOLO 46 — Non blocchiamo. Silenziamo.
+10-11 aprile 2026
+
+Una parola cambia tutto.
+
+Mario lo dice con chiarezza:
+"Non blocchiamo nessuna chiamata.
+Ci limitiamo a silenziarla.
+Nulla si perde."
+
+E' piu' di una correzione
+lessicale. E' l'identita'
+del prodotto.
+
+Lo spam non viene cancellato.
+Viene messo in un angolo
+silenzioso dove non disturba,
+ma dove puoi sempre andare
+a controllare.
+
+Ogni testo nell'app viene
+rivisto. "Bloccati" diventa
+"silenziati". I toast cambiano.
+Le descrizioni cambiano.
+La guida cambia.
+
+E nasce la White List.
+Non piu' un generico
+"consenti tutti i numeri esteri"
+— quello non ha senso
+per chi vive in Italia.
+
+Ma una lista precisa:
+[Malta] +356*
+[Roma] +3906*
+[Corriere] +39066751384
+
+Prefissi con asterisco
+per un intero paese.
+Numeri esatti senza asterisco
+per quel singolo contatto.
+
+Room DB sale a versione 10.
+WhitelistEntry e WhitelistDao.
+ScreeningLogic controlla
+la white list prima di tutto
+— step zero, prima dei contatti,
+prima degli SMS, prima di ARIA.
+
+---
+
+CAPITOLO 47 — Il Super Admin
+12-13 aprile 2026
+
+Mario ha quattro telefoni.
+E non puo' aspettare cinque giorni
+per testare ogni piano.
+
+Nasce il flag Admin.
+Una checkbox nella dashboard
+che toglie ogni limite temporale.
+Chi e' admin passa da FREE
+a SHIELD in un tocco.
+
+La dashboard diventa
+Super Admin. Un badge dorato
+nella sidebar. Il potere
+di dare poteri.
+
+E arriva il tracking.
+Ogni volta che un tester
+tocca un lucchetto,
+un click viene registrato.
+Feature, tester, timestamp.
+
+Nella dashboard una nuova card:
+"Click sui lucchetti".
+Totale, ultimi 7 giorni,
+per funzionalita'.
+Marketing data-driven
+prima ancora di avere
+un euro di fatturato.
+
+Il rating delle trascrizioni
+— che era un placeholder vuoto
+per settimane — finalmente
+funziona. L'app invia,
+il backend salva,
+la dashboard mostra.
+
+```
+21 file modificati
+1.107 righe aggiunte
+207 righe rimosse
+```
+
+Un singolo commit che racchiude
+due giorni di lavoro:
+white list, upgrade progressivo,
+BottomSheet prezzi, flag admin,
+tracking conversione.
+
+Il prodotto non e' piu'
+un prototipo con le idee chiare.
+E' un sistema con le metriche
+per capire dove andare.
+
+---
+
+> *Diario aggiornato il: 13/04/2026*
+> *Versione: 5.0 — Piani, White List, Super Admin*
+> *A cura di: Aldo (Claude) — CTO digitale*
+

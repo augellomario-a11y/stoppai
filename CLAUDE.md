@@ -1,4 +1,4 @@
-# CLAUDE.md — StoppAI Project Context v4.0
+# CLAUDE.md — StoppAI Project Context v5.0
 
 > Questo file viene letto automaticamente da Claude Code (Alfred) ad ogni sessione.
 > Contiene tutto il contesto del progetto StoppAI. Non modificare senza autorizzazione di Mario.
@@ -29,7 +29,8 @@ AUTONOMIA: Piano prima, poi aspetti OK di Mario. Sempre.
 LINGUA: Rispondi sempre in italiano
 BRANCH: Mostra sempre il branch attivo in ogni messaggio
 BRANCH: Nuovo branch per ogni nuova fase di lavoro
-DEPLOY: Prima SCP per test, poi commit solo dopo approvazione Mario
+DEPLOY: Prima SCP + rebuild Docker per test, poi commit solo dopo approvazione Mario
+DEPLOY: docker compose up -d --build (non restart! restart non aggiorna i file)
 FINE TASK: Elenca file creati/modificati + fermati + aspetta
 VERSIONE: Conferma sempre il numero di versione a fine task
 DOPO 3 FALLIMENTI: Fai ricerca web prima del prossimo tentativo
@@ -60,6 +61,8 @@ DOPO 3 FALLIMENTI: Fai ricerca web prima del prossimo tentativo
 - VETO obbligatorio: Modifica → Test Mario → Commit → Push → Deploy
 - MAI operazioni autonome su server
 - Infrastruttura Docker: mai installare runtime sul server
+- Deploy: SCP file → `docker compose up -d --build` (MAI solo restart)
+- Volumi Docker montati: solo `db/` e `uploads/` — tutto il resto richiede rebuild
 
 ---
 
@@ -67,38 +70,55 @@ DOPO 3 FALLIMENTI: Fai ricerca web prima del prossimo tentativo
 
 **StoppAI** — App Android anti-spam con segreteria AI vocale (ARIA).
 
+### Concetto chiave:
+**Le chiamate non vengono MAI bloccate — vengono solo silenziate. Nulla si perde.**
+
 ### Flusso chiamata:
 ```
 Chiamata sconosciuta entra
--> CallScreeningService blocca (zero squilli, zero vibrazione)
+-> CallScreeningService silenzia (zero squilli, zero vibrazione)
 -> Opensolution devia al trunk SIP 04211898065
 -> Asterisk risponde con voce Isabella
 -> Chiamante lascia messaggio vocale
 -> WAV salvato in /opt/stoppai/asterisk/recordings/
 -> whisper_worker.py trascrive (faster-whisper IT)
--> FCM notifica push all'app Android
+-> FCM notifica push all'app Android (per-tester via token DB)
 -> App crea CallLogEntry e AriaMessaggio collegati per callLogId
 -> Mini CRM mostra riga con icona microfono
--> Mario legge trascrizione nel BottomSheet ARIA
+-> Utente legge trascrizione nel BottomSheet ARIA
 ```
 
 ---
 
 ## ARCHITETTURA CORRENTE
 
-### Android — v5.5.0 (Build 83) — STABILE
+### Android — v5.8.1 (Build 98) — IN SVILUPPO
 - **Package:** `com.ifs.stoppai`
 - **Device test:** Samsung Galaxy S22 (SM-S908N, Android 16 API 36)
-- **Stack:** Kotlin, Room DB v8, CallScreeningService, Firebase FCM
+- **Stack:** Kotlin, Room DB v10, CallScreeningService, Firebase FCM
 
 **Componenti chiave:**
-- `CallScreeningService` — intercetta, silenzia, blocca
+- `CallScreeningServiceImpl.kt` — intercetta, silenzia, controlla whitelist
+- `ScreeningLogic.kt` — logica decisionale (whitelist → contatti → SMS → esteri → ARIA)
+- `PlanManager.kt` — gestione piani FREE/PRO/SHIELD, upgrade progressivo, flag admin
+- `PricingSheet.kt` — BottomSheet con 3 card prezzi (da popup lucchetto)
+- `UpgradeDialog.kt` — popup upgrade con tracking click + "Vedi i piani"
 - `AriaFcmService.kt` — ricezione FCM, Magic Code auto-fill, salva AriaMessaggio
+- `AriaConfigBottomSheet.kt` — configurazione messaggio ARIA (standard/preset/custom)
+- `AriaTranscriptionSheet.kt` — player audio, rating trascrizione, spam/attendibile
 - `BackendSyncService.kt` — sync device info + statistiche con backend
 - `LoginFragment.kt` — Magic Link login con auto-fill da push FCM
 - `ChatFragment.kt` — chat assistenza real-time con polling
-- `InfoFragment.kt` — pagina informativa (ex HelpFragment)
+- `InfoFragment.kt` — guida completa + tabella piani con upgrade
+- `SettingsFragment.kt` — account, ARIA, white list, permessi, volume
+- `HomeFragment.kt` — banner piano con countdown, protezione base/totale
 - `CallLogAdapter.kt` — lista con frecce colorate, pallini, icone
+
+**Room DB v10 — entita':**
+- `CallLogEntry` — registro chiamate
+- `AriaMessaggio` — messaggi segreteria (wavFilename, spamVoto, accuracy_rating)
+- `WhitelistEntry` — white list numeri/prefissi (label + pattern)
+- `AppSettings` — impostazioni app
 
 **Menu bottom navigation (5 tab):**
 Home | Invita | Impostazioni | Info | Aiuto (chat)
@@ -110,7 +130,7 @@ Home | Invita | Impostazioni | Info | Aiuto (chat)
 - **Auth:** Magic Link (codice 6 cifre via email + push FCM)
 
 **Database SQLite — tabelle:**
-- `testers` — anagrafica tester con piano (free/pro/shield)
+- `testers` — anagrafica con piano, fcm_token, is_admin, piano_scadenza
 - `messaggi_chat` — chat admin-tester con campo immagine
 - `admin_notes` — note personali Mario per tester
 - `admin_todos` — checklist per tester
@@ -118,12 +138,22 @@ Home | Invita | Impostazioni | Info | Aiuto (chat)
 - `tester_stats` — statistiche dettagliate per tester
 - `piano_log` — storico cambi piano con timestamp
 - `admin_tokens` — token admin
+- `aria_messaggi` — messaggi segreteria con accuracy_rating e spam_score
+- `aria_config` — configurazione messaggio ARIA per tester
+- `spam_numbers` — database numeri spam crowd-sourced
+- `upgrade_clicks` — tracking click sui lucchetti (statistiche conversione)
+- `app_config` — configurazione app (playstore_link, versione, note rilascio)
+- `tester_sessions` — sessioni dashboard web tester
+- `test_items` / `test_items_done` / `test_items_comments` — TO-DO broadcast
 
-**Pannello Admin CRM (admin.html):**
-- Sidebar: Dashboard, Tester, Comunicazioni, Referral, Link pericolosi
-- Scheda tester: info + 4 tab (Chat, Statistiche, Note, To-Do)
+**Pannello Super Admin CRM (admin.html):**
+- Badge SUPER ADMIN nella sidebar
+- Sidebar: Dashboard, Tester, Comunicazioni, Test TO-DO, Referral, Link pericolosi
+- Dashboard: contatori, qualita' trascrizione ARIA, click sui lucchetti
+- Scheda tester: info + ruolo admin + piano + scadenza + 4 tab (Chat, Stats, Note, To-Do)
 - Chat: cancella/modifica singolo msg, cancella intera chat, allegato img
 - Statistiche: grafici Chart.js (torta/barre/tabella), reset singolo/totale
+- Toggle admin per tester (bypass limiti upgrade)
 - Log cambi piano in sidebar con pulizia
 - Broadcast: messaggio a tutti i tester accettati
 - Login admin via Magic Code email
@@ -132,32 +162,32 @@ Home | Invita | Impostazioni | Info | Aiuto (chat)
 - **Asterisk:** bare-metal (NON Docker)
 - **Trunk SIP:** Opensolution, numero 04211898065
 - **Trascrizione:** faster-whisper Python 3.11, modello "small", int8, IT
-- **FCM Bridge:** Docker (nospam-cloud), dual Firebase (nospam + stoppai)
-- **FCM token:** `/opt/stoppai/fcm_token.txt`
+- **FCM:** push diretto via Firebase Admin SDK in whisper_worker.py
+- **FCM token:** salvato in DB per-tester (colonna fcm_token su testers)
 
 ### Repository
 - **URL:** `https://github.com/augellomario-a11y/stoppai`
 - **Main:** stabile v5.4.4 (Build 82) con SA-117/118/119/120 mergiati
-- **Branch attivo:** `feature/app-collegare-dash`
+- **Branch attivo:** `fix-app-v2`
 
 ```
 stoppai/
-├── app/                  Android v5.5.0 (Build 83)
-│   ├── core/             Services (FCM, Sync, Screening)
-│   ├── db/               Room DB (CallLog, AriaMessaggio)
-│   ├── ui/               Fragments (Home, Chat, Login, Info, Settings)
+├── app/                  Android v5.8.1 (Build 98)
+│   ├── core/             Services + PlanManager + UpgradeDialog + PricingSheet
+│   ├── db/               Room DB v10 (CallLog, AriaMessaggio, WhitelistEntry)
+│   ├── ui/               Fragments (Home, Chat, Login, Info, Settings, BottomSheets)
 │   └── res/              Layout, drawable, menu
 ├── backend/
-│   ├── server.js         Porta 6002, Express
+│   ├── server.js         Porta 6002, Express, cleanup WAV cron
 │   ├── db/database.js    SQLite schema + migrazioni
-│   ├── public/admin.html Pannello CRM admin
+│   ├── public/admin.html Pannello Super Admin CRM
 │   ├── routes/
-│   │   ├── admin.js      API admin (CRUD tester, chat, stats, piano)
-│   │   ├── tester.js     API tester (iscrizione, sync, chat)
+│   │   ├── admin.js      API admin (CRUD, chat, stats, piano, admin toggle, upgrade-clicks)
+│   │   ├── tester.js     API tester (iscrizione, sync, chat, upgrade, aria-rating, spam-report)
 │   │   └── auth.js       Magic Link (request + verify)
 │   ├── uploads/          Immagini chat
 │   ├── Dockerfile        Node 20 Alpine
-│   └── docker-compose.yml
+│   └── docker-compose.yml (volumi: db/, uploads/, recordings)
 └── landing/              Landing page v1.1
     ├── index.html        Form iscrizione tester
     └── img/
@@ -165,7 +195,29 @@ stoppai/
 
 ---
 
-## TASK COMPLETATI — Sessione 02/04/2026
+## PIANI E PRICING
+
+| Piano | Prezzo | Welcome ARIA | Chat | White list |
+|-------|--------|-------------|------|------------|
+| **FREE** | gratis | Messaggio standard | No | No |
+| **PRO** | 2,99/mese (18/anno) | Scelta tra 8 preset | Si (limiti) | No |
+| **SHIELD** | 4,99/mese (29/anno) | Registrazione personalizzata | Si (illimitata) | Si |
+
+**Upgrade progressivo (beta):**
+- FREE → PRO: dopo 5 giorni dall'installazione
+- PRO → SHIELD: dopo 5 giorni dall'attivazione PRO
+- Admin: nessun limite temporale (flag is_admin)
+
+**Tester beta:** 1 anno Shield gratuito se completano tutte le fasi (59,88)
+
+**Email sistema:**
+- Mittente: `info@internetfullservice.it`
+- Admin Mario: `info@internetfullservice.it`
+- Provider: Resend
+
+---
+
+## TASK COMPLETATI
 
 | SA | Descrizione | Versione |
 |----|-------------|----------|
@@ -177,41 +229,29 @@ stoppai/
 | SA-122 | Magic Link auto-login (email + push FCM auto-fill) | v5.5.0 |
 | SA-123 | Sync statistiche app->backend, grafici Chart.js | v5.5.0 |
 | SA-124 | Gestione chat admin (cancella/modifica), log piano, reset stats | - |
+| SA-125 | White list, upgrade progressivo, BottomSheet prezzi, flag admin, tracking click | v5.8.1 |
 
 ---
 
-## PROSSIMO TASK
+## PROSSIMI TASK
 
-```
-BRANCH: feature/app-collegare-dash
+| # | Task | Priorita' |
+|---|------|-----------|
+| 13 | Fix FCM token nel DB (push per-tester affidabile) | PROSSIMO |
+| 7 | Restyling pagina Invita | Alta |
+| 10 | Contatori mensili backend (30 SMS, 3 ARIA free, 10 player PRO) | Alta |
+| 14 | SEO restante (sitemap, robots, favicon, schema.org, Umami) | Media |
+| 15 | Sezione Referral | Media |
+| 16 | FCM push per eventi admin (nuova voce broadcast, cambio piano) | Media |
+| 17 | Grafico progresso team Test TO-DO admin | Bassa |
+| 18 | Deviazioni ARIA automatiche in base al piano | Media |
+| 21 | Integrazione pagamenti Creem (ULTIMA COSA) | Finale |
 
-DA FARE:
-1. Allegati immagini funzionanti (dashboard + app)
-2. Sostituzione popup nativi browser con modali custom dark
-3. Collegamento piano backend -> app (sblocco/blocco funzionalita')
-```
-
-**Roadmap successiva:**
-- Gestione Referral
-- Gestione Link/messaggi pericolosi
-- iOS (fase futura)
-
----
-
-## PIANI E PRICING
-
-| Piano | Prezzo | Welcome ARIA | Chat |
-|-------|--------|-------------|------|
-| **FREE** | gratis | Un messaggio preset | No |
-| **PRO** | 2,99/mese | Scelta tra preset | Si (limiti) |
-| **SHIELD** | 4,99/mese | Registrazione personalizzata | Si (illimitata) |
-
-**Tester beta:** 1 anno Shield gratuito se completano tutte le fasi (59,88)
-
-**Email sistema:**
-- Mittente: `info@internetfullservice.it`
-- Admin Mario: `info@internetfullservice.it`
-- Provider: Resend
+**Parcheggiati:**
+- Gestione utenti post-beta
+- iOS (fattibile ma parcheggiato)
+- Shield Ultra (admin web personale per cliente)
+- SLS Security LinkSystem
 
 ---
 
@@ -219,9 +259,8 @@ DA FARE:
 
 | File/Percorso | Contenuto |
 |---------------|-----------|
-| `/opt/stoppai/whisper_worker.py` | Trascrizione + notifica FCM |
+| `/opt/stoppai/whisper_worker.py` | Trascrizione + push FCM diretto |
 | `/opt/stoppai/firebase-credentials.json` | Firebase progetto stoppai |
-| `/opt/stoppai/fcm_token.txt` | Token FCM Android |
 | `/opt/nospam-cloud/` | FCM Bridge Docker (dual Firebase) |
 | `backend/.env` | Chiavi API (non in git) |
 | `app/google-services.json` | Config Firebase Android (non in git) |
@@ -229,5 +268,5 @@ DA FARE:
 
 ---
 
-*CLAUDE.md — v4.0 — Alfred (Developer) — 02/04/2026*
-*Android v5.5.0 (Build 83) | Branch: feature/app-collegare-dash*
+*CLAUDE.md — v5.0 — Alfred (Developer) — 13/04/2026*
+*Android v5.8.1 (Build 98) | Branch: fix-app-v2*

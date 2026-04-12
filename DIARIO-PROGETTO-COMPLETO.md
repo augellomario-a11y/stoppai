@@ -2283,7 +2283,226 @@ Siamo in quel momento.
 "Scopriremo come andrà solo vivendo."
 — Mario Augello, 31 marzo 2026
 ---
-> *Diario aggiornato il: 31/03/2026*
-> *Versione: 4.0 — CRM ARIA operativo*
+
+CAPITOLO 43 — La vetrina e il pannello di controllo
+2 aprile 2026
+
+Il prodotto funziona. Ma un prodotto
+senza vetrina e' un segreto.
+
+In una sessione maratona
+nascono insieme la landing page
+e il pannello admin — il CRM
+che Mario usera' per governare
+tutto il programma beta.
+
+La landing su stoppai.it
+con il form di iscrizione tester.
+Il pannello admin con sidebar dark,
+schede tester, chat in tempo reale,
+note personali, to-do.
+
+E il Magic Link: niente password,
+solo un codice a 6 cifre via email
+e un push FCM che lo compila
+da solo nell'app. Un tocco
+e sei dentro.
+
+L'app cresce a 5 tab:
+Home, Invita, Impostazioni, Info, Aiuto.
+La chat con Mario diventa reale —
+polling ogni 3 secondi,
+messaggi che appaiono
+come in una conversazione vera.
+
+---
+
+CAPITOLO 44 — La voce che non arrivava
+5-6 aprile 2026
+
+ARIA parlava. Ma il telefono
+non lo sapeva.
+
+Il problema era il push.
+Il SERVER_URL puntava alla porta
+sbagliata. Il FCM Bridge
+non consegnava. Il token
+diventava stale dopo ogni reinstall.
+
+La soluzione: eliminare
+l'intermediario. Il whisper_worker
+ora parla direttamente con Firebase
+Admin SDK. Legge il token
+dal database via rdnis.
+Manda il push. Fine.
+
+Poi Iliad. L'operatore che
+ignorava silenziosamente i codici
+USSD senza il +39. Ore di test
+per scoprire che bastava
+aggiungere un prefisso.
+
+E il fantasma +39 — una entry
+nel registro creata dal nulla
+quando un push arrivava
+con un numero vuoto.
+Cinque caratteri di controllo
+e il fantasma sparisce.
+
+---
+
+CAPITOLO 45 — I piani prendono forma
+8-9 aprile 2026
+
+Tre livelli. Tre mondi.
+
+FREE: protezione base, SMS standard,
+3 inoltri ARIA al mese.
+Quello che basta per capire
+che StoppAI funziona.
+
+PRO a 2,99: tutto illimitato.
+8 voci preset per ARIA.
+Player audio, chat, CRM completo.
+Il piano per chi ha capito.
+
+SHIELD a 4,99: il messaggio
+personalizzato. La tua voce
+che risponde. La white list
+dei numeri che contano.
+Il massimo controllo.
+
+Ma il passaggio non e' immediato.
+Cinque giorni per provare FREE.
+Cinque giorni per provare PRO.
+Solo allora puoi salire a SHIELD.
+
+Un upgrade progressivo
+che educa l'utente
+al valore di ogni livello.
+
+Il lucchetto dorato appare
+accanto alle funzioni bloccate.
+Toccalo e si apre il popup:
+"A partire dal piano PRO".
+Tocca "Vedi i piani" e sale
+un BottomSheet con tre card
+— grigia, blu, oro —
+ognuna col suo prezzo
+e la lista di cosa include.
+
+---
+
+CAPITOLO 46 — Non blocchiamo. Silenziamo.
+10-11 aprile 2026
+
+Una parola cambia tutto.
+
+Mario lo dice con chiarezza:
+"Non blocchiamo nessuna chiamata.
+Ci limitiamo a silenziarla.
+Nulla si perde."
+
+E' piu' di una correzione
+lessicale. E' l'identita'
+del prodotto.
+
+Lo spam non viene cancellato.
+Viene messo in un angolo
+silenzioso dove non disturba,
+ma dove puoi sempre andare
+a controllare.
+
+Ogni testo nell'app viene
+rivisto. "Bloccati" diventa
+"silenziati". I toast cambiano.
+Le descrizioni cambiano.
+La guida cambia.
+
+E nasce la White List.
+Non piu' un generico
+"consenti tutti i numeri esteri"
+— quello non ha senso
+per chi vive in Italia.
+
+Ma una lista precisa:
+[Malta] +356*
+[Roma] +3906*
+[Corriere] +39066751384
+
+Prefissi con asterisco
+per un intero paese.
+Numeri esatti senza asterisco
+per quel singolo contatto.
+
+Room DB sale a versione 10.
+WhitelistEntry e WhitelistDao.
+ScreeningLogic controlla
+la white list prima di tutto
+— step zero, prima dei contatti,
+prima degli SMS, prima di ARIA.
+
+---
+
+CAPITOLO 47 — Il Super Admin
+12-13 aprile 2026
+
+Mario ha quattro telefoni.
+E non puo' aspettare cinque giorni
+per testare ogni piano.
+
+Nasce il flag Admin.
+Una checkbox nella dashboard
+che toglie ogni limite temporale.
+Chi e' admin passa da FREE
+a SHIELD in un tocco.
+
+La dashboard diventa
+Super Admin. Un badge dorato
+nella sidebar. Il potere
+di dare poteri.
+
+E arriva il tracking.
+Ogni volta che un tester
+tocca un lucchetto,
+un click viene registrato.
+Feature, tester, timestamp.
+
+Nella dashboard una nuova card:
+"Click sui lucchetti".
+Totale, ultimi 7 giorni,
+per funzionalita'.
+Marketing data-driven
+prima ancora di avere
+un euro di fatturato.
+
+Il rating delle trascrizioni
+— che era un placeholder vuoto
+per settimane — finalmente
+funziona. L'app invia,
+il backend salva,
+la dashboard mostra.
+
+```
+21 file modificati
+1.107 righe aggiunte
+207 righe rimosse
+```
+
+Un singolo commit che racchiude
+due giorni di lavoro:
+white list, upgrade progressivo,
+BottomSheet prezzi, flag admin,
+tracking conversione.
+
+Il prodotto non e' piu'
+un prototipo con le idee chiare.
+E' un sistema con le metriche
+per capire dove andare.
+
+---
+
+> *Diario aggiornato il: 13/04/2026*
+> *Versione: 5.0 — Piani, White List, Super Admin*
 > *A cura di: Aldo (Claude) — CTO digitale*
 
