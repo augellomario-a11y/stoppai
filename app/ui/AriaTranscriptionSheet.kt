@@ -87,12 +87,16 @@ class AriaTranscriptionSheet : BottomSheetDialogFragment() {
                 val sdf = SimpleDateFormat("dd/MM/yyyy HH:mm:ss", Locale.ITALY)
                 val data = if (entry != null) sdf.format(Date(entry.timestamp)) else ""
 
-                // Cerca note precedenti per questo numero nel CRM locale
+                // Nota di QUESTA chiamata specifica
+                val notaCorrente = entry?.nota ?: ""
+
+                // Note PRECEDENTI per questo numero (da altre chiamate)
                 val numNorm = com.ifs.stoppai.core.PhoneNumberUtils.normalizeNumber(phoneNumber)
                 val notePrecedenti = if (numNorm.length >= 5) {
                     val ultCifre = numNorm.takeLast(10)
                     db.callLogDao().getAllCallsSync()
-                        .filter { it.nota.isNotBlank() && it.phoneNumber.takeLast(10) == ultCifre }
+                        .filter { it.nota.isNotBlank() && it.phoneNumber.takeLast(10) == ultCifre && it.id != callLogId }
+                        .sortedByDescending { it.timestamp }
                         .distinctBy { it.nota }
                         .map { it.nota }
                 } else emptyList()
@@ -103,10 +107,16 @@ class AriaTranscriptionSheet : BottomSheetDialogFragment() {
 
                     if (data.isNotEmpty()) txtData.text = "📅  $data"
 
-                    // Mostra note precedenti per questo numero
+                    // Mostra nota di QUESTA chiamata
+                    if (notaCorrente.isNotBlank()) {
+                        val txtNumero = view.findViewById<TextView>(R.id.txt_aria_numero)
+                        txtNumero.append("\n📝 Nota: $notaCorrente")
+                    }
+
+                    // Se ci sono note da chiamate precedenti, mostra sezione separata
                     if (notePrecedenti.isNotEmpty()) {
                         val txtNumero = view.findViewById<TextView>(R.id.txt_aria_numero)
-                        txtNumero.append("\n📝 Note: ${notePrecedenti.joinToString(" | ")}")
+                        txtNumero.append("\n📋 Note precedenti: ${notePrecedenti.joinToString(" | ")}")
                     }
 
                     if (messaggi.isEmpty()) {
@@ -278,7 +288,8 @@ class AriaTranscriptionSheet : BottomSheetDialogFragment() {
     }
 
     private fun inviaRating(msgId: Int, rating: Int) {
-        android.util.Log.d("ARIA_RATING", "Rating: $rating% per msgId=$msgId")
+        val numero = arguments?.getString(ARG_NUMERO) ?: ""
+        android.util.Log.d("ARIA_RATING", "Rating: $rating% per numero=$numero")
         kotlinx.coroutines.CoroutineScope(kotlinx.coroutines.Dispatchers.IO).launch {
             try {
                 val url = java.net.URL("${com.ifs.stoppai.core.AriaFcmService.SERVER_URL}/api/tester/aria-rating")
@@ -287,7 +298,7 @@ class AriaTranscriptionSheet : BottomSheetDialogFragment() {
                 conn.doOutput = true
                 conn.setRequestProperty("Content-Type", "application/json")
                 conn.connectTimeout = 5000
-                val body = """{"msg_id":$msgId,"rating":$rating}"""
+                val body = """{"caller_number":"$numero","rating":$rating}"""
                 conn.outputStream.write(body.toByteArray())
                 val code = conn.responseCode
                 android.util.Log.d("ARIA_RATING", "Inviato al backend ($code)")

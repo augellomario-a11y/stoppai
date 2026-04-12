@@ -867,4 +867,38 @@ function emailAggiornamentoApp(nome, link, versione, note) {
   );
 }
 
+// ===== TO-DO PERSONALE SUPER ADMIN =====
+
+// GET /api/admin/personal-todos — lista to-do (non completati prima, completati in fondo)
+router.get('/personal-todos', authAdmin, (req, res) => {
+  const todos = db.prepare(
+    'SELECT * FROM personal_todos ORDER BY completato ASC, creato_at DESC'
+  ).all();
+  res.json(todos);
+});
+
+// POST /api/admin/personal-todos — crea nuovo to-do
+router.post('/personal-todos', authAdmin, (req, res) => {
+  const { testo } = req.body;
+  if (!testo || !testo.trim()) return res.status(400).json({ error: 'testo obbligatorio' });
+  const r = db.prepare('INSERT INTO personal_todos (testo) VALUES (?)').run(testo.trim());
+  res.json({ success: true, id: r.lastInsertRowid });
+});
+
+// POST /api/admin/personal-todos/:id/toggle — spunta/despunta
+router.post('/personal-todos/:id/toggle', authAdmin, (req, res) => {
+  const todo = db.prepare('SELECT completato FROM personal_todos WHERE id = ?').get(req.params.id);
+  if (!todo) return res.status(404).json({ error: 'non trovato' });
+  const nuovoStato = todo.completato ? 0 : 1;
+  db.prepare('UPDATE personal_todos SET completato = ?, completato_at = ? WHERE id = ?')
+    .run(nuovoStato, nuovoStato ? new Date().toISOString() : null, req.params.id);
+  res.json({ success: true, completato: nuovoStato });
+});
+
+// DELETE /api/admin/personal-todos/:id — elimina to-do
+router.delete('/personal-todos/:id', authAdmin, (req, res) => {
+  db.prepare('DELETE FROM personal_todos WHERE id = ?').run(req.params.id);
+  res.json({ success: true });
+});
+
 module.exports = router;

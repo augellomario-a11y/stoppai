@@ -597,14 +597,24 @@ router.post('/spam-report', (req, res) => {
 
 // POST /api/tester/aria-rating — salva valutazione trascrizione ARIA
 router.post('/aria-rating', (req, res) => {
-  const { msg_id, rating } = req.body;
-  if (!msg_id || !rating) return res.status(400).json({ error: 'msg_id e rating obbligatori' });
+  const { caller_number, rating } = req.body;
+  if (!caller_number || !rating) return res.status(400).json({ error: 'caller_number e rating obbligatori' });
   if (![100, 80, 60, 40, 20].includes(rating)) return res.status(400).json({ error: 'Rating non valido' });
 
   try {
-    const result = db.prepare('UPDATE aria_messaggi SET accuracy_rating = ? WHERE id = ?').run(rating, msg_id);
-    console.log('[ARIA] Rating %d%% per msg_id=%d (changes: %d)', rating, msg_id, result.changes);
-    res.json({ success: true, changes: result.changes });
+    // Normalizza: ultime 10 cifre
+    const norm = caller_number.replace(/[^0-9]/g, '').slice(-10);
+    // Aggiorna l'ultimo messaggio di quel numero
+    const msg = db.prepare(
+      "SELECT id FROM aria_messaggi WHERE caller_number LIKE ? ORDER BY id DESC LIMIT 1"
+    ).get('%' + norm);
+    if (!msg) {
+      console.log('[ARIA] Nessun messaggio trovato per %s (norm: %s)', caller_number, norm);
+      return res.json({ success: false, error: 'messaggio non trovato' });
+    }
+    db.prepare('UPDATE aria_messaggi SET accuracy_rating = ? WHERE id = ?').run(rating, msg.id);
+    console.log('[ARIA] Rating %d%% per caller=%s -> msg_id=%d', rating, norm, msg.id);
+    res.json({ success: true, msg_id: msg.id });
   } catch (e) {
     res.status(500).json({ error: e.message });
   }

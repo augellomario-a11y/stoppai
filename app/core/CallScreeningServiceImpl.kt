@@ -60,20 +60,31 @@ class CallScreeningServiceImpl : CallScreeningService() {
         val sAttivo = prefs.getBoolean("sms_risposta_attivo", false)
         val cEsteri = prefs.getBoolean("consenti_esteri", false)
 
-        // Carica whitelist patterns dal DB locale
-        val whitelistPatterns = try {
-            val db = com.ifs.stoppai.db.StoppAiDatabase.getInstance(context)
-            db.whitelistDao().getAllSync().map { it.pattern }
-        } catch (e: Exception) { emptyList() }
+        // Carica whitelist patterns dal DB locale — SOLO se piano SHIELD
+        val piano = com.ifs.stoppai.core.PlanManager.getPianoCorrente(context)
+        val whitelistPatterns = if (piano == com.ifs.stoppai.core.PlanManager.SHIELD) {
+            try {
+                val db = com.ifs.stoppai.db.StoppAiDatabase.getInstance(context)
+                db.whitelistDao().getAllSync().map { it.pattern }
+            } catch (e: Exception) { emptyList() }
+        } else {
+            emptyList()
+        }
+
+        // Protezione totale solo da PRO in su
+        val pTotaleEffettivo = pTotale && (piano == com.ifs.stoppai.core.PlanManager.PRO || piano == com.ifs.stoppai.core.PlanManager.SHIELD)
 
         // Decisione (Il Cuore del Refactor)
         val decisione = ScreeningLogic.decidi(
             normalizedNumber, isContact, isPreferito,
-            pBase, pTotale, iPreferiti, sAttivo, tipo, cEsteri, whitelistPatterns
+            pBase, pTotaleEffettivo, iPreferiti, sAttivo, tipo, cEsteri, whitelistPatterns
         )
 
         Log.d("STOPPAI", "Numero: $normalizedNumber Tipo: $tipo")
         Log.d("STOPPAI", "Decisione: $decisione (Base:$pBase Tot:$pTotale Pref:$iPreferiti SMS:$sAttivo)")
+
+        // Se ci sono note precedenti per questo numero, mostra notifica
+        mostraNotificaNote(context, normalizedNumber)
 
         // Invia sempre il nome contatto al backend (se in rubrica)
         sendCallerNameToBackend(context, normalizedNumber)
@@ -158,6 +169,47 @@ class CallScreeningServiceImpl : CallScreeningService() {
             } catch (e: Exception) {
                 Log.e("STOPPAI", "Errore invio caller name: ${e.message}")
             }
+        }
+    }
+
+    /**
+     * Se il numero ha note da chiamate precedenti, mostra una notifica silenziosa
+     * così l'utente sa chi sta chiamando senza averlo in rubrica.
+     */
+    private fun mostraNotificaNote(context: Context, numero: String) {
+        try {
+            val norm = PhoneNumberUtils.normalizeNumber(numero)
+            if (norm.length < 5) return
+            val ultCifre = norm.takeLast(10)
+            val db = com.ifs.stoppai.db.StoppAiDatabase.getInstance(context)
+            val note = kotlinx.coroutines.runBlocking { db.callLogDao().getAllCallsSync() }
+                .filter { it.nota.isNotBlank() && it.phoneNumber.takeLast(10) == ultCifre }
+                .sortedByDescending { it.timestamp }
+                .distinctBy { it.nota }
+                .map { it.nota }
+
+            if (note.isEmpty()) return
+
+            // Usa lo stesso canale delle notifiche ARIA (già autorizzato)
+            val channelId = "aria_messaggi"
+            val manager = context.getSystemService(Context.NOTIFICATION_SERVICE) as android.app.NotificationManager
+
+            val testo = note.joinToString("\n• ", prefix = "• ")
+            val notifica = androidx.core.app.NotificationCompat.Builder(context, channelId)
+                .setSmallIcon(com.ifs.stoppai.R.drawable.ic_shield_logo)
+                .setContentTitle("📝 $numero")
+                .setContentText(note.first())
+                .setStyle(androidx.core.app.NotificationCompat.BigTextStyle().bigText(testo))
+                .setPriority(androidx.core.app.NotificationCompat.PRIORITY_HIGH)
+                .setAutoCancel(true)
+                .setSound(null)
+                .setVibrate(null)
+                .build()
+
+            manager.notify(numero.hashCode(), notifica)
+            Log.d("STOPPAI", "Notifica note mostrata per $numero: ${note.size} note")
+        } catch (e: Exception) {
+            Log.e("STOPPAI", "Errore notifica note: ${e.message}")
         }
     }
 

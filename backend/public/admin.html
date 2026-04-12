@@ -185,6 +185,7 @@ body{font-family:-apple-system,sans-serif;background:var(--bg);color:var(--bianc
       <div class="sb-nav">
         <div class="sb-item active" onclick="showView('dashboard')">📊 Dashboard</div>
         <div class="sb-item" onclick="showView('testers')">👥 Tester</div>
+        <div class="sb-item" onclick="showView('mytodo')">📝 La mia To-Do</div>
         <div class="sb-item" onclick="showView('broadcast')">📢 Comunicazioni</div>
         <div class="sb-item" onclick="showView('testitems')">🧪 Test TO-DO</div>
         <div class="sb-item" onclick="showView('referral')">🔗 Referral</div>
@@ -280,15 +281,16 @@ function stopAllViewPolls(){
 }
 function showView(v){
   stopChatPoll();stopAriaPoll();stopAllViewPolls();
-  document.querySelectorAll('.sb-item').forEach((el,i)=>{el.classList.toggle('active',['dashboard','testers','broadcast','testitems','referral','links'][i]===v)});
+  document.querySelectorAll('.sb-item').forEach((el,i)=>{el.classList.toggle('active',['dashboard','testers','mytodo','broadcast','testitems','referral','links'][i]===v)});
   currentTester=null;
   if(v==='dashboard'){loadDashboard();dashboardPollTimer=setInterval(loadDashboard,15000)}
   else if(v==='testers'){loadTesterList();testerListPollTimer=setInterval(loadTesterList,15000)}
+  else if(v==='mytodo')loadMyTodo();
   else if(v==='broadcast')loadBroadcast();
   else if(v==='testitems'){loadTestItems();testItemsPollTimer=setInterval(loadTestItems,20000)}
   else if(v==='referral')document.getElementById('viewContent').innerHTML='<p style="color:var(--grigio);padding:40px;text-align:center">Gestione Referral — in arrivo</p>';
   else if(v==='links')document.getElementById('viewContent').innerHTML='<p style="color:var(--grigio);padding:40px;text-align:center">Gestione Link e messaggi pericolosi — in arrivo</p>';
-  document.getElementById('viewTitle').textContent={dashboard:'Dashboard',testers:'Tester',broadcast:'Comunicazioni',testitems:'Test TO-DO (broadcast)',referral:'Referral',links:'Link pericolosi'}[v];
+  document.getElementById('viewTitle').textContent={dashboard:'Dashboard',testers:'Tester',mytodo:'La mia To-Do',broadcast:'Comunicazioni',testitems:'Test TO-DO (broadcast)',referral:'Referral',links:'Link pericolosi'}[v];
 }
 
 // --- DASHBOARD ---
@@ -354,6 +356,64 @@ async function loadDashboard(){
       ${ucData.recenti.length>0?`<div style="margin-top:12px;font-size:11px;color:var(--grigio)">Ultimi: ${ucData.recenti.slice(0,5).map(r=>`${r.nome||'?'} → ${r.feature}`).join(' · ')}</div>`:''}
       `:'<div style="color:var(--grigio);font-size:12px;font-style:italic;text-align:center;padding:10px">Nessun click registrato ancora.</div>'}
     </div>`;
+}
+
+// --- LA MIA TO-DO ---
+async function loadMyTodo(){
+  const todos=await(await fetch(API+'/personal-todos',{credentials:'include'})).json();
+  const pending=todos.filter(t=>!t.completato);
+  const done=todos.filter(t=>t.completato);
+  let h=`
+  <div style="max-width:600px">
+    <div style="display:flex;gap:8px;margin-bottom:20px">
+      <input id="newTodoInput" type="text" placeholder="Nuova attività..." style="flex:1;padding:12px;background:#1a1a24;border:1px solid var(--bordo);color:var(--bianco);border-radius:6px;font-size:14px" onkeydown="if(event.key==='Enter')addMyTodo()">
+      <button class="btn btn-oro" onclick="addMyTodo()">+ Aggiungi</button>
+    </div>`;
+  // Da fare
+  if(pending.length>0){
+    h+=`<div style="margin-bottom:16px;font-size:12px;color:var(--grigio);text-transform:uppercase;letter-spacing:0.1em">Da fare (${pending.length})</div>`;
+    pending.forEach(t=>{
+      h+=`<div style="display:flex;align-items:center;gap:10px;padding:10px 12px;background:var(--card);border:1px solid var(--bordo);border-radius:6px;margin-bottom:6px">
+        <input type="checkbox" onchange="toggleMyTodo(${t.id})" style="width:18px;height:18px;accent-color:var(--oro);cursor:pointer">
+        <span style="flex:1;font-size:14px;color:var(--bianco)">${t.testo}</span>
+        <span style="font-size:11px;color:var(--grigio)">${t.creato_at?t.creato_at.slice(0,10):''}</span>
+        <button onclick="deleteMyTodo(${t.id})" style="background:none;border:none;color:var(--rosso);cursor:pointer;font-size:16px" title="Elimina">✕</button>
+      </div>`;
+    });
+  } else {
+    h+=`<div style="text-align:center;color:var(--grigio);padding:20px;font-style:italic">Nessuna attività da fare 🎉</div>`;
+  }
+  // Completati
+  if(done.length>0){
+    h+=`<div style="margin-top:20px;margin-bottom:12px;font-size:12px;color:var(--grigio);text-transform:uppercase;letter-spacing:0.1em">Completate (${done.length})</div>`;
+    done.forEach(t=>{
+      h+=`<div style="display:flex;align-items:center;gap:10px;padding:10px 12px;background:var(--card);border:1px solid var(--bordo);border-radius:6px;margin-bottom:6px;opacity:0.6">
+        <input type="checkbox" checked onchange="toggleMyTodo(${t.id})" style="width:18px;height:18px;accent-color:var(--verde);cursor:pointer">
+        <span style="flex:1;font-size:14px;color:var(--grigio);text-decoration:line-through">${t.testo}</span>
+        <span style="font-size:11px;color:var(--grigio)">${t.completato_at?t.completato_at.slice(0,10):''}</span>
+        <button onclick="deleteMyTodo(${t.id})" style="background:none;border:none;color:var(--rosso);cursor:pointer;font-size:16px" title="Elimina">✕</button>
+      </div>`;
+    });
+  }
+  h+=`</div>`;
+  document.getElementById('viewContent').innerHTML=h;
+}
+async function addMyTodo(){
+  const inp=document.getElementById('newTodoInput');
+  const testo=inp.value.trim();
+  if(!testo)return;
+  await fetch(API+'/personal-todos',{method:'POST',headers:{'Content-Type':'application/json'},credentials:'include',body:JSON.stringify({testo})});
+  inp.value='';
+  loadMyTodo();
+}
+async function toggleMyTodo(id){
+  await fetch(API+'/personal-todos/'+id+'/toggle',{method:'POST',credentials:'include'});
+  loadMyTodo();
+}
+async function deleteMyTodo(id){
+  if(!confirm('Eliminare questa attività?'))return;
+  await fetch(API+'/personal-todos/'+id,{method:'DELETE',credentials:'include'});
+  loadMyTodo();
 }
 
 // --- TESTER LIST ---
@@ -445,7 +505,6 @@ async function openTester(id){
         <div class="tab active" onclick="switchTab('chat',${t.id})">💬 Chat</div>
         <div class="tab" onclick="switchTab('stats',${t.id})">📊 Statistiche</div>
         <div class="tab" onclick="switchTab('notes',${t.id})">📝 Note</div>
-        <div class="tab" onclick="switchTab('todos',${t.id})">✅ To-Do</div>
         <div class="tab" onclick="switchTab('aria',${t.id})">🎙️ ARIA</div>
       </div>
       <div class="tab-content" id="tabPanel"></div>

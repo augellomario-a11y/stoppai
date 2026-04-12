@@ -276,6 +276,17 @@ db.exec(`
   CREATE INDEX IF NOT EXISTS idx_test_items_comments_item ON test_items_comments(item_id);
 `);
 
+// TO-DO personale Super Admin (non legata ai tester)
+db.exec(`
+  CREATE TABLE IF NOT EXISTS personal_todos (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    testo TEXT NOT NULL,
+    completato INTEGER DEFAULT 0,
+    creato_at TEXT DEFAULT (datetime('now')),
+    completato_at TEXT
+  );
+`);
+
 // Tracking click sui lucchetti (feature bloccate) — statistiche conversione
 db.exec(`
   CREATE TABLE IF NOT EXISTS upgrade_clicks (
