@@ -90,7 +90,7 @@
             android:layout_marginBottom="12dp">
 
             <TextView android:text="🌍  NUMERI ESTERI  •  SHIELD" android:textStyle="bold" android:textSize="13sp" android:textColor="#c8a96e" android:letterSpacing="0.1" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginBottom="8dp"/>
-            <TextView android:text="Per impostazione predefinita, i numeri internazionali sconosciuti vengono bloccati come tutti gli altri.\n\nNelle Impostazioni puoi:\n• Consentire tutti i numeri esteri (switch ON)\n• White list prefissi (in arrivo): potrai consentire solo i paesi che scegli tu (es. +44 Regno Unito, +49 Germania) inserendo i prefissi dalla sezione dedicata" android:textSize="14sp" android:textColor="#333333" android:lineSpacingExtra="4dp" android:layout_width="match_parent" android:layout_height="wrap_content"/>
+            <TextView android:text="Per impostazione predefinita, i numeri internazionali sconosciuti vengono silenziati come tutti gli altri. Le chiamate non vengono mai bloccate: vengono solo silenziate. Nulla si perde.\n\nNelle Impostazioni puoi:\n• Consentire tutti i numeri esteri (switch ON): squilleranno normalmente\n• White list: consenti solo i paesi o numeri che scegli tu (es. +44 Regno Unito, +356 Malta) dalla sezione dedicata" android:textSize="14sp" android:textColor="#333333" android:lineSpacingExtra="4dp" android:layout_width="match_parent" android:layout_height="wrap_content"/>
         </LinearLayout>
 
         <!-- SMS RISPOSTA RAPIDA -->
@@ -145,8 +145,39 @@
             <TextView android:text="Nelle Impostazioni → Gestisci segreteria ARIA puoi:\n\n• Verificare le deviazioni attive — controlla che ARIA sia configurata correttamente sul tuo operatore\n• Attivare le deviazioni singolarmente o tutte insieme — passo-passo, con conferma visiva\n• Disattivare tutte le deviazioni — ripristina la segreteria del tuo operatore\n\nSe cambi operatore o SIM, devi riconfigurare le deviazioni." android:textSize="14sp" android:textColor="#333333" android:lineSpacingExtra="4dp" android:layout_width="match_parent" android:layout_height="wrap_content"/>
         </LinearLayout>
 
+        <!-- COME FUNZIONA L'UPGRADE -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:background="@drawable/card_settings_bg"
+            android:padding="16dp"
+            android:layout_marginBottom="12dp">
+
+            <TextView android:text="⬆️  COME FUNZIONA L'UPGRADE" android:textStyle="bold" android:textSize="13sp" android:textColor="#c8a96e" android:letterSpacing="0.1" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginBottom="8dp"/>
+            <TextView android:text="StoppAI parte con la Versione Base (FREE). Per sbloccare le funzionalità avanzate, segui il percorso di upgrade:\n\n1. Versione Base (FREE)\nUsa l'app per 5 giorni. Prova la protezione base, gli SMS automatici e le 3 chiamate mensili con ARIA.\n\n2. Upgrade a PRO\nDopo 5 giorni di utilizzo, il pulsante 'Passa a PRO' diventa attivo. Sblocchi: protezione totale, ARIA illimitato, 8 voci preset, player audio e chat supporto.\n\n3. Upgrade a SHIELD\nDopo 5 giorni di PRO, il pulsante 'Passa a SHIELD' diventa attivo. Sblocchi: messaggio personale registrato, filtro esteri, white list e tutto illimitato.\n\nNon è possibile saltare da FREE a SHIELD: ogni passaggio serve a conoscere le funzionalità del livello attuale prima di passare al successivo." android:textSize="14sp" android:textColor="#333333" android:lineSpacingExtra="4dp" android:layout_width="match_parent" android:layout_height="wrap_content"/>
+        </LinearLayout>
+
+        <!-- WHITE LIST -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:background="@drawable/card_settings_bg"
+            android:padding="16dp"
+            android:layout_marginBottom="12dp">
+
+            <TextView android:text="📋  WHITE LIST  •  SHIELD" android:textStyle="bold" android:textSize="13sp" android:textColor="#c8a96e" android:letterSpacing="0.1" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginBottom="8dp"/>
+            <TextView android:text="La White List ti permette di far squillare numeri che normalmente verrebbero silenziati. Puoi inserire:\n\n• Prefissi esteri: [Malta] +356*\nTutte le chiamate da Malta squilleranno\n\n• Prefissi italiani: [Italia-Roma] +3906*\nTutte le chiamate da Roma squilleranno\n\n• Numeri esatti: [Corriere] +39066751384\nSolo quel numero specifico squillerà\n\nIl simbolo * alla fine significa 'tutti i numeri che iniziano con questo prefisso'.\n\nSenza * il numero deve corrispondere esattamente.\n\nLa gestisci dalle Impostazioni." android:textSize="14sp" android:textColor="#333333" android:lineSpacingExtra="4dp" android:layout_width="match_parent" android:layout_height="wrap_content"/>
+        </LinearLayout>
+
         <!-- SEPARATORE PIANI -->
-        <View android:layout_width="match_parent" android:layout_height="2dp" android:background="#c8a96e" android:layout_marginVertical="16dp" />
+        <View
+            android:id="@+id/pricing_section_top"
+            android:layout_width="match_parent"
+            android:layout_height="2dp"
+            android:background="#c8a96e"
+            android:layout_marginVertical="16dp" />
 
         <!-- TABELLA PIANI -->
         <TextView
@@ -216,7 +247,7 @@
 
             <TextView android:text="SHIELD" android:textStyle="bold" android:textSize="18sp" android:textColor="#c8a96e" android:gravity="center" android:layout_width="match_parent" android:layout_height="wrap_content"/>
             <TextView android:text="€4,99/mese • €29/anno" android:textSize="16sp" android:textStyle="bold" android:textColor="#c8a96e" android:gravity="center" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginBottom="8dp"/>
-            <TextView android:text="✓ Tutto di PRO +\n✓ Messaggio personale registrato\n✓ Filtro numeri esteri\n✓ White list prefissi\n✓ Player audio illimitato\n✓ Protezione completa" android:textSize="13sp" android:textColor="#666666" android:lineSpacingExtra="4dp" android:layout_width="match_parent" android:layout_height="wrap_content"/>
+            <TextView android:text="✓ Tutto di PRO +\n✓ Messaggio personale registrato\n✓ White list numeri/prefissi\n✓ Player audio illimitato\n✓ Protezione completa" android:textSize="13sp" android:textColor="#666666" android:lineSpacingExtra="4dp" android:layout_width="match_parent" android:layout_height="wrap_content"/>
 
             <Button
                 android:id="@+id/btn_upgrade_shield"

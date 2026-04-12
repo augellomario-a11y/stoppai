@@ -109,11 +109,11 @@ router.post('/iscriviti', async (req, res) => {
   });
 });
 
-// GET /api/tester/piano/:email — l'app chiede che piano ha
+// GET /api/tester/piano/:email — l'app chiede che piano ha (con check scadenza)
 router.get('/piano/:email', (req, res) => {
   const email = decodeURIComponent(req.params.email);
   const tester = db.prepare(
-    "SELECT piano, stato FROM testers WHERE email = ?"
+    "SELECT piano, stato, piano_scadenza, is_admin FROM testers WHERE email = ?"
   ).get(email);
 
   if (!tester) {
@@ -122,7 +122,21 @@ router.get('/piano/:email', (req, res) => {
   if (tester.stato !== 'accettato') {
     return res.json({ piano: 'free', stato: tester.stato });
   }
-  res.json({ piano: tester.piano, stato: tester.stato });
+
+  // Verifica scadenza piano
+  let piano = tester.piano || 'free';
+  if (tester.piano_scadenza && piano !== 'free') {
+    const scadenza = new Date(tester.piano_scadenza);
+    if (scadenza < new Date()) {
+      // Piano scaduto → downgrade a free
+      db.prepare('UPDATE testers SET piano = ?, piano_scadenza = NULL WHERE email = ?').run('free', email);
+      db.prepare('INSERT INTO piano_log (tester_id, piano_precedente, piano_nuovo) VALUES ((SELECT id FROM testers WHERE email = ?), ?, ?)').run(email, piano, 'free');
+      console.log('[PIANO] Scaduto per %s: %s → free', email, piano);
+      piano = 'free';
+    }
+  }
+
+  res.json({ piano, stato: tester.stato, scadenza: tester.piano_scadenza || null, is_admin: tester.is_admin === 1 });
 });
 
 // GET /api/tester/:id/messaggi — chat messaggi per l'app
@@ -514,6 +528,47 @@ router.get('/asterisk-message/:number', (req, res) => {
   res.type('text/plain').send(filePath);
 });
 
+// POST /api/tester/upgrade — upgrade piano beta (automatico, senza pagamento)
+router.post('/upgrade', async (req, res) => {
+  const { tester_id, email, piano } = req.body;
+  if (!piano || !['pro', 'shield'].includes(piano)) {
+    return res.status(400).json({ error: 'Piano non valido' });
+  }
+
+  let id = tester_id;
+  if (!id && email) {
+    const t = db.prepare("SELECT id FROM testers WHERE LOWER(email) = ?").get(email.toLowerCase().trim());
+    if (t) id = t.id;
+  }
+  if (!id) return res.status(404).json({ error: 'Tester non trovato' });
+
+  const tester = db.prepare('SELECT nome, cognome, email, piano FROM testers WHERE id = ?').get(id);
+  if (!tester) return res.status(404).json({ error: 'Tester non trovato' });
+
+  const pianoVecchio = tester.piano || 'free';
+  db.prepare('UPDATE testers SET piano = ? WHERE id = ?').run(piano, id);
+  db.prepare('INSERT INTO piano_log (tester_id, piano_precedente, piano_nuovo) VALUES (?, ?, ?)').run(id, pianoVecchio, piano);
+
+  console.log('[UPGRADE] tester_id=%d %s %s: %s → %s', id, tester.nome, tester.cognome, pianoVecchio, piano);
+
+  // Email notifica admin
+  if (resend) {
+    try {
+      const adminEmail = process.env.ADMIN_EMAIL || 'info@internetfullservice.it';
+      await resend.emails.send({
+        from: process.env.FROM_EMAIL,
+        to: adminEmail,
+        subject: '⬆️ Upgrade ' + piano.toUpperCase() + ' — ' + tester.nome + ' ' + tester.cognome,
+        html: '<div style="font-family:sans-serif;padding:20px"><h2 style="color:#c8a96e">Upgrade piano beta</h2><p><strong>' + tester.nome + ' ' + tester.cognome + '</strong> (' + tester.email + ')</p><p>Da <strong>' + pianoVecchio.toUpperCase() + '</strong> a <strong>' + piano.toUpperCase() + '</strong></p></div>'
+      });
+    } catch (err) {
+      console.error('[UPGRADE] Errore email admin:', err.message);
+    }
+  }
+
+  res.json({ success: true, piano });
+});
+
 // POST /api/tester/spam-report — l'app segnala un numero come spam
 router.post('/spam-report', (req, res) => {
   const { caller_number } = req.body;
@@ -538,6 +593,34 @@ router.post('/spam-report', (req, res) => {
 
   console.log('[SPAM] Segnalato: %s (norm: %s)', caller_number, norm);
   res.json({ success: true });
+});
+
+// POST /api/tester/aria-rating — salva valutazione trascrizione ARIA
+router.post('/aria-rating', (req, res) => {
+  const { msg_id, rating } = req.body;
+  if (!msg_id || !rating) return res.status(400).json({ error: 'msg_id e rating obbligatori' });
+  if (![100, 80, 60, 40, 20].includes(rating)) return res.status(400).json({ error: 'Rating non valido' });
+
+  try {
+    const result = db.prepare('UPDATE aria_messaggi SET accuracy_rating = ? WHERE id = ?').run(rating, msg_id);
+    console.log('[ARIA] Rating %d%% per msg_id=%d (changes: %d)', rating, msg_id, result.changes);
+    res.json({ success: true, changes: result.changes });
+  } catch (e) {
+    res.status(500).json({ error: e.message });
+  }
+});
+
+// POST /api/tester/upgrade-click — tracking click su feature bloccate (lucchetti)
+router.post('/upgrade-click', (req, res) => {
+  const { tester_id, feature } = req.body;
+  if (!tester_id || !feature) return res.status(400).json({ error: 'tester_id e feature obbligatori' });
+
+  try {
+    db.prepare("INSERT INTO upgrade_clicks (tester_id, feature) VALUES (?, ?)").run(tester_id, feature);
+    res.json({ success: true });
+  } catch (e) {
+    res.status(500).json({ error: e.message });
+  }
 });
 
 module.exports = router;

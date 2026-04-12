@@ -24,8 +24,14 @@ object ScreeningLogic {
         includiPreferiti: Boolean,
         smsAttivo: Boolean,
         tipoNumero: String,
-        consentiEsteri: Boolean = false
+        consentiEsteri: Boolean = false,
+        whitelist: List<String> = emptyList()
     ): Decisione {
+
+        // 0. WHITE LIST — se il numero matcha un pattern in whitelist, squilla SEMPRE
+        if (whitelist.isNotEmpty() && isInWhitelist(numero, whitelist)) {
+            return Decisione.SQUILLA
+        }
 
         // 1. TUTTO SPENTO -> SQUILLA SEMPRE
         if (!protezioneBase && !protezioneTotale) {
@@ -43,7 +49,7 @@ object ScreeningLogic {
             return Decisione.BLOCCA_E_SMS
         }
 
-        // 4. Numeri esteri sconosciuti
+        // 4. Numeri esteri sconosciuti (silenziati, non bloccati)
         if (tipoNumero == "ESTERO" && !isContact) {
             // Se consenti esteri ON -> SQUILLA, altrimenti -> ARIA
             return if (consentiEsteri) Decisione.SQUILLA else Decisione.ARIA
@@ -62,5 +68,23 @@ object ScreeningLogic {
 
         // 6. PROTEZIONE BASE ON — sconosciuto italiano -> ARIA
         return Decisione.ARIA
+    }
+
+    /**
+     * Verifica se un numero corrisponde a un pattern nella whitelist.
+     * Pattern con * finale: match prefisso (es. "+356*" matcha "+35612345")
+     * Pattern senza *: match esatto
+     */
+    private fun isInWhitelist(numero: String, patterns: List<String>): Boolean {
+        if (numero.isBlank()) return false
+        val numNorm = numero.replace(" ", "").replace("-", "")
+        return patterns.any { pattern ->
+            if (pattern.endsWith("*")) {
+                val prefix = pattern.dropLast(1)
+                numNorm.startsWith(prefix)
+            } else {
+                numNorm == pattern
+            }
+        }
     }
 }

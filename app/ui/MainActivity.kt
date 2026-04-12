@@ -53,6 +53,9 @@ class MainActivity : AppCompatActivity() {
             }
         }
 
+        // Sync piano dal backend (l'admin può cambiarlo dal CRM)
+        sincronizzaPianoDalBackend()
+
         val bottomNav = findViewById<com.google.android.material.bottomnavigation.BottomNavigationView>(R.id.bottom_navigation)
         bottomNav.setOnItemSelectedListener { item ->
             when (item.itemId) {
@@ -100,6 +103,43 @@ class MainActivity : AppCompatActivity() {
     /**
      * Forza l'invio del token FCM al server Hetzner all'avvio
      */
+    private fun sincronizzaPianoDalBackend() {
+        val prefs = getSharedPreferences("stoppai_prefs", Context.MODE_PRIVATE)
+        val email = prefs.getString("tester_email", "") ?: ""
+        if (email.isBlank()) return
+
+        CoroutineScope(Dispatchers.IO).launch {
+            try {
+                val url = java.net.URL("${AriaFcmService.SERVER_URL}/api/tester/piano/${java.net.URLEncoder.encode(email, "UTF-8")}")
+                val conn = url.openConnection() as java.net.HttpURLConnection
+                conn.connectTimeout = 5000
+                conn.readTimeout = 5000
+                if (conn.responseCode == 200) {
+                    val body = conn.inputStream.bufferedReader().readText()
+                    val json = org.json.JSONObject(body)
+                    val pianoServer = json.optString("piano", "free")
+                    val isAdmin = json.optBoolean("is_admin", false)
+                    val pianoLocale = prefs.getString("tester_piano", "free")
+
+                    // Salva flag admin
+                    prefs.edit().putBoolean("is_admin", isAdmin).apply()
+
+                    if (pianoServer != pianoLocale) {
+                        prefs.edit().putString("tester_piano", pianoServer).apply()
+                        android.util.Log.d("STOPPAI_SYNC", "Piano aggiornato dal server: $pianoLocale → $pianoServer")
+                        // Se upgrade a PRO, salva timestamp per conteggio 5gg verso SHIELD
+                        if (pianoServer == "pro" && pianoLocale != "pro") {
+                            prefs.edit().putLong("pro_activation_timestamp", System.currentTimeMillis()).apply()
+                        }
+                    }
+                }
+                conn.disconnect()
+            } catch (e: Exception) {
+                android.util.Log.e("STOPPAI_SYNC", "Errore sync piano: ${e.message}")
+            }
+        }
+    }
+
     private fun inviaTokenAlServerManuale(token: String) {
         CoroutineScope(Dispatchers.IO).launch {
             try {

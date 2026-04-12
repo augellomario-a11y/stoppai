@@ -319,42 +319,22 @@ class SettingsFragment : Fragment(R.layout.fragment_settings) {
         }
     }
 
-    // ===== NUMERI ESTERI + MESSAGGIO ARIA (con lock) =====
+    // ===== WHITE LIST + MESSAGGIO ARIA (con lock) =====
     private fun setupAdvancedFeatures(view: View) {
         val ctx = requireContext()
         val prefs = ctx.getSharedPreferences("stoppai_prefs", Context.MODE_PRIVATE)
 
-        // --- Filtro numeri esteri (SHIELD) ---
-        val lockFiltro = view.findViewById<android.widget.ImageView>(R.id.lock_filtro_esteri)
-        val switchEsteri = view.findViewById<android.widget.Switch>(R.id.switch_consenti_esteri)
-        val disponibileFiltro = com.ifs.stoppai.core.PlanManager.isDisponibile(ctx, com.ifs.stoppai.core.PlanManager.Feature.FILTRO_ESTERI)
-
-        if (disponibileFiltro) {
-            lockFiltro.setImageResource(R.drawable.ic_lock_open)
-            switchEsteri.isChecked = prefs.getBoolean("consenti_esteri", false)
-            switchEsteri.setOnCheckedChangeListener { _, isChecked ->
-                prefs.edit().putBoolean("consenti_esteri", isChecked).apply()
-                android.widget.Toast.makeText(ctx,
-                    if (isChecked) "Numeri esteri consentiti" else "Numeri esteri bloccati",
-                    android.widget.Toast.LENGTH_SHORT).show()
-            }
-        } else {
-            switchEsteri.isEnabled = false
-            switchEsteri.setOnClickListener {
-                com.ifs.stoppai.core.UpgradeDialog.show(ctx, com.ifs.stoppai.core.PlanManager.Feature.FILTRO_ESTERI)
-            }
-        }
-
-        // --- White list prefissi esteri (SHIELD) ---
+        // --- White list numeri/prefissi (SHIELD) ---
         val lockWhitelist = view.findViewById<android.widget.ImageView>(R.id.lock_whitelist_esteri)
-        val rowWhitelist = view.findViewById<View>(R.id.row_whitelist_esteri)
-        if (com.ifs.stoppai.core.PlanManager.isDisponibile(ctx, com.ifs.stoppai.core.PlanManager.Feature.WHITELIST_ESTERI)) {
+        val disponibileWL = com.ifs.stoppai.core.PlanManager.isDisponibile(ctx, com.ifs.stoppai.core.PlanManager.Feature.WHITELIST_ESTERI)
+        val btnAddWL = view.findViewById<Button>(R.id.btn_add_whitelist)
+
+        if (disponibileWL) {
             lockWhitelist.setImageResource(R.drawable.ic_lock_open)
-        }
-        rowWhitelist.setOnClickListener {
-            if (com.ifs.stoppai.core.PlanManager.isDisponibile(ctx, com.ifs.stoppai.core.PlanManager.Feature.WHITELIST_ESTERI)) {
-                android.widget.Toast.makeText(ctx, "White list prefissi — in arrivo", android.widget.Toast.LENGTH_SHORT).show()
-            } else {
+            caricaWhitelist(view)
+            btnAddWL.setOnClickListener { mostraDialogAggiungiWhitelist(view) }
+        } else {
+            btnAddWL.setOnClickListener {
                 com.ifs.stoppai.core.UpgradeDialog.show(ctx, com.ifs.stoppai.core.PlanManager.Feature.WHITELIST_ESTERI)
             }
         }
@@ -369,6 +349,12 @@ class SettingsFragment : Fragment(R.layout.fragment_settings) {
         }
 
         view.findViewById<Button>(R.id.btn_configura_aria_msg).setOnClickListener {
+            // Se FREE, mostra direttamente il popup upgrade (non ha accesso a nessuna opzione)
+            val haPreset = com.ifs.stoppai.core.PlanManager.isDisponibile(ctx, com.ifs.stoppai.core.PlanManager.Feature.ARIA_PRESET)
+            if (!haPreset) {
+                com.ifs.stoppai.core.UpgradeDialog.show(ctx, com.ifs.stoppai.core.PlanManager.Feature.ARIA_PRESET)
+                return@setOnClickListener
+            }
             val bs = AriaConfigBottomSheet()
             bs.onSaveListener = { label ->
                 txtAriaAttuale.text = "Messaggio attuale: $label"
@@ -423,6 +409,114 @@ class SettingsFragment : Fragment(R.layout.fragment_settings) {
                 }
             }
             .setNegativeButton("Chiudi", null)
+            .show()
+    }
+
+    // ===== WHITE LIST =====
+    private fun caricaWhitelist(view: View) {
+        val container = view.findViewById<android.widget.LinearLayout>(R.id.whitelist_entries)
+        container.removeAllViews()
+
+        lifecycleScope.launch(Dispatchers.IO) {
+            val db = com.ifs.stoppai.db.StoppAiDatabase.getInstance(requireContext())
+            val entries = db.whitelistDao().getAll()
+            withContext(Dispatchers.Main) {
+                if (entries.isEmpty()) {
+                    val empty = TextView(requireContext()).apply {
+                        text = "Nessun numero in white list"
+                        textSize = 12f
+                        setTextColor(0xFF999999.toInt())
+                        setPadding(0, 4, 0, 4)
+                    }
+                    container.addView(empty)
+                } else {
+                    entries.forEach { entry ->
+                        val row = android.widget.LinearLayout(requireContext()).apply {
+                            orientation = android.widget.LinearLayout.HORIZONTAL
+                            gravity = android.view.Gravity.CENTER_VERTICAL
+                            setPadding(0, 6, 0, 6)
+                        }
+                        val txt = TextView(requireContext()).apply {
+                            text = "[${entry.label}] ${entry.pattern}"
+                            textSize = 13f
+                            setTextColor(0xFF333333.toInt())
+                            layoutParams = android.widget.LinearLayout.LayoutParams(0, android.widget.LinearLayout.LayoutParams.WRAP_CONTENT, 1f)
+                        }
+                        val btnDel = TextView(requireContext()).apply {
+                            text = "✕"
+                            textSize = 18f
+                            setTextColor(0xFFCC0000.toInt())
+                            setPadding(16, 0, 0, 0)
+                            setOnClickListener {
+                                lifecycleScope.launch(Dispatchers.IO) {
+                                    db.whitelistDao().deleteById(entry.id)
+                                    withContext(Dispatchers.Main) { caricaWhitelist(view) }
+                                }
+                            }
+                        }
+                        row.addView(txt)
+                        row.addView(btnDel)
+                        container.addView(row)
+                    }
+                }
+            }
+        }
+    }
+
+    private fun mostraDialogAggiungiWhitelist(view: View) {
+        val ctx = requireContext()
+        val layout = android.widget.LinearLayout(ctx).apply {
+            orientation = android.widget.LinearLayout.VERTICAL
+            setPadding(48, 32, 48, 16)
+        }
+
+        val txtHelp = TextView(ctx).apply {
+            text = "Formato:\n[Etichetta] +prefisso*  oppure  numero esatto\n\nEsempi:\n• +356*  → tutte le chiamate da Malta\n• +3906*  → tutte le chiamate da Roma\n• +39066751384  → solo quel numero"
+            textSize = 12f
+            setTextColor(0xFF666666.toInt())
+            setLineSpacing(4f, 1f)
+        }
+        layout.addView(txtHelp)
+
+        val edtLabel = android.widget.EditText(ctx).apply {
+            hint = "Etichetta (es: Malta, Roma, Corriere)"
+            textSize = 14f
+            val lp = android.widget.LinearLayout.LayoutParams(
+                android.widget.LinearLayout.LayoutParams.MATCH_PARENT,
+                android.widget.LinearLayout.LayoutParams.WRAP_CONTENT
+            )
+            lp.topMargin = 16
+            layoutParams = lp
+        }
+        layout.addView(edtLabel)
+
+        val edtPattern = android.widget.EditText(ctx).apply {
+            hint = "Numero o prefisso (es: +356* o +39066751384)"
+            textSize = 14f
+            inputType = android.text.InputType.TYPE_CLASS_PHONE
+        }
+        layout.addView(edtPattern)
+
+        androidx.appcompat.app.AlertDialog.Builder(ctx)
+            .setTitle("Aggiungi alla White List")
+            .setView(layout)
+            .setPositiveButton("Aggiungi") { _, _ ->
+                val label = edtLabel.text.toString().trim()
+                val pattern = edtPattern.text.toString().trim()
+                if (label.isBlank() || pattern.isBlank()) {
+                    android.widget.Toast.makeText(ctx, "Compila entrambi i campi", android.widget.Toast.LENGTH_SHORT).show()
+                    return@setPositiveButton
+                }
+                lifecycleScope.launch(Dispatchers.IO) {
+                    val db = com.ifs.stoppai.db.StoppAiDatabase.getInstance(ctx)
+                    db.whitelistDao().insert(com.ifs.stoppai.db.WhitelistEntry(label = label, pattern = pattern))
+                    withContext(Dispatchers.Main) {
+                        android.widget.Toast.makeText(ctx, "Aggiunto: [$label] $pattern", android.widget.Toast.LENGTH_SHORT).show()
+                        caricaWhitelist(view)
+                    }
+                }
+            }
+            .setNegativeButton("Annulla", null)
             .show()
     }
 

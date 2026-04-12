@@ -147,6 +147,27 @@ router.get('/aria-accuracy', authAdmin, (req, res) => {
   });
 });
 
+// GET /api/admin/upgrade-clicks — statistiche click sui lucchetti (conversione)
+router.get('/upgrade-clicks', authAdmin, (req, res) => {
+  const perFeature = db.prepare(`
+    SELECT feature, COUNT(*) AS clicks, COUNT(DISTINCT tester_id) AS tester_unici
+    FROM upgrade_clicks GROUP BY feature ORDER BY clicks DESC
+  `).all();
+
+  const totale = db.prepare('SELECT COUNT(*) AS n FROM upgrade_clicks').get().n;
+  const ultimi7gg = db.prepare(
+    "SELECT COUNT(*) AS n FROM upgrade_clicks WHERE timestamp > datetime('now', '-7 days')"
+  ).get().n;
+
+  const recenti = db.prepare(`
+    SELECT uc.feature, t.nome, t.cognome, uc.timestamp
+    FROM upgrade_clicks uc LEFT JOIN testers t ON uc.tester_id = t.id
+    ORDER BY uc.timestamp DESC LIMIT 20
+  `).all();
+
+  res.json({ totale, ultimi7gg, per_feature: perFeature, recenti });
+});
+
 // GET /api/admin/stats — contatori rapidi
 router.get('/stats', authAdmin, (req, res) => {
   const totale = db.prepare('SELECT COUNT(*) as n FROM testers').get().n;
@@ -358,7 +379,7 @@ function emailCambioPiano(nome, pianoVecchio, pianoNuovo) {
 
 // POST /api/admin/testers/:id/piano — cambia piano + log
 router.post('/testers/:id/piano', authAdmin, async (req, res) => {
-  const { piano } = req.body;
+  const { piano, scadenza } = req.body;
   if (!['free', 'pro', 'shield'].includes(piano)) {
     return res.status(400).json({ error: 'Piano non valido' });
   }
@@ -372,8 +393,8 @@ router.post('/testers/:id/piano', authAdmin, async (req, res) => {
     db.prepare('INSERT INTO piano_log (tester_id, piano_precedente, piano_nuovo) VALUES (?, ?, ?)')
       .run(req.params.id, vecchio, piano);
   }
-  db.prepare('UPDATE testers SET piano = ? WHERE id = ?')
-    .run(piano, req.params.id);
+  db.prepare('UPDATE testers SET piano = ?, piano_scadenza = ? WHERE id = ?')
+    .run(piano, scadenza || null, req.params.id);
 
   // Invia email solo se il piano è davvero cambiato
   if (cambiato && resend) {
@@ -390,6 +411,14 @@ router.post('/testers/:id/piano', authAdmin, async (req, res) => {
   }
 
   res.json({ success: true, cambiato });
+});
+
+// POST /api/admin/testers/:id/admin — toggle flag admin (bypass limiti upgrade)
+router.post('/testers/:id/admin', authAdmin, (req, res) => {
+  const { is_admin } = req.body;
+  db.prepare('UPDATE testers SET is_admin = ? WHERE id = ?').run(is_admin ? 1 : 0, req.params.id);
+  console.log('[ADMIN] Tester %s is_admin → %s', req.params.id, is_admin ? 'SI' : 'NO');
+  res.json({ success: true });
 });
 
 // POST /api/admin/testers/:id/note — aggiorna note

@@ -173,6 +173,20 @@ try {
   db.exec("ALTER TABLE testers ADD COLUMN fcm_token TEXT");
 }
 
+// Migrazione: aggiunge colonna is_admin a testers (bypass limiti temporali upgrade)
+try {
+  db.prepare("SELECT is_admin FROM testers LIMIT 1").get();
+} catch (e) {
+  db.exec("ALTER TABLE testers ADD COLUMN is_admin INTEGER DEFAULT 0");
+}
+
+// Migrazione: aggiunge colonna piano_scadenza a testers
+try {
+  db.prepare("SELECT piano_scadenza FROM testers LIMIT 1").get();
+} catch (e) {
+  db.exec("ALTER TABLE testers ADD COLUMN piano_scadenza TEXT");
+}
+
 // Database numeri spam (crowd-sourced dai tester)
 db.exec(`
   CREATE TABLE IF NOT EXISTS spam_numbers (
@@ -260,6 +274,17 @@ db.exec(`
     FOREIGN KEY (item_id) REFERENCES test_items(id) ON DELETE CASCADE
   );
   CREATE INDEX IF NOT EXISTS idx_test_items_comments_item ON test_items_comments(item_id);
+`);
+
+// Tracking click sui lucchetti (feature bloccate) — statistiche conversione
+db.exec(`
+  CREATE TABLE IF NOT EXISTS upgrade_clicks (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    tester_id INTEGER NOT NULL,
+    feature TEXT NOT NULL,
+    timestamp TEXT DEFAULT (datetime('now'))
+  );
+  CREATE INDEX IF NOT EXISTS idx_upgrade_clicks_feature ON upgrade_clicks(feature);
 `);
 
 module.exports = db;

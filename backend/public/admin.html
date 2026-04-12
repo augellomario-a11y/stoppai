@@ -181,6 +181,7 @@ body{font-family:-apple-system,sans-serif;background:var(--bg);color:var(--bianc
   <div class="layout">
     <div class="sidebar">
       <div class="sb-logo">STOPP<span>AI</span></div>
+      <div style="text-align:center;padding:4px 12px;margin:-4px 12px 8px;background:linear-gradient(135deg,#c8a96e,#b8944e);border-radius:6px;font-size:11px;font-weight:700;color:#1a1a2e;letter-spacing:0.1em">🛡️ SUPER ADMIN</div>
       <div class="sb-nav">
         <div class="sb-item active" onclick="showView('dashboard')">📊 Dashboard</div>
         <div class="sb-item" onclick="showView('testers')">👥 Tester</div>
@@ -189,7 +190,7 @@ body{font-family:-apple-system,sans-serif;background:var(--bg);color:var(--bianc
         <div class="sb-item" onclick="showView('referral')">🔗 Referral</div>
         <div class="sb-item" onclick="showView('links')">🛡️ Link pericolosi</div>
       </div>
-      <div class="sb-footer">StoppAI Admin v1.0</div>
+      <div class="sb-footer">StoppAI Super Admin v1.1</div>
     </div>
     <div class="main">
       <div class="topbar">
@@ -294,6 +295,8 @@ function showView(v){
 async function loadDashboard(){
   const s=await(await fetch(API+'/stats')).json();
   const acc=await(await fetch(API+'/aria-accuracy')).json();
+  let ucData={totale:0,ultimi7gg:0,per_feature:[],recenti:[]};
+  try{ucData=await(await fetch(API+'/upgrade-clicks')).json()}catch(e){}
   const avg=acc.avg_rating!==null?acc.avg_rating+'%':'—';
   const color=acc.avg_rating===null?'var(--grigio)':(acc.avg_rating>=80?'var(--verde)':(acc.avg_rating>=60?'var(--oro)':'var(--rosso)'));
   const max=Math.max(1,acc.distribution[100],acc.distribution[80],acc.distribution[60],acc.distribution[40],acc.distribution[20]);
@@ -333,6 +336,23 @@ async function loadDashboard(){
         ${bar(40,acc.distribution[40],'#ffb86c')}
         ${bar(20,acc.distribution[20],'var(--rosso)')}
       </div>`:'<div style="color:var(--grigio);font-size:12px;font-style:italic;text-align:center;padding:10px">Nessuna valutazione ancora. I tester possono votare la fedeltà delle trascrizioni dalla loro dashboard.</div>'}
+    </div>
+
+    <div style="margin-top:16px;background:var(--card);border:1px solid var(--bordo);border-radius:8px;padding:20px;max-width:560px">
+      <h3 style="color:var(--oro);font-size:13px;margin-bottom:12px;text-transform:uppercase;letter-spacing:0.05em">🔒 Click sui lucchetti (conversione)</h3>
+      <div style="display:flex;gap:24px;margin-bottom:14px">
+        <div><div style="font-size:28px;font-weight:800;color:var(--bianco);line-height:1">${ucData.totale}</div><div style="font-size:11px;color:var(--grigio);margin-top:2px">Click totali</div></div>
+        <div><div style="font-size:28px;font-weight:800;color:var(--oro);line-height:1">${ucData.ultimi7gg}</div><div style="font-size:11px;color:var(--grigio);margin-top:2px">Ultimi 7 giorni</div></div>
+      </div>
+      ${ucData.per_feature.length>0?`
+      <div style="margin-top:10px">
+        ${ucData.per_feature.map(f=>`<div style="display:flex;justify-content:space-between;align-items:center;padding:6px 0;border-bottom:1px solid var(--bordo);font-size:12px">
+          <span style="color:var(--bianco)">${f.feature}</span>
+          <span style="color:var(--grigio)">${f.clicks} click · ${f.tester_unici} tester</span>
+        </div>`).join('')}
+      </div>
+      ${ucData.recenti.length>0?`<div style="margin-top:12px;font-size:11px;color:var(--grigio)">Ultimi: ${ucData.recenti.slice(0,5).map(r=>`${r.nome||'?'} → ${r.feature}`).join(' · ')}</div>`:''}
+      `:'<div style="color:var(--grigio);font-size:12px;font-style:italic;text-align:center;padding:10px">Nessun click registrato ancora.</div>'}
     </div>`;
 }
 
@@ -398,6 +418,17 @@ async function openTester(id){
           <option value="pro" ${t.piano==='pro'?'selected':''}>Pro</option>
           <option value="shield" ${t.piano==='shield'?'selected':''}>Shield</option>
         </select></div>
+      <div class="field"><label>Scadenza piano (vuoto = illimitato)</label>
+        <input type="date" id="editScadenza" data-original="${t.piano_scadenza||''}" value="${t.piano_scadenza?t.piano_scadenza.slice(0,10):''}" onchange="markDirty()" style="width:100%;background:#1a1a24;color:var(--bianco);border:1px solid var(--bordo);padding:8px;border-radius:4px">
+        <div style="font-size:11px;color:var(--grigio);margin-top:4px">${t.piano_scadenza?'Scade il '+new Date(t.piano_scadenza).toLocaleDateString('it-IT'):'Nessuna scadenza impostata'}</div>
+      </div>
+      <div class="field"><label>Ruolo</label>
+        <label style="display:flex;align-items:center;gap:8px;cursor:pointer">
+          <input type="checkbox" id="editAdmin" data-original="${t.is_admin?'1':'0'}" ${t.is_admin?'checked':''} onchange="markDirty();this.nextElementSibling.innerHTML=this.checked?'🛡️ <b>ADMIN</b> — nessun limite temporale':'Utente normale'" style="width:18px;height:18px;accent-color:var(--oro)">
+          <span style="font-size:13px;color:var(--bianco)">${t.is_admin?'🛡️ <b>ADMIN</b> — nessun limite temporale':'Utente normale'}</span>
+        </label>
+        <div style="font-size:11px;color:var(--grigio);margin-top:4px">Spunta per rendere admin (bypass limiti upgrade)</div>
+      </div>
       <button id="btnSalvaTester" class="btn btn-oro" style="width:100%;margin-top:10px;opacity:0.5;cursor:not-allowed" disabled onclick="salvaTester(${t.id})">💾 Salva modifiche</button>
       <div class="field"><label>Iscritto il</label><div class="field-val">${t.data_iscrizione?.replace('T',' ').slice(0,16)||'-'}</div></div>
       <div class="field"><label>Accettato il</label><div class="field-val">${t.data_accettazione?.replace('T',' ').slice(0,16)||'-'}</div></div>
@@ -573,16 +604,20 @@ function clearAllAria(testerId){showModal({icon:'⚠️',title:'Cancella tutto',
 
 // --- AZIONI ---
 function markDirty(){
-  const s=document.getElementById('editStato'),p=document.getElementById('editPiano'),b=document.getElementById('btnSalvaTester');
+  const s=document.getElementById('editStato'),p=document.getElementById('editPiano'),sc=document.getElementById('editScadenza'),b=document.getElementById('btnSalvaTester');
   if(!s||!p||!b)return;
-  const dirty=s.value!==s.dataset.original||p.value!==p.dataset.original;
+  const adm=document.getElementById('editAdmin');
+  const dirty=s.value!==s.dataset.original||p.value!==p.dataset.original||(sc&&sc.value!==(sc.dataset.original||''))||(adm&&String(adm.checked?1:0)!==(adm.dataset.original||'0'));
   b.disabled=!dirty;
   b.style.opacity=dirty?'1':'0.5';
   b.style.cursor=dirty?'pointer':'not-allowed';
 }
 async function salvaTester(id){
   const s=document.getElementById('editStato').value,p=document.getElementById('editPiano').value;
+  const sc=document.getElementById('editScadenza')?.value||'';
+  const adm=document.getElementById('editAdmin')?.checked?1:0;
   const origS=document.getElementById('editStato').dataset.original,origP=document.getElementById('editPiano').dataset.original;
+  const origAdm=document.getElementById('editAdmin')?.dataset.original||'0';
   const b=document.getElementById('btnSalvaTester');
   b.disabled=true;b.textContent='Salvataggio...';
   try{
@@ -590,9 +625,13 @@ async function salvaTester(id){
       const r=await fetch(API+'/testers/'+id+'/stato',{method:'POST',headers:{'Content-Type':'application/json'},credentials:'include',body:JSON.stringify({stato:s})});
       if(!r.ok)throw new Error('Errore stato');
     }
-    if(p!==origP){
-      const r=await fetch(API+'/testers/'+id+'/piano',{method:'POST',headers:{'Content-Type':'application/json'},credentials:'include',body:JSON.stringify({piano:p})});
+    if(p!==origP||sc){
+      const r=await fetch(API+'/testers/'+id+'/piano',{method:'POST',headers:{'Content-Type':'application/json'},credentials:'include',body:JSON.stringify({piano:p,scadenza:sc||null})});
       if(!r.ok)throw new Error('Errore piano');
+    }
+    if(String(adm)!==origAdm){
+      const r=await fetch(API+'/testers/'+id+'/admin',{method:'POST',headers:{'Content-Type':'application/json'},credentials:'include',body:JSON.stringify({is_admin:adm})});
+      if(!r.ok)throw new Error('Errore admin');
     }
     showToast('✓ Modifiche salvate','success');
     openTester(id);

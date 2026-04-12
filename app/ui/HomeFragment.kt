@@ -321,56 +321,55 @@ class HomeFragment : Fragment(R.layout.fragment_home) {
 
     private fun setupBannerPiano(view: View) {
         val ctx = requireContext()
+        val PM = com.ifs.stoppai.core.PlanManager
         val badge = view.findViewById<TextView>(R.id.txt_piano_badge)
         val counter = view.findViewById<TextView>(R.id.txt_piano_counter)
         val banner = view.findViewById<View>(R.id.banner_piano)
 
-        val piano = com.ifs.stoppai.core.PlanManager.getPianoCorrente(ctx)
-        val installTime = prefs.getLong("install_timestamp", 0L)
-        val now = System.currentTimeMillis()
+        val piano = PM.getPianoCorrente(ctx)
+        PM.giorniDaInstallazione(ctx) // Inizializza timestamp se primo avvio
 
-        if (installTime == 0L) {
-            prefs.edit().putLong("install_timestamp", now).apply()
-        }
-
-        val giorniDaInstall = if (installTime > 0) ((now - installTime) / (24 * 60 * 60 * 1000)).toInt() else 0
-        val trialAttivo = com.ifs.stoppai.core.PlanManager.isTrialAttivo(ctx)
-
-        when {
-            trialAttivo -> {
-                // Trial SHIELD attivo — contatore verde
-                val giorniRimasti = 14 - giorniDaInstall
-                badge.text = "SHIELD TRIAL"
-                badge.setBackgroundColor(0xFFC8A96E.toInt())
-                badge.setTextColor(0xFF1a1a2e.toInt())
-                counter.text = "$giorniRimasti giorni rimasti"
-                counter.setTextColor(0xFF4CAF50.toInt())
-            }
-            piano == "shield" -> {
+        when (piano) {
+            PM.SHIELD -> {
                 badge.text = "SHIELD"
                 badge.setBackgroundColor(0xFFC8A96E.toInt())
                 badge.setTextColor(0xFF1a1a2e.toInt())
-                counter.text = "Attivo"
+                counter.text = "Attivo ✨"
                 counter.setTextColor(0xFF4CAF50.toInt())
             }
-            piano == "pro" -> {
+            PM.PRO -> {
                 badge.text = "PRO"
                 badge.setBackgroundColor(0xFF1976D2.toInt())
                 badge.setTextColor(0xFFFFFFFF.toInt())
-                counter.text = "Attivo"
-                counter.setTextColor(0xFF4CAF50.toInt())
+                val giorniPerShield = PM.giorniRimanentiPerShield(ctx)
+                if (giorniPerShield > 0) {
+                    counter.text = "Upgrade SHIELD tra $giorniPerShield giorni"
+                    counter.setTextColor(0xFFC8A96E.toInt())
+                } else {
+                    counter.text = "Upgrade SHIELD disponibile!"
+                    counter.setTextColor(0xFF4CAF50.toInt())
+                }
+                banner.setOnClickListener {
+                    val bottomNav = requireActivity().findViewById<com.google.android.material.bottomnavigation.BottomNavigationView>(R.id.bottom_navigation)
+                    bottomNav?.selectedItemId = R.id.nav_info
+                }
             }
             else -> {
-                // FREE — trial scaduto, contatore rosso
-                val giorniScaduto = giorniDaInstall - 14
-                badge.text = "FREE"
+                // FREE
+                badge.text = "Versione Base"
                 badge.setBackgroundColor(0xFF888888.toInt())
                 badge.setTextColor(0xFFFFFFFF.toInt())
-                counter.text = "Trial scaduto da $giorniScaduto giorni"
-                counter.setTextColor(0xFFCC0000.toInt())
-                // Tap sul banner apre la pagina prezzi
+                val giorniPerPro = PM.giorniRimanentiPerPro(ctx)
+                if (giorniPerPro > 0) {
+                    counter.text = "Upgrade PRO tra $giorniPerPro giorni"
+                    counter.setTextColor(0xFF1976D2.toInt())
+                } else {
+                    counter.text = "Upgrade PRO disponibile!"
+                    counter.setTextColor(0xFF4CAF50.toInt())
+                }
                 banner.setOnClickListener {
-                    com.ifs.stoppai.core.UpgradeDialog.show(ctx, com.ifs.stoppai.core.PlanManager.Feature.ARIA_ILLIMITATO)
+                    val bottomNav = requireActivity().findViewById<com.google.android.material.bottomnavigation.BottomNavigationView>(R.id.bottom_navigation)
+                    bottomNav?.selectedItemId = R.id.nav_info
                 }
             }
         }

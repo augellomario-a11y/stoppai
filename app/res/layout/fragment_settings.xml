@@ -116,7 +116,7 @@
                 android:backgroundTint="#1a1a2e" />
         </LinearLayout>
 
-        <!-- ===== SEZIONE NUMERI ESTERI ===== -->
+        <!-- ===== SEZIONE WHITE LIST ===== -->
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -128,73 +128,73 @@
             <TextView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="NUMERI ESTERI"
+                android:text="WHITE LIST"
                 android:textStyle="bold"
                 android:textSize="13sp"
                 android:textColor="#c8a96e"
                 android:letterSpacing="0.1"
-                android:layout_marginBottom="12dp"/>
+                android:layout_marginBottom="4dp"/>
 
-            <!-- Filtro numeri esteri (SHIELD) -->
-            <LinearLayout
-                android:id="@+id/row_filtro_esteri"
+            <TextView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:orientation="horizontal"
-                android:gravity="center_vertical"
-                android:padding="10dp"
-                android:layout_marginBottom="6dp">
-                <LinearLayout
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:orientation="vertical">
-                    <TextView
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:text="Consenti numeri esteri"
-                        android:textSize="14sp"
-                        android:textColor="#333333"/>
-                    <TextView
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:text="Se attivo, i numeri internazionali sconosciuti potranno squillare"
-                        android:textSize="11sp"
-                        android:textColor="#888888"/>
-                </LinearLayout>
-                <ImageView
-                    android:id="@+id/lock_filtro_esteri"
-                    android:layout_width="20dp"
-                    android:layout_height="20dp"
-                    android:src="@drawable/ic_lock_shield"
-                    android:layout_marginEnd="8dp"/>
-                <Switch
-                    android:id="@+id/switch_consenti_esteri"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content" />
-            </LinearLayout>
+                android:text="Prefissi e numeri che squilleranno sempre, anche con la protezione attiva. Le chiamate non vengono mai bloccate: vengono solo silenziate. Nulla si perde."
+                android:textSize="11sp"
+                android:textColor="#888888"
+                android:layout_marginBottom="12dp"/>
 
-            <!-- White list prefissi (SHIELD) -->
+            <!-- White list (SHIELD) -->
             <LinearLayout
                 android:id="@+id/row_whitelist_esteri"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:orientation="horizontal"
-                android:gravity="center_vertical"
-                android:padding="10dp"
-                android:background="?attr/selectableItemBackground">
-                <TextView
-                    android:layout_width="0dp"
+                android:orientation="vertical"
+                android:padding="10dp">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:text="White list prefissi esteri"
-                    android:textSize="14sp"
-                    android:textColor="#333333"/>
-                <ImageView
-                    android:id="@+id/lock_whitelist_esteri"
-                    android:layout_width="20dp"
-                    android:layout_height="20dp"
-                    android:src="@drawable/ic_lock_shield"/>
+                    android:orientation="horizontal"
+                    android:gravity="center_vertical"
+                    android:layout_marginBottom="8dp">
+                    <TextView
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:text="White list numeri/prefissi"
+                        android:textSize="14sp"
+                        android:textColor="#333333"/>
+                    <ImageView
+                        android:id="@+id/lock_whitelist_esteri"
+                        android:layout_width="20dp"
+                        android:layout_height="20dp"
+                        android:src="@drawable/ic_lock_shield"/>
+                </LinearLayout>
+
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="Numeri e prefissi che squilleranno sempre, anche con la protezione attiva."
+                    android:textSize="11sp"
+                    android:textColor="#888888"
+                    android:layout_marginBottom="8dp"/>
+
+                <LinearLayout
+                    android:id="@+id/whitelist_entries"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:layout_marginBottom="8dp" />
+
+                <Button
+                    android:id="@+id/btn_add_whitelist"
+                    android:layout_width="match_parent"
+                    android:layout_height="40dp"
+                    android:text="+ Aggiungi numero o prefisso"
+                    android:textSize="13sp"
+                    android:textColor="#1a1a2e"
+                    android:textAllCaps="false"
+                    android:backgroundTint="#E8E8E8" />
             </LinearLayout>
         </LinearLayout>
 

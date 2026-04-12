@@ -87,11 +87,27 @@ class AriaTranscriptionSheet : BottomSheetDialogFragment() {
                 val sdf = SimpleDateFormat("dd/MM/yyyy HH:mm:ss", Locale.ITALY)
                 val data = if (entry != null) sdf.format(Date(entry.timestamp)) else ""
 
+                // Cerca note precedenti per questo numero nel CRM locale
+                val numNorm = com.ifs.stoppai.core.PhoneNumberUtils.normalizeNumber(phoneNumber)
+                val notePrecedenti = if (numNorm.length >= 5) {
+                    val ultCifre = numNorm.takeLast(10)
+                    db.callLogDao().getAllCallsSync()
+                        .filter { it.nota.isNotBlank() && it.phoneNumber.takeLast(10) == ultCifre }
+                        .distinctBy { it.nota }
+                        .map { it.nota }
+                } else emptyList()
+
                 withContext(Dispatchers.Main) {
                     val txtData = view.findViewById<TextView>(R.id.txt_aria_data)
                     val txtContenuto = view.findViewById<TextView>(R.id.txt_aria_contenuto)
 
                     if (data.isNotEmpty()) txtData.text = "📅  $data"
+
+                    // Mostra note precedenti per questo numero
+                    if (notePrecedenti.isNotEmpty()) {
+                        val txtNumero = view.findViewById<TextView>(R.id.txt_aria_numero)
+                        txtNumero.append("\n📝 Note: ${notePrecedenti.joinToString(" | ")}")
+                    }
 
                     if (messaggi.isEmpty()) {
                         txtContenuto.text = "Nessun messaggio ARIA collegato a questa chiamata."
@@ -254,16 +270,32 @@ class AriaTranscriptionSheet : BottomSheetDialogFragment() {
                 btn.setTextColor(0xFFFFFFFF.toInt())
 
                 // Invia al backend
-                inviaRating(rating)
+                inviaRating(msgId, rating)
                 android.widget.Toast.makeText(context, "Valutazione: $rating%",
                     android.widget.Toast.LENGTH_SHORT).show()
             }
         }
     }
 
-    private fun inviaRating(rating: Int) {
-        // Per ora salva localmente — in futuro POST al backend
-        android.util.Log.d("ARIA_RATING", "Rating: $rating%")
+    private fun inviaRating(msgId: Int, rating: Int) {
+        android.util.Log.d("ARIA_RATING", "Rating: $rating% per msgId=$msgId")
+        kotlinx.coroutines.CoroutineScope(kotlinx.coroutines.Dispatchers.IO).launch {
+            try {
+                val url = java.net.URL("${com.ifs.stoppai.core.AriaFcmService.SERVER_URL}/api/tester/aria-rating")
+                val conn = url.openConnection() as java.net.HttpURLConnection
+                conn.requestMethod = "POST"
+                conn.doOutput = true
+                conn.setRequestProperty("Content-Type", "application/json")
+                conn.connectTimeout = 5000
+                val body = """{"msg_id":$msgId,"rating":$rating}"""
+                conn.outputStream.write(body.toByteArray())
+                val code = conn.responseCode
+                android.util.Log.d("ARIA_RATING", "Inviato al backend ($code)")
+                conn.disconnect()
+            } catch (e: Exception) {
+                android.util.Log.e("ARIA_RATING", "Errore invio: ${e.message}")
+            }
+        }
     }
 
     // ===== SPAM / ATTENDIBILE =====

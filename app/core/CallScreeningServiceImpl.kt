@@ -60,10 +60,16 @@ class CallScreeningServiceImpl : CallScreeningService() {
         val sAttivo = prefs.getBoolean("sms_risposta_attivo", false)
         val cEsteri = prefs.getBoolean("consenti_esteri", false)
 
+        // Carica whitelist patterns dal DB locale
+        val whitelistPatterns = try {
+            val db = com.ifs.stoppai.db.StoppAiDatabase.getInstance(context)
+            db.whitelistDao().getAllSync().map { it.pattern }
+        } catch (e: Exception) { emptyList() }
+
         // Decisione (Il Cuore del Refactor)
         val decisione = ScreeningLogic.decidi(
             normalizedNumber, isContact, isPreferito,
-            pBase, pTotale, iPreferiti, sAttivo, tipo, cEsteri
+            pBase, pTotale, iPreferiti, sAttivo, tipo, cEsteri, whitelistPatterns
         )
 
         Log.d("STOPPAI", "Numero: $normalizedNumber Tipo: $tipo")

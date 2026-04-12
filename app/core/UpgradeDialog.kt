@@ -1,11 +1,10 @@
 // FILE: UpgradeDialog.kt
 // SCOPO: Popup upgrade quando l'utente tocca una funzionalità bloccata
-// ULTIMA MODIFICA: 2026-04-12
+// ULTIMA MODIFICA: 2026-04-13
 
 package com.ifs.stoppai.core
 
 import android.content.Context
-import android.content.Intent
 import android.graphics.Color
 import android.graphics.Typeface
 import android.view.Gravity
@@ -13,6 +12,7 @@ import android.widget.ImageView
 import android.widget.LinearLayout
 import android.widget.TextView
 import androidx.appcompat.app.AlertDialog
+import kotlinx.coroutines.launch
 
 object UpgradeDialog {
 
@@ -24,6 +24,9 @@ object UpgradeDialog {
         val piano = PlanManager.getNomePiano(feature)
         val prezzo = PlanManager.getPrezzo(feature)
         val colore = PlanManager.getColore(feature)
+
+        // Tracking: invia click sul lucchetto al backend per statistiche
+        trackUpgradeClick(context, feature)
 
         val layout = LinearLayout(context).apply {
             orientation = LinearLayout.VERTICAL
@@ -79,7 +82,7 @@ object UpgradeDialog {
 
         // Badge piano richiesto
         val txtPiano = TextView(context).apply {
-            text = "Disponibile con il piano $piano"
+            text = "A partire dal piano $piano"
             textSize = 13f
             setTypeface(null, Typeface.BOLD)
             setTextColor(Color.WHITE)
@@ -114,14 +117,32 @@ object UpgradeDialog {
         AlertDialog.Builder(context)
             .setView(layout)
             .setPositiveButton("Vedi i piani") { _, _ ->
-                // TODO: aprire pagina prezzi in-app (per ora apre la landing web)
-                try {
-                    val intent = Intent(Intent.ACTION_VIEW, android.net.Uri.parse("https://stoppai.it/prezzi.html"))
-                    context.startActivity(intent)
-                } catch (e: Exception) {}
+                PricingSheet.show(context)
             }
             .setNegativeButton("Chiudi", null)
             .show()
+    }
+
+    /** Invia al backend il click su un lucchetto per le statistiche */
+    private fun trackUpgradeClick(context: Context, feature: PlanManager.Feature) {
+        kotlinx.coroutines.CoroutineScope(kotlinx.coroutines.Dispatchers.IO).launch {
+            try {
+                val prefs = context.getSharedPreferences("stoppai_prefs", android.content.Context.MODE_PRIVATE)
+                val testerId = prefs.getInt("tester_id", 0)
+                if (testerId == 0) return@launch
+
+                val url = java.net.URL("https://stoppai.it/api/tester/upgrade-click")
+                val conn = url.openConnection() as java.net.HttpURLConnection
+                conn.requestMethod = "POST"
+                conn.doOutput = true
+                conn.setRequestProperty("Content-Type", "application/json")
+                conn.connectTimeout = 5000
+                val body = """{"tester_id":$testerId,"feature":"${feature.name}"}"""
+                conn.outputStream.write(body.toByteArray())
+                conn.responseCode
+                conn.disconnect()
+            } catch (_: Exception) {}
+        }
     }
 
     /**
