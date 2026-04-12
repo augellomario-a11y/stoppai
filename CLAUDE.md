@@ -76,7 +76,10 @@ DOPO 3 FALLIMENTI: Fai ricerca web prima del prossimo tentativo
 ### Flusso chiamata:
 ```
 Chiamata sconosciuta entra
--> CallScreeningService silenzia (zero squilli, zero vibrazione)
+-> CallScreeningService verifica: note? spam? whitelist? piano?
+-> Se nota positiva (PRO+): SQUILLA + overlay verde "Numero conosciuto"
+-> Se spam segnalato: SILENZIA + overlay rosso "Sospetto spam"
+-> Se sconosciuto normale: SILENZIA (zero squilli, zero vibrazione)
 -> Opensolution devia al trunk SIP 04211898065
 -> Asterisk risponde con voce Isabella
 -> Chiamante lascia messaggio vocale
@@ -98,7 +101,8 @@ Chiamata sconosciuta entra
 - **Stack:** Kotlin, Room DB v10, CallScreeningService, Firebase FCM
 
 **Componenti chiave:**
-- `CallScreeningServiceImpl.kt` — intercetta, silenzia, controlla whitelist
+- `CallScreeningServiceImpl.kt` — intercetta, silenzia, controlla whitelist, overlay note/spam
+- `CallerOverlayService.kt` — overlay sopra chiamata (verde=nota, rosso=spam, arancio=alert)
 - `ScreeningLogic.kt` — logica decisionale (whitelist → contatti → SMS → esteri → ARIA)
 - `PlanManager.kt` — gestione piani FREE/PRO/SHIELD, upgrade progressivo, flag admin
 - `PricingSheet.kt` — BottomSheet con 3 card prezzi (da popup lucchetto)
@@ -230,6 +234,7 @@ stoppai/
 | SA-123 | Sync statistiche app->backend, grafici Chart.js | v5.5.0 |
 | SA-124 | Gestione chat admin (cancella/modifica), log piano, reset stats | - |
 | SA-125 | White list, upgrade progressivo, BottomSheet prezzi, flag admin, tracking click | v5.8.1 |
+| SA-126 | Overlay chiamata (note verde, spam rosso), screening per piano, FCM token fix, TO-DO admin | v5.8.1 |
 
 ---
 
@@ -237,7 +242,7 @@ stoppai/
 
 | # | Task | Priorita' |
 |---|------|-----------|
-| 13 | Fix FCM token nel DB (push per-tester affidabile) | PROSSIMO |
+| ~~13~~ | ~~Fix FCM token nel DB~~ | FATTO |
 | 7 | Restyling pagina Invita | Alta |
 | 10 | Contatori mensili backend (30 SMS, 3 ARIA free, 10 player PRO) | Alta |
 | 14 | SEO restante (sitemap, robots, favicon, schema.org, Umami) | Media |

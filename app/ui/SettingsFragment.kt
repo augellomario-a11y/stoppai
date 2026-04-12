@@ -636,6 +636,13 @@ class SettingsFragment : Fragment(R.layout.fragment_settings) {
         view.findViewById<TextView>(R.id.ID_PERM_007).setOnClickListener {
             openAppSettingsIfMissing(Manifest.permission.SEND_SMS)
         }
+        view.findViewById<TextView>(R.id.ID_PERM_008)?.setOnClickListener {
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M && !android.provider.Settings.canDrawOverlays(requireContext())) {
+                val intent = Intent(android.provider.Settings.ACTION_MANAGE_OVERLAY_PERMISSION,
+                    Uri.parse("package:${requireActivity().packageName}"))
+                startActivity(intent)
+            }
+        }
     }
 
     private fun openAppSettingsIfMissing(permission: String) {
@@ -691,6 +698,13 @@ class SettingsFragment : Fragment(R.layout.fragment_settings) {
         val p7 = hasPerm(Manifest.permission.SEND_SMS)
         t7.text = "${if (p7) "🟢" else "🔴"} Invio SMS"
         t7.setTextColor(if (p7) ok else ko)
+
+        val t8 = view.findViewById<TextView>(R.id.ID_PERM_008)
+        if (t8 != null) {
+            val p8 = Build.VERSION.SDK_INT < Build.VERSION_CODES.M || android.provider.Settings.canDrawOverlays(requireContext())
+            t8.text = "${if (p8) "🟢" else "🔴"} Mostra sopra altre app"
+            t8.setTextColor(if (p8) ok else ko)
+        }
 
         val t6 = view.findViewById<TextView>(R.id.ID_PERM_006)
         if (t6 != null) {

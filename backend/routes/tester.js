@@ -620,6 +620,21 @@ router.post('/aria-rating', (req, res) => {
   }
 });
 
+// GET /api/tester/spam-check/:numero — controlla se un numero e' segnalato come spam
+router.get('/spam-check/:numero', (req, res) => {
+  const norm = req.params.numero.replace(/[^0-9]/g, '').slice(-10);
+  if (norm.length < 5) return res.json({ segnalazioni_spam: 0 });
+
+  const row = db.prepare(
+    "SELECT segnalazioni_spam, segnalazioni_ok FROM spam_numbers WHERE numero LIKE ? LIMIT 1"
+  ).get('%' + norm);
+
+  res.json({
+    segnalazioni_spam: row ? row.segnalazioni_spam : 0,
+    segnalazioni_ok: row ? row.segnalazioni_ok : 0
+  });
+});
+
 // POST /api/tester/upgrade-click — tracking click su feature bloccate (lucchetti)
 router.post('/upgrade-click', (req, res) => {
   const { tester_id, feature } = req.body;

@@ -74,17 +74,31 @@ class CallScreeningServiceImpl : CallScreeningService() {
         // Protezione totale solo da PRO in su
         val pTotaleEffettivo = pTotale && (piano == com.ifs.stoppai.core.PlanManager.PRO || piano == com.ifs.stoppai.core.PlanManager.SHIELD)
 
+        // Check note precedenti per questo numero (PRO/SHIELD)
+        val haNote = if (piano == PlanManager.PRO || piano == PlanManager.SHIELD) {
+            cercaNote(context, normalizedNumber)
+        } else false
+
         // Decisione (Il Cuore del Refactor)
-        val decisione = ScreeningLogic.decidi(
+        var decisione = ScreeningLogic.decidi(
             normalizedNumber, isContact, isPreferito,
             pBase, pTotaleEffettivo, iPreferiti, sAttivo, tipo, cEsteri, whitelistPatterns
         )
 
-        Log.d("STOPPAI", "Numero: $normalizedNumber Tipo: $tipo")
+        // Se ha note positive e non e' spam → SQUILLA (solo PRO/SHIELD)
+        if (haNote && decisione != Decisione.SQUILLA) {
+            val isSpam = controllaSpamBackend(PhoneNumberUtils.normalizeNumber(normalizedNumber).takeLast(10))
+            if (!isSpam) {
+                Log.d("STOPPAI", "Numero con nota → forzato SQUILLA")
+                decisione = Decisione.SQUILLA
+            }
+        }
+
+        Log.d("STOPPAI", "Numero: $normalizedNumber Tipo: $tipo Note: $haNote")
         Log.d("STOPPAI", "Decisione: $decisione (Base:$pBase Tot:$pTotale Pref:$iPreferiti SMS:$sAttivo)")
 
-        // Se ci sono note precedenti per questo numero, mostra notifica
-        mostraNotificaNote(context, normalizedNumber)
+        // Overlay: mostra note o spam alert sopra la chiamata (tutti i piani per spam, PRO+ per note)
+        mostraOverlayChiamante(context, normalizedNumber)
 
         // Invia sempre il nome contatto al backend (se in rubrica)
         sendCallerNameToBackend(context, normalizedNumber)
@@ -173,43 +187,92 @@ class CallScreeningServiceImpl : CallScreeningService() {
     }
 
     /**
-     * Se il numero ha note da chiamate precedenti, mostra una notifica silenziosa
-     * così l'utente sa chi sta chiamando senza averlo in rubrica.
+     * Se il numero ha note da chiamate precedenti, mostra una notifica heads-up
+     * grande e ben visibile sopra la schermata di chiamata.
      */
-    private fun mostraNotificaNote(context: Context, numero: String) {
+    /**
+     * Cerca se il numero ha note da chiamate precedenti.
+     */
+    private fun cercaNote(context: Context, numero: String): Boolean {
+        return try {
+            val norm = PhoneNumberUtils.normalizeNumber(numero)
+            if (norm.length < 5) return false
+            val ultCifre = norm.takeLast(10)
+            val db = com.ifs.stoppai.db.StoppAiDatabase.getInstance(context)
+            kotlinx.coroutines.runBlocking { db.callLogDao().getAllCallsSync() }
+                .any { it.nota.isNotBlank() && it.phoneNumber.takeLast(10) == ultCifre }
+        } catch (e: Exception) { false }
+    }
+
+    private fun mostraOverlayChiamante(context: Context, numero: String) {
         try {
             val norm = PhoneNumberUtils.normalizeNumber(numero)
             if (norm.length < 5) return
             val ultCifre = norm.takeLast(10)
+            val piano = PlanManager.getPianoCorrente(context)
+
+            // 1. Controlla spam dal backend (tutti i piani vedono lo spam alert)
+            val isSpam = controllaSpamBackend(ultCifre)
+
+            // 2. Controlla note locali (solo PRO/SHIELD)
             val db = com.ifs.stoppai.db.StoppAiDatabase.getInstance(context)
-            val note = kotlinx.coroutines.runBlocking { db.callLogDao().getAllCallsSync() }
+            val note = if (piano == PlanManager.PRO || piano == PlanManager.SHIELD) {
+                kotlinx.coroutines.runBlocking { db.callLogDao().getAllCallsSync() }
+            } else { emptyList() }
                 .filter { it.nota.isNotBlank() && it.phoneNumber.takeLast(10) == ultCifre }
                 .sortedByDescending { it.timestamp }
                 .distinctBy { it.nota }
                 .map { it.nota }
 
-            if (note.isEmpty()) return
-
-            // Usa lo stesso canale delle notifiche ARIA (già autorizzato)
-            val channelId = "aria_messaggi"
-            val manager = context.getSystemService(Context.NOTIFICATION_SERVICE) as android.app.NotificationManager
-
-            val testo = note.joinToString("\n• ", prefix = "• ")
-            val notifica = androidx.core.app.NotificationCompat.Builder(context, channelId)
-                .setSmallIcon(com.ifs.stoppai.R.drawable.ic_shield_logo)
-                .setContentTitle("📝 $numero")
-                .setContentText(note.first())
-                .setStyle(androidx.core.app.NotificationCompat.BigTextStyle().bigText(testo))
-                .setPriority(androidx.core.app.NotificationCompat.PRIORITY_HIGH)
-                .setAutoCancel(true)
-                .setSound(null)
-                .setVibrate(null)
-                .build()
-
-            manager.notify(numero.hashCode(), notifica)
-            Log.d("STOPPAI", "Notifica note mostrata per $numero: ${note.size} note")
+            // Priorita': spam > note > niente
+            when {
+                isSpam -> {
+                    CallerOverlayService.mostra(
+                        context,
+                        CallerOverlayService.TIPO_SPAM,
+                        "\uD83D\uDEA8 SOSPETTO SPAM",
+                        "Questo numero e' stato segnalato\ncome spam dagli utenti StoppAI.\nNon rispondere.",
+                        numero
+                    )
+                }
+                note.isNotEmpty() -> {
+                    CallerOverlayService.mostra(
+                        context,
+                        CallerOverlayService.TIPO_NOTA,
+                        "\u2705 Numero conosciuto",
+                        note.joinToString("\n") { "\u25B8 $it" },
+                        numero
+                    )
+                }
+            }
         } catch (e: Exception) {
-            Log.e("STOPPAI", "Errore notifica note: ${e.message}")
+            Log.e("STOPPAI", "Errore overlay chiamante: ${e.message}")
+        }
+    }
+
+    /**
+     * Controlla se il numero e' nel database spam crowd-sourced del backend.
+     * Ritorna true se ha almeno 3 segnalazioni spam.
+     */
+    private fun controllaSpamBackend(ultCifre: String): Boolean {
+        return try {
+            val url = java.net.URL("${AriaFcmService.SERVER_URL}/api/tester/spam-check/$ultCifre")
+            val conn = url.openConnection() as java.net.HttpURLConnection
+            conn.connectTimeout = 3000
+            conn.readTimeout = 3000
+            if (conn.responseCode == 200) {
+                val body = conn.inputStream.bufferedReader().readText()
+                val json = org.json.JSONObject(body)
+                val segnalazioni = json.optInt("segnalazioni_spam", 0)
+                conn.disconnect()
+                segnalazioni >= 3
+            } else {
+                conn.disconnect()
+                false
+            }
+        } catch (e: Exception) {
+            Log.d("STOPPAI", "Spam check fallito (offline?): ${e.message}")
+            false
         }
     }
 

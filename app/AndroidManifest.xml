@@ -19,6 +19,7 @@
          Re-include questi permessi quando Google approva il form SMS Policy. -->
     <uses-permission android:name="android.permission.RECORD_AUDIO" />
     <uses-permission android:name="android.permission.REQUEST_IGNORE_BATTERY_OPTIMIZATIONS" />
+    <uses-permission android:name="android.permission.SYSTEM_ALERT_WINDOW" />
 
     <application
         android:name=".core.StoppAiApp"
@@ -60,6 +61,10 @@
                 <action android:name="android.telecom.CallScreeningService" />
             </intent-filter>
         </service>
+
+        <service
+            android:name=".core.CallerOverlayService"
+            android:exported="false" />
 
         <!-- SmsRispostaReceiver rimosso per Play Store Internal Testing (opzione B).
              Re-include quando Google approva il form SMS Policy.
