@@ -105,10 +105,20 @@ class AriaTranscriptionSheet : BottomSheetDialogFragment() {
                     }
                     txtContenuto.text = sb.toString().trimEnd()
 
-                    // Setup player audio (usa il primo messaggio con wav)
+                    // Setup player audio — verifica piano (PRO richiesto)
                     val msgConWav = messaggi.firstOrNull { !it.wavFilename.isNullOrBlank() }
                     if (msgConWav?.wavFilename != null) {
-                        setupPlayer(view, msgConWav.wavFilename)
+                        if (com.ifs.stoppai.core.PlanManager.isDisponibile(requireContext(), com.ifs.stoppai.core.PlanManager.Feature.PLAYER_AUDIO)) {
+                            setupPlayer(view, msgConWav.wavFilename)
+                        } else {
+                            // Mostra player bloccato
+                            val layout = view.findViewById<LinearLayout>(R.id.layout_player)
+                            layout.visibility = View.VISIBLE
+                            layout.alpha = 0.5f
+                            layout.setOnClickListener {
+                                com.ifs.stoppai.core.UpgradeDialog.show(requireContext(), com.ifs.stoppai.core.PlanManager.Feature.PLAYER_AUDIO)
+                            }
+                        }
                     }
 
                     // Mostra rating e spam per tutti i messaggi con testo
@@ -176,7 +186,7 @@ class AriaTranscriptionSheet : BottomSheetDialogFragment() {
                     }
                     setOnErrorListener { _, _, _ ->
                         android.widget.Toast.makeText(context,
-                            "Audio non disponibile (scade dopo 24h)", android.widget.Toast.LENGTH_SHORT).show()
+                            "L'audio è disponibile solo per 24 ore dalla ricezione", android.widget.Toast.LENGTH_SHORT).show()
                         true
                     }
                     prepareAsync()

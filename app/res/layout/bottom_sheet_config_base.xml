@@ -16,61 +16,19 @@
             android:text="Configura Protezione Base"
             android:textSize="20sp"
             android:textStyle="bold"
-            android:textColor="#333333"
+            android:textColor="#1a1a2e"
             android:layout_marginBottom="8dp" />
 
         <TextView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="Tutti i numeri sconosciuti verranno bloccati e deviati alla segreteria."
+            android:text="Tutti i numeri sconosciuti verranno silenziati. Scegli se inviare un SMS automatico."
             android:textSize="13sp"
             android:textColor="#666666"
             android:lineSpacingExtra="4dp"
             android:layout_marginBottom="20dp" />
 
-        <!-- ============ SEZIONE 1: NUMERI ESTERI ============ -->
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="horizontal"
-            android:gravity="center_vertical"
-            android:layout_marginBottom="4dp">
-
-            <LinearLayout
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:orientation="vertical">
-
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="🌍 Numeri esteri"
-                    android:textSize="16sp"
-                    android:textStyle="bold"
-                    android:textColor="#333333" />
-
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="Se attivo, i numeri internazionali sconosciuti potranno squillare. Se disattivo vengono bloccati."
-                    android:textSize="12sp"
-                    android:textColor="#666666" />
-            </LinearLayout>
-
-            <Switch
-                android:id="@+id/switch_esteri"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content" />
-        </LinearLayout>
-
-        <View
-            android:layout_width="match_parent"
-            android:layout_height="1dp"
-            android:background="#E0E0E0"
-            android:layout_marginVertical="16dp" />
-
-        <!-- ============ SEZIONE 2: SMS RISPOSTA ============ -->
+        <!-- SMS RISPOSTA RAPIDA -->
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -95,7 +53,7 @@
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="I numeri mobili italiani sconosciuti riceveranno un SMS invece di essere deviati alla segreteria."
+                    android:text="I numeri mobili italiani sconosciuti riceveranno un SMS automatico."
                     android:textSize="12sp"
                     android:textColor="#666666" />
             </LinearLayout>
@@ -146,144 +104,14 @@
                 android:layout_marginTop="2dp" />
         </LinearLayout>
 
-        <View
-            android:layout_width="match_parent"
-            android:layout_height="1dp"
-            android:background="#E0E0E0"
-            android:layout_marginVertical="16dp" />
-
-        <!-- ============ SEZIONE 3: MESSAGGIO SEGRETERIA ============ -->
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="🎙️ Messaggio Segreteria ARIA"
-            android:textSize="16sp"
-            android:textStyle="bold"
-            android:textColor="#333333" />
-
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Scegli quale messaggio verrà riprodotto ai chiamanti deviati alla segreteria."
-            android:textSize="12sp"
-            android:textColor="#666666"
-            android:layout_marginBottom="12dp" />
-
-        <RadioGroup
-            android:id="@+id/radio_tipo_messaggio"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="vertical">
-
-            <RadioButton
-                android:id="@+id/radio_base"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:text="Messaggio standard"
-                android:textSize="14sp"
-                android:textColor="#333333"
-                android:buttonTint="#4CAF50"
-                android:paddingVertical="6dp" />
-
-            <RadioButton
-                android:id="@+id/radio_preset"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:text="Utilizza voce preregistrata"
-                android:textSize="14sp"
-                android:textColor="#333333"
-                android:buttonTint="#4CAF50"
-                android:paddingVertical="6dp" />
-
-            <!-- Lista preset (visibile solo se radio_preset selezionato) -->
-            <LinearLayout
-                android:id="@+id/layout_preset_list"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:orientation="vertical"
-                android:visibility="gone"
-                android:paddingStart="32dp"
-                android:paddingTop="4dp"
-                android:paddingBottom="8dp" />
-
-            <RadioButton
-                android:id="@+id/radio_custom"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:text="Utilizza messaggio personale"
-                android:textSize="14sp"
-                android:textColor="#333333"
-                android:buttonTint="#4CAF50"
-                android:paddingVertical="6dp" />
-
-            <!-- Controlli custom (visibili solo se radio_custom selezionato) -->
-            <LinearLayout
-                android:id="@+id/layout_custom_controls"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:orientation="vertical"
-                android:visibility="gone"
-                android:paddingStart="32dp"
-                android:paddingTop="4dp"
-                android:paddingBottom="8dp">
-
-                <TextView
-                    android:id="@+id/txt_custom_status"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:text="Nessuna registrazione presente"
-                    android:textSize="12sp"
-                    android:textColor="#888888"
-                    android:layout_marginBottom="8dp" />
-
-                <LinearLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:orientation="horizontal"
-                    android:gravity="center_vertical">
-
-                    <Button
-                        android:id="@+id/btn_record_custom"
-                        android:layout_width="0dp"
-                        android:layout_height="wrap_content"
-                        android:layout_weight="1"
-                        android:text="● REGISTRA"
-                        android:textSize="12sp"
-                        android:backgroundTint="#E53935"
-                        android:textColor="#FFFFFF"
-                        android:layout_marginEnd="4dp" />
-
-                    <Button
-                        android:id="@+id/btn_play_custom"
-                        android:layout_width="0dp"
-                        android:layout_height="wrap_content"
-                        android:layout_weight="1"
-                        android:text="▶ ASCOLTA"
-                        android:textSize="12sp"
-                        android:backgroundTint="#2196F3"
-                        android:textColor="#FFFFFF"
-                        android:enabled="false"
-                        android:layout_marginStart="4dp" />
-                </LinearLayout>
-
-                <TextView
-                    android:id="@+id/txt_record_timer"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:text="Max 30 secondi"
-                    android:textSize="11sp"
-                    android:textColor="#666666"
-                    android:gravity="center"
-                    android:layout_marginTop="6dp" />
-            </LinearLayout>
-        </RadioGroup>
+        <!-- Numeri esteri e segreteria ARIA: spostati nelle Impostazioni -->
 
         <Button
             android:id="@+id/btn_confirm_base"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:text="CONFERMA E ATTIVA"
-            android:backgroundTint="#4CAF50"
+            android:backgroundTint="#c8a96e"
             android:textColor="#FFFFFF"
             android:paddingVertical="12dp"
             android:layout_marginTop="24dp" />

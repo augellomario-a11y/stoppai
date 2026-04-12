@@ -1,0 +1,166 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.core.widget.NestedScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:background="#FFFFFF">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:padding="24dp">
+
+        <!-- Handle -->
+        <View
+            android:layout_width="40dp"
+            android:layout_height="4dp"
+            android:layout_gravity="center_horizontal"
+            android:layout_marginBottom="16dp"
+            android:background="#CCCCCC" />
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Messaggio Segreteria ARIA"
+            android:textSize="20sp"
+            android:textStyle="bold"
+            android:textColor="#1a1a2e"
+            android:layout_marginBottom="4dp" />
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Scegli quale messaggio verrà riprodotto ai chiamanti deviati alla segreteria."
+            android:textSize="13sp"
+            android:textColor="#666666"
+            android:lineSpacingExtra="4dp"
+            android:layout_marginBottom="20dp" />
+
+        <RadioGroup
+            android:id="@+id/radio_tipo_messaggio"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical">
+
+            <!-- STANDARD -->
+            <RadioButton
+                android:id="@+id/radio_base"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Messaggio standard"
+                android:textSize="15sp"
+                android:textColor="#333333"
+                android:buttonTint="#c8a96e"
+                android:paddingVertical="8dp" />
+
+            <!-- PRESET (PRO) -->
+            <RadioButton
+                android:id="@+id/radio_preset"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Voce preregistrata"
+                android:textSize="15sp"
+                android:textColor="#333333"
+                android:buttonTint="#c8a96e"
+                android:paddingVertical="8dp"
+                android:drawableEnd="@drawable/ic_lock_pro"
+                android:drawablePadding="8dp" />
+
+            <!-- Lista preset -->
+            <LinearLayout
+                android:id="@+id/layout_preset_list"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:visibility="gone"
+                android:paddingStart="32dp"
+                android:paddingTop="4dp"
+                android:paddingBottom="8dp" />
+
+            <!-- CUSTOM (SHIELD) -->
+            <RadioButton
+                android:id="@+id/radio_custom"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Messaggio personale"
+                android:textSize="15sp"
+                android:textColor="#333333"
+                android:buttonTint="#c8a96e"
+                android:paddingVertical="8dp"
+                android:drawableEnd="@drawable/ic_lock_shield"
+                android:drawablePadding="8dp" />
+
+            <!-- Controlli registrazione custom -->
+            <LinearLayout
+                android:id="@+id/layout_custom_controls"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:visibility="gone"
+                android:paddingStart="32dp"
+                android:paddingTop="4dp"
+                android:paddingBottom="8dp">
+
+                <TextView
+                    android:id="@+id/txt_custom_status"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="Nessuna registrazione presente"
+                    android:textSize="12sp"
+                    android:textColor="#888888"
+                    android:layout_marginBottom="8dp" />
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:gravity="center_vertical">
+
+                    <Button
+                        android:id="@+id/btn_record_custom"
+                        android:layout_width="0dp"
+                        android:layout_height="42dp"
+                        android:layout_weight="1"
+                        android:text="● REGISTRA"
+                        android:textSize="12sp"
+                        android:backgroundTint="#C62828"
+                        android:textColor="#FFFFFF"
+                        android:layout_marginEnd="4dp" />
+
+                    <Button
+                        android:id="@+id/btn_play_custom"
+                        android:layout_width="0dp"
+                        android:layout_height="42dp"
+                        android:layout_weight="1"
+                        android:text="▶ ASCOLTA"
+                        android:textSize="12sp"
+                        android:backgroundTint="#1a1a2e"
+                        android:textColor="#FFFFFF"
+                        android:enabled="false"
+                        android:layout_marginStart="4dp" />
+                </LinearLayout>
+
+                <TextView
+                    android:id="@+id/txt_record_timer"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="Max 30 secondi"
+                    android:textSize="11sp"
+                    android:textColor="#666666"
+                    android:gravity="center"
+                    android:layout_marginTop="6dp" />
+            </LinearLayout>
+        </RadioGroup>
+
+        <Button
+            android:id="@+id/btn_salva_aria"
+            android:layout_width="match_parent"
+            android:layout_height="48dp"
+            android:text="SALVA"
+            android:backgroundTint="#c8a96e"
+            android:textColor="#1a1a2e"
+            android:textStyle="bold"
+            android:layout_marginTop="24dp" />
+
+    </LinearLayout>
+</androidx.core.widget.NestedScrollView>

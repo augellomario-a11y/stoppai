@@ -1,14 +1,12 @@
 // FILE: ConfiguraProtezioneBottomSheet.kt
-// SCOPO: Configurazione Protezione Base + scelta messaggio segreteria ARIA
-// DIPENDENZE: bottom_sheet_config_base.xml, AriaConfigApi, AriaMessagePlayer, AriaRecorder
-// ULTIMA MODIFICA: 2026-04-06
+// SCOPO: Configurazione Protezione Base (solo SMS)
+// Segreteria ARIA spostata in SettingsFragment
+// ULTIMA MODIFICA: 2026-04-12
 
 package com.ifs.stoppai.ui
 
-import android.Manifest
 import android.content.Context
 import android.content.SharedPreferences
-import android.content.pm.PackageManager
 import android.os.Bundle
 import android.text.Editable
 import android.text.TextWatcher
@@ -16,40 +14,13 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.*
-import androidx.appcompat.app.AlertDialog
-import androidx.core.content.ContextCompat
-import androidx.lifecycle.lifecycleScope
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment
 import com.ifs.stoppai.R
-import com.ifs.stoppai.core.AriaConfigApi
-import com.ifs.stoppai.core.AriaMessagePlayer
-import com.ifs.stoppai.core.AriaRecorder
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
-import java.io.File
 
 class ConfiguraProtezioneBottomSheet : BottomSheetDialogFragment() {
 
     private lateinit var prefs: SharedPreferences
     var onConfirmListener: (() -> Unit)? = null
-
-    // Stato ARIA
-    private var selectedTipo: String = "base"
-    private var selectedPresetId: String? = null
-    private var recorder: AriaRecorder? = null
-    private var recordedFile: File? = null
-    private var hasRemoteCustom: Boolean = false
-    private var customUploadedAt: String? = null
-    private var uploading = false
-
-    // View references
-    private var layoutPresetList: LinearLayout? = null
-    private var layoutCustomControls: LinearLayout? = null
-    private var btnRecord: Button? = null
-    private var btnPlayCustom: Button? = null
-    private var txtRecordTimer: TextView? = null
-    private var txtCustomStatus: TextView? = null
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -58,28 +29,12 @@ class ConfiguraProtezioneBottomSheet : BottomSheetDialogFragment() {
         val root = inflater.inflate(R.layout.bottom_sheet_config_base, container, false)
         prefs = requireContext().getSharedPreferences("stoppai_prefs", Context.MODE_PRIVATE)
 
-        setupNumeriEsteri(root)
         setupSmsReply(root)
-        setupSegreteria(root)
         setupConfirmButton(root)
-
-        // Carica config ARIA dal backend
-        caricaAriaConfig()
 
         return root
     }
 
-    // ============================================
-    // SEZIONE 1: NUMERI ESTERI
-    // ============================================
-    private fun setupNumeriEsteri(root: View) {
-        val swEsteri = root.findViewById<Switch>(R.id.switch_esteri)
-        swEsteri.isChecked = prefs.getBoolean("consenti_esteri", false)
-    }
-
-    // ============================================
-    // SEZIONE 2: SMS RISPOSTA RAPIDA
-    // ============================================
     private fun setupSmsReply(root: View) {
         val swSms = root.findViewById<Switch>(R.id.switch_sms_reply)
         val layoutEditor = root.findViewById<View>(R.id.layout_sms_editor)
@@ -90,17 +45,13 @@ class ConfiguraProtezioneBottomSheet : BottomSheetDialogFragment() {
         swSms.isChecked = isSmsAct
         layoutEditor.visibility = if (isSmsAct) View.VISIBLE else View.GONE
 
-        val defaultMsg = "Ciao, in questo momento non posso rispondere. Lasciami un messaggio e ti richiamo appena possibile."
-        val savedMsg = prefs.getString("sms_testo_risposta", defaultMsg)
-        edtSms.setText(savedMsg)
-        txtCounter.text = "${savedMsg?.length ?: 0} / 160"
+        val smsText = prefs.getString("sms_testo_risposta",
+            "Ciao, sono l'assistente ARIA. Non posso rispondere ora, lasciami un messaggio.") ?: ""
+        edtSms.setText(smsText)
+        txtCounter.text = "${smsText.length} / 160"
 
         swSms.setOnCheckedChangeListener { _, isChecked ->
-            if (isChecked && !prefs.getBoolean("sms_alert_mostrato", false)) {
-                showCostAlert(swSms, layoutEditor)
-            } else {
-                layoutEditor.visibility = if (isChecked) View.VISIBLE else View.GONE
-            }
+            layoutEditor.visibility = if (isChecked) View.VISIBLE else View.GONE
         }
 
         edtSms.addTextChangedListener(object : TextWatcher {
@@ -112,359 +63,20 @@ class ConfiguraProtezioneBottomSheet : BottomSheetDialogFragment() {
         })
     }
 
-    // ============================================
-    // SEZIONE 3: MESSAGGIO SEGRETERIA ARIA
-    // ============================================
-    private fun setupSegreteria(root: View) {
-        val radioGroup = root.findViewById<RadioGroup>(R.id.radio_tipo_messaggio)
-        layoutPresetList = root.findViewById(R.id.layout_preset_list)
-        layoutCustomControls = root.findViewById(R.id.layout_custom_controls)
-        btnRecord = root.findViewById(R.id.btn_record_custom)
-        btnPlayCustom = root.findViewById(R.id.btn_play_custom)
-        txtRecordTimer = root.findViewById(R.id.txt_record_timer)
-        txtCustomStatus = root.findViewById(R.id.txt_custom_status)
-
-        radioGroup.setOnCheckedChangeListener { _, checkedId ->
-            when (checkedId) {
-                R.id.radio_base -> {
-                    selectedTipo = "base"
-                    layoutPresetList?.visibility = View.GONE
-                    layoutCustomControls?.visibility = View.GONE
-                    AriaMessagePlayer.stop()
-                }
-                R.id.radio_preset -> {
-                    selectedTipo = "preset"
-                    layoutPresetList?.visibility = View.VISIBLE
-                    layoutCustomControls?.visibility = View.GONE
-                    populatePresetList()
-                }
-                R.id.radio_custom -> {
-                    selectedTipo = "custom"
-                    layoutPresetList?.visibility = View.GONE
-                    layoutCustomControls?.visibility = View.VISIBLE
-                    AriaMessagePlayer.stop()
-                }
-            }
-        }
-
-        setupRecordingControls()
-    }
-
-    private fun populatePresetList() {
-        val list = layoutPresetList ?: return
-        list.removeAllViews()
-
-        val allPresets = AriaConfigApi.PRESETS_MASCHILI + AriaConfigApi.PRESETS_FEMMINILI
-        allPresets.forEach { (id, label) ->
-            val row = LinearLayout(requireContext()).apply {
-                orientation = LinearLayout.HORIZONTAL
-                layoutParams = LinearLayout.LayoutParams(
-                    LinearLayout.LayoutParams.MATCH_PARENT,
-                    LinearLayout.LayoutParams.WRAP_CONTENT
-                ).also { it.setMargins(0, 4, 0, 4) }
-                gravity = android.view.Gravity.CENTER_VERTICAL
-            }
-
-            val rb = RadioButton(requireContext()).apply {
-                text = label
-                textSize = 13f
-                setTextColor(0xFF333333.toInt())
-                buttonTintList = android.content.res.ColorStateList.valueOf(0xFF4CAF50.toInt())
-                layoutParams = LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.WRAP_CONTENT, 1f)
-                isChecked = (selectedPresetId == id)
-                setOnClickListener {
-                    selectedPresetId = id
-                    // Deseleziona gli altri RadioButton nel layout
-                    for (i in 0 until list.childCount) {
-                        val child = list.getChildAt(i) as? LinearLayout ?: continue
-                        val childRb = child.getChildAt(0) as? RadioButton ?: continue
-                        childRb.isChecked = (childRb.text == label)
-                    }
-                }
-            }
-
-            val btnPlay = Button(requireContext()).apply {
-                text = "▶"
-                textSize = 10f
-                minWidth = 0
-                minimumWidth = 0
-                setPadding(20, 8, 20, 8)
-                backgroundTintList = android.content.res.ColorStateList.valueOf(0xFF2196F3.toInt())
-                setTextColor(0xFFFFFFFF.toInt())
-                setOnClickListener {
-                    if (AriaMessagePlayer.isPlaying(id)) {
-                        AriaMessagePlayer.stop()
-                        text = "▶"
-                    } else {
-                        text = "■"
-                        AriaMessagePlayer.playUrl(AriaConfigApi.presetAudioUrl(id), id) {
-                            try { text = "▶" } catch (_: Exception) {}
-                        }
-                    }
-                }
-            }
-
-            row.addView(rb)
-            row.addView(btnPlay)
-            list.addView(row)
-        }
-    }
-
-    // ============================================
-    // REGISTRAZIONE CUSTOM
-    // ============================================
-    private fun setupRecordingControls() {
-        btnRecord?.setOnClickListener {
-            if (recorder?.isCurrentlyRecording() == true) {
-                recorder?.stop()
-                btnRecord?.text = "● REGISTRA"
-            } else {
-                if (!checkMicPermission()) return@setOnClickListener
-                startRecording()
-            }
-        }
-
-        btnPlayCustom?.setOnClickListener {
-            // Priorita' alla registrazione locale appena fatta, altrimenti stream dal server
-            val tag = "custom_local"
-            if (AriaMessagePlayer.isPlaying(tag)) {
-                AriaMessagePlayer.stop()
-                btnPlayCustom?.text = "▶ ASCOLTA"
-                return@setOnClickListener
-            }
-            btnPlayCustom?.text = "■ STOP"
-            val localFile = recordedFile
-            if (localFile != null && localFile.exists()) {
-                AriaMessagePlayer.playLocalFile(localFile.absolutePath, tag) {
-                    try { btnPlayCustom?.text = "▶ ASCOLTA" } catch (_: Exception) {}
-                }
-            } else if (hasRemoteCustom) {
-                val testerId = prefs.getInt("tester_id", -1)
-                if (testerId != -1) {
-                    AriaMessagePlayer.playUrl(AriaConfigApi.customAudioUrl(testerId), tag) {
-                        try { btnPlayCustom?.text = "▶ ASCOLTA" } catch (_: Exception) {}
-                    }
-                } else {
-                    btnPlayCustom?.text = "▶ ASCOLTA"
-                }
-            } else {
-                btnPlayCustom?.text = "▶ ASCOLTA"
-            }
-        }
-    }
-
-    private fun checkMicPermission(): Boolean {
-        val granted = ContextCompat.checkSelfPermission(
-            requireContext(), Manifest.permission.RECORD_AUDIO
-        ) == PackageManager.PERMISSION_GRANTED
-        if (!granted) {
-            Toast.makeText(requireContext(), "Permesso microfono necessario", Toast.LENGTH_SHORT).show()
-            requestPermissions(arrayOf(Manifest.permission.RECORD_AUDIO), 1001)
-        }
-        return granted
-    }
-
-    private fun startRecording() {
-        recorder = AriaRecorder(requireContext()).apply {
-            onTick = { sec ->
-                txtRecordTimer?.text = "Registrazione... ${sec}s / ${AriaRecorder.MAX_SECONDS}s"
-            }
-            onFinished = { file ->
-                btnRecord?.text = "● REGISTRA"
-                txtRecordTimer?.text = "Registrazione completata"
-                if (file != null && file.length() > 1024) {
-                    recordedFile = file
-                    btnPlayCustom?.isEnabled = true
-                    txtCustomStatus?.text = formatCustomStatus()
-                }
-            }
-        }
-        if (recorder?.start() == true) {
-            btnRecord?.text = "■ STOP"
-            txtRecordTimer?.text = "Registrazione... 0s / ${AriaRecorder.MAX_SECONDS}s"
-        } else {
-            Toast.makeText(requireContext(), "Impossibile avviare la registrazione", Toast.LENGTH_SHORT).show()
-        }
-    }
-
-    // ============================================
-    // CONFERMA — salva config
-    // ============================================
-    private var btnConfirm: Button? = null
-
     private fun setupConfirmButton(root: View) {
-        btnConfirm = root.findViewById(R.id.btn_confirm_base)
-        val btnConfirm = btnConfirm!!
-        val swEsteri = root.findViewById<Switch>(R.id.switch_esteri)
+        val btnConfirm = root.findViewById<Button>(R.id.btn_confirm_base)
         val swSms = root.findViewById<Switch>(R.id.switch_sms_reply)
         val edtSms = root.findViewById<EditText>(R.id.edt_sms_text)
 
-        // Disabilita finche' la config non e' caricata dal backend
-        btnConfirm.isEnabled = false
-        btnConfirm.text = "CARICAMENTO..."
-
         btnConfirm.setOnClickListener {
-            if (uploading) return@setOnClickListener
-
-            // Valida preset
-            if (selectedTipo == "preset" && selectedPresetId == null) {
-                Toast.makeText(requireContext(), "Seleziona una voce preset", Toast.LENGTH_SHORT).show()
-                return@setOnClickListener
-            }
-            // Valida custom: serve almeno una registrazione locale nuova OPPURE una gia' sul server
-            if (selectedTipo == "custom" && recordedFile == null && !hasRemoteCustom) {
-                Toast.makeText(requireContext(), "Registra prima il messaggio personale", Toast.LENGTH_SHORT).show()
-                return@setOnClickListener
-            }
-
-            // Stop eventuali player attivi
-            AriaMessagePlayer.stop()
-
-            // Salva SharedPreferences (logica attuale app)
             prefs.edit()
-                .putBoolean("consenti_esteri", swEsteri.isChecked)
                 .putBoolean("sms_risposta_attivo", swSms.isChecked)
                 .putString("sms_testo_risposta", edtSms.text.toString())
                 .putBoolean("protezione_base", true)
                 .apply()
 
-            // Salva config ARIA sul backend
-            salvaAriaConfigBackend()
-        }
-    }
-
-    // ============================================
-    // BACKEND CALLS
-    // ============================================
-    private fun caricaAriaConfig() {
-        val testerId = prefs.getInt("tester_id", -1)
-        if (testerId == -1) return
-
-        lifecycleScope.launch {
-            val cfg = AriaConfigApi.getConfig(testerId)
-            withContext(Dispatchers.Main) {
-                selectedTipo = cfg.tipoMessaggio
-                selectedPresetId = cfg.presetId
-                hasRemoteCustom = !cfg.customWavPath.isNullOrBlank()
-                val view = view ?: return@withContext
-                val radioGroup = view.findViewById<RadioGroup>(R.id.radio_tipo_messaggio)
-                when (cfg.tipoMessaggio) {
-                    "base" -> radioGroup.check(R.id.radio_base)
-                    "preset" -> radioGroup.check(R.id.radio_preset)
-                    "custom" -> {
-                        radioGroup.check(R.id.radio_custom)
-                    }
-                }
-                customUploadedAt = cfg.customUploadedAt
-                // Se esiste gia' una registrazione sul server, abilita Ascolta e mostra status
-                if (hasRemoteCustom) {
-                    btnPlayCustom?.isEnabled = true
-                    txtCustomStatus?.text = formatCustomStatus()
-                }
-                // Riabilita il pulsante Conferma ora che la config e' caricata
-                btnConfirm?.isEnabled = true
-                btnConfirm?.text = "CONFERMA E ATTIVA"
-            }
-        }
-    }
-
-    /**
-     * Restituisce il testo da mostrare sotto i pulsanti REGISTRA/ASCOLTA
-     * in base allo stato della registrazione custom.
-     */
-    private fun formatCustomStatus(): String {
-        // Caso 1: nessuna registrazione (locale o remota)
-        if (recordedFile == null && !hasRemoteCustom) {
-            return "Premi REGISTRA per crearne uno (max 30 secondi)"
-        }
-        // Caso 2: registrazione locale fresca, non ancora confermata
-        if (recordedFile != null) {
-            val kb = (recordedFile?.length() ?: 0) / 1024
-            return "Nuova registrazione pronta ($kb KB) — premi CONFERMA per attivarla"
-        }
-        // Caso 3: registrazione gia' presente sul server
-        val data = customUploadedAt
-        return if (data != null) {
-            "Ultima registrazione: ${formatDateIt(data)}\nPremi REGISTRA per sostituirla."
-        } else {
-            "Registrazione attiva sul server. Premi REGISTRA per sostituirla."
-        }
-    }
-
-    /**
-     * Converte un timestamp ISO ("2026-04-06 11:53:42") in formato italiano "06/04/2026 11:53".
-     */
-    private fun formatDateIt(iso: String): String {
-        return try {
-            // Backend ritorna "YYYY-MM-DD HH:MM:SS"
-            val parts = iso.replace('T', ' ').split(' ')
-            val date = parts[0].split('-')
-            val time = if (parts.size > 1) parts[1].split(':') else listOf("00","00")
-            "${date[2]}/${date[1]}/${date[0]} ${time[0]}:${time[1]}"
-        } catch (e: Exception) {
-            iso
-        }
-    }
-
-    private fun salvaAriaConfigBackend() {
-        val testerId = prefs.getInt("tester_id", -1)
-        if (testerId == -1) {
-            // No tester_id: chiudi e basta
             onConfirmListener?.invoke()
             dismiss()
-            return
         }
-
-        uploading = true
-        lifecycleScope.launch {
-            var ok = true
-
-            // Se custom: prima upload WAV
-            if (selectedTipo == "custom" && recordedFile != null) {
-                ok = AriaConfigApi.uploadCustom(testerId, recordedFile!!)
-            }
-
-            if (ok) {
-                ok = AriaConfigApi.saveConfig(
-                    testerId = testerId,
-                    tipoMessaggio = selectedTipo,
-                    presetId = selectedPresetId
-                )
-            }
-
-            withContext(Dispatchers.Main) {
-                uploading = false
-                if (ok) {
-                    Toast.makeText(requireContext(), "Configurazione salvata", Toast.LENGTH_SHORT).show()
-                    onConfirmListener?.invoke()
-                    dismiss()
-                } else {
-                    Toast.makeText(requireContext(), "Errore salvataggio. Riprova.", Toast.LENGTH_LONG).show()
-                }
-            }
-        }
-    }
-
-    override fun onDestroyView() {
-        AriaMessagePlayer.stop()
-        recorder?.stop()
-        super.onDestroyView()
-    }
-
-    private fun showCostAlert(sw: Switch, layout: View) {
-        val ctx = requireContext()
-        AlertDialog.Builder(ctx)
-            .setTitle("⚠️ Attenzione")
-            .setMessage("L'invio di SMS automatici utilizza il credito del tuo piano telefonico. I costi dipendono dal contratto con il tuo operatore. StoppAI non si assume responsabilità per i costi degli SMS inviati.")
-            .setPositiveButton("HO CAPITO, CONTINUA") { _, _ ->
-                prefs.edit().putBoolean("sms_alert_mostrato", true).apply()
-                layout.visibility = View.VISIBLE
-            }
-            .setNegativeButton("ANNULLA") { _, _ ->
-                sw.isChecked = false
-                layout.visibility = View.GONE
-            }
-            .setCancelable(false)
-            .show()
     }
 }

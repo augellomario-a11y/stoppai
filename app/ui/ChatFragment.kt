@@ -42,6 +42,26 @@ class ChatFragment : Fragment(R.layout.fragment_chat) {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+
+        // Verifica piano: Chat richiede PRO
+        if (!com.ifs.stoppai.core.PlanManager.isDisponibile(requireContext(), com.ifs.stoppai.core.PlanManager.Feature.CHAT_SUPPORTO)) {
+            view.findViewById<android.view.View>(R.id.rv_chat)?.visibility = android.view.View.GONE
+            view.findViewById<android.view.View>(R.id.edt_message)?.visibility = android.view.View.GONE
+            view.findViewById<android.view.View>(R.id.btn_send)?.visibility = android.view.View.GONE
+            val lock = android.widget.TextView(requireContext()).apply {
+                text = "🔒 La chat con il team è disponibile con il piano PRO\n\nTocca qui per scoprire i piani"
+                textSize = 16f
+                setTextColor(android.graphics.Color.parseColor("#666666"))
+                gravity = android.view.Gravity.CENTER
+                setPadding(40, 100, 40, 100)
+                setOnClickListener {
+                    com.ifs.stoppai.core.UpgradeDialog.show(requireContext(), com.ifs.stoppai.core.PlanManager.Feature.CHAT_SUPPORTO)
+                }
+            }
+            (view as? android.view.ViewGroup)?.addView(lock, 0)
+            return
+        }
+
         rvChat = view.findViewById(R.id.rv_chat)
         edtMessage = view.findViewById(R.id.edt_message)
         btnSend = view.findViewById(R.id.btn_send)

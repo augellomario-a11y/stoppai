@@ -41,6 +41,7 @@ class SettingsFragment : Fragment(R.layout.fragment_settings) {
 
         setupAccountSection(view)
         setupAriaSection(view)
+        setupAdvancedFeatures(view)
         setupPermissionClickListeners(view)
         setupVolumeControl(view)
 
@@ -316,6 +317,139 @@ class SettingsFragment : Fragment(R.layout.fragment_settings) {
         } catch (e: Exception) {
             android.widget.Toast.makeText(requireContext(), "Errore apertura dialer", android.widget.Toast.LENGTH_SHORT).show()
         }
+    }
+
+    // ===== NUMERI ESTERI + MESSAGGIO ARIA (con lock) =====
+    private fun setupAdvancedFeatures(view: View) {
+        val ctx = requireContext()
+        val prefs = ctx.getSharedPreferences("stoppai_prefs", Context.MODE_PRIVATE)
+
+        // --- Filtro numeri esteri (SHIELD) ---
+        val lockFiltro = view.findViewById<android.widget.ImageView>(R.id.lock_filtro_esteri)
+        val switchEsteri = view.findViewById<android.widget.Switch>(R.id.switch_consenti_esteri)
+        val disponibileFiltro = com.ifs.stoppai.core.PlanManager.isDisponibile(ctx, com.ifs.stoppai.core.PlanManager.Feature.FILTRO_ESTERI)
+
+        if (disponibileFiltro) {
+            lockFiltro.setImageResource(R.drawable.ic_lock_open)
+            switchEsteri.isChecked = prefs.getBoolean("consenti_esteri", false)
+            switchEsteri.setOnCheckedChangeListener { _, isChecked ->
+                prefs.edit().putBoolean("consenti_esteri", isChecked).apply()
+                android.widget.Toast.makeText(ctx,
+                    if (isChecked) "Numeri esteri consentiti" else "Numeri esteri bloccati",
+                    android.widget.Toast.LENGTH_SHORT).show()
+            }
+        } else {
+            switchEsteri.isEnabled = false
+            switchEsteri.setOnClickListener {
+                com.ifs.stoppai.core.UpgradeDialog.show(ctx, com.ifs.stoppai.core.PlanManager.Feature.FILTRO_ESTERI)
+            }
+        }
+
+        // --- White list prefissi esteri (SHIELD) ---
+        val lockWhitelist = view.findViewById<android.widget.ImageView>(R.id.lock_whitelist_esteri)
+        val rowWhitelist = view.findViewById<View>(R.id.row_whitelist_esteri)
+        if (com.ifs.stoppai.core.PlanManager.isDisponibile(ctx, com.ifs.stoppai.core.PlanManager.Feature.WHITELIST_ESTERI)) {
+            lockWhitelist.setImageResource(R.drawable.ic_lock_open)
+        }
+        rowWhitelist.setOnClickListener {
+            if (com.ifs.stoppai.core.PlanManager.isDisponibile(ctx, com.ifs.stoppai.core.PlanManager.Feature.WHITELIST_ESTERI)) {
+                android.widget.Toast.makeText(ctx, "White list prefissi — in arrivo", android.widget.Toast.LENGTH_SHORT).show()
+            } else {
+                com.ifs.stoppai.core.UpgradeDialog.show(ctx, com.ifs.stoppai.core.PlanManager.Feature.WHITELIST_ESTERI)
+            }
+        }
+
+        // --- Messaggio segreteria ARIA ---
+        val txtAriaAttuale = view.findViewById<TextView>(R.id.txt_aria_msg_attuale)
+        val tipoMsg = prefs.getString("aria_tipo_messaggio", "base") ?: "base"
+        txtAriaAttuale.text = when (tipoMsg) {
+            "preset" -> "Messaggio attuale: Voce preregistrata"
+            "custom" -> "Messaggio attuale: Personalizzato"
+            else -> "Messaggio attuale: Standard"
+        }
+
+        view.findViewById<Button>(R.id.btn_configura_aria_msg).setOnClickListener {
+            val bs = AriaConfigBottomSheet()
+            bs.onSaveListener = { label ->
+                txtAriaAttuale.text = "Messaggio attuale: $label"
+            }
+            bs.show(parentFragmentManager, "aria_config_bs")
+        }
+    }
+
+    private fun mostraSceltaMessaggioAria(txtAttuale: TextView) {
+        val ctx = requireContext()
+        val opzioni = arrayOf(
+            "Messaggio standard",
+            "🔒 Voce preregistrata (8 preset) — PRO",
+            "🔒 Messaggio personale registrato — SHIELD"
+        )
+
+        // Se il piano lo consente, togli il lucchetto dalle opzioni
+        val proPlan = com.ifs.stoppai.core.PlanManager.isDisponibile(ctx, com.ifs.stoppai.core.PlanManager.Feature.ARIA_PRESET)
+        val shieldPlan = com.ifs.stoppai.core.PlanManager.isDisponibile(ctx, com.ifs.stoppai.core.PlanManager.Feature.ARIA_CUSTOM)
+        val labels = arrayOf(
+            "Messaggio standard",
+            if (proPlan) "Voce preregistrata (8 preset)" else "🔒 Voce preregistrata (8 preset) — PRO",
+            if (shieldPlan) "Messaggio personale registrato" else "🔒 Messaggio personale registrato — SHIELD"
+        )
+
+        androidx.appcompat.app.AlertDialog.Builder(ctx)
+            .setTitle("Messaggio segreteria ARIA")
+            .setItems(labels) { _, which ->
+                val prefs = ctx.getSharedPreferences("stoppai_prefs", Context.MODE_PRIVATE)
+                when (which) {
+                    0 -> {
+                        prefs.edit().putString("aria_tipo_messaggio", "base").apply()
+                        txtAttuale.text = "Messaggio attuale: Standard"
+                        android.widget.Toast.makeText(ctx, "Messaggio standard impostato", android.widget.Toast.LENGTH_SHORT).show()
+                    }
+                    1 -> {
+                        if (proPlan) {
+                            mostraListaPreset(txtAttuale)
+                        } else {
+                            com.ifs.stoppai.core.UpgradeDialog.show(ctx, com.ifs.stoppai.core.PlanManager.Feature.ARIA_PRESET)
+                        }
+                    }
+                    2 -> {
+                        if (shieldPlan) {
+                            prefs.edit().putString("aria_tipo_messaggio", "custom").apply()
+                            txtAttuale.text = "Messaggio attuale: Personalizzato"
+                            android.widget.Toast.makeText(ctx, "Messaggio personalizzato selezionato.\nPer registrare, usa la sezione dedicata.", android.widget.Toast.LENGTH_LONG).show()
+                        } else {
+                            com.ifs.stoppai.core.UpgradeDialog.show(ctx, com.ifs.stoppai.core.PlanManager.Feature.ARIA_CUSTOM)
+                        }
+                    }
+                }
+            }
+            .setNegativeButton("Chiudi", null)
+            .show()
+    }
+
+    private fun mostraListaPreset(txtAttuale: TextView) {
+        val ctx = requireContext()
+        val presets = arrayOf(
+            "Uomo 1", "Uomo 2", "Uomo 3", "Uomo 4",
+            "Donna 1", "Donna 2", "Donna 3", "Donna 4"
+        )
+        val presetIds = arrayOf(
+            "uomo_1", "uomo_2", "uomo_3", "uomo_4",
+            "donna_1", "donna_2", "donna_3", "donna_4"
+        )
+
+        androidx.appcompat.app.AlertDialog.Builder(ctx)
+            .setTitle("Scegli voce preset")
+            .setItems(presets) { _, which ->
+                val prefs = ctx.getSharedPreferences("stoppai_prefs", Context.MODE_PRIVATE)
+                prefs.edit()
+                    .putString("aria_tipo_messaggio", "preset")
+                    .putString("aria_preset_id", presetIds[which])
+                    .apply()
+                txtAttuale.text = "Messaggio attuale: ${presets[which]}"
+                android.widget.Toast.makeText(ctx, "${presets[which]} selezionato", android.widget.Toast.LENGTH_SHORT).show()
+            }
+            .setNegativeButton("Annulla", null)
+            .show()
     }
 
     // ===== VOLUME =====

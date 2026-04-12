@@ -83,6 +83,8 @@ class HomeFragment : Fragment(R.layout.fragment_home) {
         audioManager = act.getSystemService(
             Context.AUDIO_SERVICE) as android.media.AudioManager
 
+        setupBannerPiano(view)
+
         switchBase = view.findViewById(R.id.ID_HOME_001)
         switchBase.isChecked = prefs.getBoolean("protezione_base", false)
 
@@ -137,9 +139,15 @@ class HomeFragment : Fragment(R.layout.fragment_home) {
             lbl?.text = if (isShowEarnings) "Guadagni" else "Invitati"
         }
 
-        // Switch Protezione Totale — apre BottomSheet
+        // Switch Protezione Totale — verifica piano + apre BottomSheet
         switchTotale.setOnCheckedChangeListener { _, isChecked ->
             if (isChecked) {
+                // Verifica piano: Protezione Totale richiede PRO
+                if (!com.ifs.stoppai.core.PlanManager.isDisponibile(requireContext(), com.ifs.stoppai.core.PlanManager.Feature.PROTEZIONE_TOTALE)) {
+                    switchTotale.isChecked = false
+                    com.ifs.stoppai.core.UpgradeDialog.show(requireContext(), com.ifs.stoppai.core.PlanManager.Feature.PROTEZIONE_TOTALE)
+                    return@setOnCheckedChangeListener
+                }
                 val bs = ProtezioneBottomSheet()
                 bs.onAttivaListener = {
                     switchBase.isEnabled = false
@@ -307,6 +315,63 @@ class HomeFragment : Fragment(R.layout.fragment_home) {
                 tvStatTotale.text = tot.toString()
                 tvStatOggi.text = oggiCnt.toString()
                 tvStatReferral.text = "0"
+            }
+        }
+    }
+
+    private fun setupBannerPiano(view: View) {
+        val ctx = requireContext()
+        val badge = view.findViewById<TextView>(R.id.txt_piano_badge)
+        val counter = view.findViewById<TextView>(R.id.txt_piano_counter)
+        val banner = view.findViewById<View>(R.id.banner_piano)
+
+        val piano = com.ifs.stoppai.core.PlanManager.getPianoCorrente(ctx)
+        val installTime = prefs.getLong("install_timestamp", 0L)
+        val now = System.currentTimeMillis()
+
+        if (installTime == 0L) {
+            prefs.edit().putLong("install_timestamp", now).apply()
+        }
+
+        val giorniDaInstall = if (installTime > 0) ((now - installTime) / (24 * 60 * 60 * 1000)).toInt() else 0
+        val trialAttivo = com.ifs.stoppai.core.PlanManager.isTrialAttivo(ctx)
+
+        when {
+            trialAttivo -> {
+                // Trial SHIELD attivo — contatore verde
+                val giorniRimasti = 14 - giorniDaInstall
+                badge.text = "SHIELD TRIAL"
+                badge.setBackgroundColor(0xFFC8A96E.toInt())
+                badge.setTextColor(0xFF1a1a2e.toInt())
+                counter.text = "$giorniRimasti giorni rimasti"
+                counter.setTextColor(0xFF4CAF50.toInt())
+            }
+            piano == "shield" -> {
+                badge.text = "SHIELD"
+                badge.setBackgroundColor(0xFFC8A96E.toInt())
+                badge.setTextColor(0xFF1a1a2e.toInt())
+                counter.text = "Attivo"
+                counter.setTextColor(0xFF4CAF50.toInt())
+            }
+            piano == "pro" -> {
+                badge.text = "PRO"
+                badge.setBackgroundColor(0xFF1976D2.toInt())
+                badge.setTextColor(0xFFFFFFFF.toInt())
+                counter.text = "Attivo"
+                counter.setTextColor(0xFF4CAF50.toInt())
+            }
+            else -> {
+                // FREE — trial scaduto, contatore rosso
+                val giorniScaduto = giorniDaInstall - 14
+                badge.text = "FREE"
+                badge.setBackgroundColor(0xFF888888.toInt())
+                badge.setTextColor(0xFFFFFFFF.toInt())
+                counter.text = "Trial scaduto da $giorniScaduto giorni"
+                counter.setTextColor(0xFFCC0000.toInt())
+                // Tap sul banner apre la pagina prezzi
+                banner.setOnClickListener {
+                    com.ifs.stoppai.core.UpgradeDialog.show(ctx, com.ifs.stoppai.core.PlanManager.Feature.ARIA_ILLIMITATO)
+                }
             }
         }
     }
