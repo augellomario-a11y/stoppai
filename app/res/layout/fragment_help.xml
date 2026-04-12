@@ -2,40 +2,244 @@
 <ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:fillViewport="true">
+    android:fillViewport="true"
+    android:background="#FAFAFA">
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="vertical"
         android:padding="16dp">
-        
+
+        <!-- TITOLO -->
         <TextView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="Blocca i fastidi.\nNon le persone."
-            android:textSize="26sp"
+            android:text="Guida StoppAI"
+            android:textSize="24sp"
             android:textStyle="bold"
+            android:textColor="#1a1a2e"
+            android:layout_marginBottom="4dp" />
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Tutto quello che devi sapere per usare l'app al meglio."
+            android:textSize="13sp"
+            android:textColor="#888888"
+            android:layout_marginBottom="20dp" />
+
+        <!-- COS'È STOPPAI -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:background="@drawable/card_settings_bg"
+            android:padding="16dp"
+            android:layout_marginBottom="12dp">
+
+            <TextView android:text="COS'È STOPPAI" android:textStyle="bold" android:textSize="13sp" android:textColor="#c8a96e" android:letterSpacing="0.1" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginBottom="8dp"/>
+            <TextView android:text="StoppAI è il tuo bodyguard digitale. Non blocca le persone: filtra le chiamate. Chi è in rubrica passa sempre. Chi non conosci viene accolto da ARIA, la segreteria AI italiana, che risponde al posto tuo, registra il messaggio e te lo trascrive in testo." android:textSize="14sp" android:textColor="#333333" android:lineSpacingExtra="4dp" android:layout_width="match_parent" android:layout_height="wrap_content"/>
+        </LinearLayout>
+
+        <!-- PROTEZIONE BASE -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:background="@drawable/card_settings_bg"
+            android:padding="16dp"
+            android:layout_marginBottom="12dp">
+
+            <TextView android:text="🛡️  PROTEZIONE BASE" android:textStyle="bold" android:textSize="13sp" android:textColor="#c8a96e" android:letterSpacing="0.1" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginBottom="8dp"/>
+            <TextView android:text="Quando la attivi, tutti i numeri sconosciuti vengono silenziati. Il telefono non squilla e non vibra. Chi è nella tua rubrica squilla normalmente.\n\nCome si attiva: tocca lo switch 'Protezione Base' nella Home.\n\nSMS automatico: puoi scegliere di inviare un SMS automatico ai numeri mobili italiani sconosciuti con un messaggio preimpostato." android:textSize="14sp" android:textColor="#333333" android:lineSpacingExtra="4dp" android:layout_width="match_parent" android:layout_height="wrap_content"/>
+        </LinearLayout>
+
+        <!-- PROTEZIONE TOTALE -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:background="@drawable/card_settings_bg"
+            android:padding="16dp"
+            android:layout_marginBottom="12dp">
+
+            <TextView android:text="🔒  PROTEZIONE TOTALE  •  PRO" android:textStyle="bold" android:textSize="13sp" android:textColor="#1976D2" android:letterSpacing="0.1" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginBottom="8dp"/>
+            <TextView android:text="Silenzio assoluto per tutti, anche i tuoi contatti. Nessuno può farti squillare il telefono.\n\nModalità disponibili:\n• Protezione Totale — blocca tutti i numeri\n• Protezione Totale + Preferiti — blocca anche i contatti preferiti\n\nDurata: scegli tra 30, 60 minuti o personalizzata.\nAllo scadere torna automaticamente a Protezione Base.\n\nUtile per: riunioni, quando dormi, quando guidi." android:textSize="14sp" android:textColor="#333333" android:lineSpacingExtra="4dp" android:layout_width="match_parent" android:layout_height="wrap_content"/>
+        </LinearLayout>
+
+        <!-- SEGRETERIA ARIA -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:background="@drawable/card_settings_bg"
+            android:padding="16dp"
+            android:layout_marginBottom="12dp">
+
+            <TextView android:text="🎙️  SEGRETERIA ARIA" android:textStyle="bold" android:textSize="13sp" android:textColor="#c8a96e" android:letterSpacing="0.1" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginBottom="8dp"/>
+            <TextView android:text="ARIA è la segreteria intelligente di StoppAI. Quando un numero sconosciuto ti chiama, ARIA risponde con una voce italiana naturale e invita il chiamante a lasciare un messaggio.\n\nIl messaggio viene registrato, trascritto automaticamente in testo con intelligenza artificiale, e ti arriva come notifica push sul telefono.\n\nPuoi leggere la trascrizione e ascoltare l'audio originale direttamente dall'app.\n\nNelle Impostazioni puoi scegliere tra:\n• Messaggio standard (gratuito)\n• 8 voci preregistrate — PRO\n• Messaggio personale registrato da te — SHIELD" android:textSize="14sp" android:textColor="#333333" android:lineSpacingExtra="4dp" android:layout_width="match_parent" android:layout_height="wrap_content"/>
+        </LinearLayout>
+
+        <!-- NUMERI ESTERI -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:background="@drawable/card_settings_bg"
+            android:padding="16dp"
+            android:layout_marginBottom="12dp">
+
+            <TextView android:text="🌍  NUMERI ESTERI  •  SHIELD" android:textStyle="bold" android:textSize="13sp" android:textColor="#c8a96e" android:letterSpacing="0.1" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginBottom="8dp"/>
+            <TextView android:text="Per impostazione predefinita, i numeri internazionali sconosciuti vengono bloccati come tutti gli altri.\n\nNelle Impostazioni puoi:\n• Consentire tutti i numeri esteri (switch ON)\n• White list prefissi (in arrivo): potrai consentire solo i paesi che scegli tu (es. +44 Regno Unito, +49 Germania) inserendo i prefissi dalla sezione dedicata" android:textSize="14sp" android:textColor="#333333" android:lineSpacingExtra="4dp" android:layout_width="match_parent" android:layout_height="wrap_content"/>
+        </LinearLayout>
+
+        <!-- SMS RISPOSTA RAPIDA -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:background="@drawable/card_settings_bg"
+            android:padding="16dp"
+            android:layout_marginBottom="12dp">
+
+            <TextView android:text="📩  SMS RISPOSTA RAPIDA" android:textStyle="bold" android:textSize="13sp" android:textColor="#c8a96e" android:letterSpacing="0.1" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginBottom="8dp"/>
+            <TextView android:text="Quando un numero mobile italiano sconosciuto ti chiama, StoppAI può inviargli automaticamente un SMS.\n\nIl testo standard è: 'Non posso rispondere, lasciami un messaggio.'\n\nCon il piano PRO puoi personalizzare il testo dell'SMS.\n\nLimiti:\n• FREE: 30 SMS al mese (testo standard)\n• PRO/SHIELD: illimitati (testo personalizzabile)" android:textSize="14sp" android:textColor="#333333" android:lineSpacingExtra="4dp" android:layout_width="match_parent" android:layout_height="wrap_content"/>
+        </LinearLayout>
+
+        <!-- REGISTRO CHIAMATE -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:background="@drawable/card_settings_bg"
+            android:padding="16dp"
+            android:layout_marginBottom="12dp">
+
+            <TextView android:text="📋  REGISTRO CHIAMATE" android:textStyle="bold" android:textSize="13sp" android:textColor="#c8a96e" android:letterSpacing="0.1" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginBottom="8dp"/>
+            <TextView android:text="Nella Home trovi la lista di tutte le chiamate gestite da StoppAI.\n\nOgni riga mostra:\n• Freccia ↓ rossa = chiamata in entrata da sconosciuto\n• Freccia ↓ verde = chiamata in entrata da contatto\n• Freccia ↑ verde = chiamata in uscita\n• 🎙️ = c'è un messaggio in segreteria (tocca per leggere/ascoltare)\n• 📝 = hai scritto una nota\n\nToccando una riga puoi: richiamare, aggiungere alla rubrica, segnare come spam o scrivere una nota." android:textSize="14sp" android:textColor="#333333" android:lineSpacingExtra="4dp" android:layout_width="match_parent" android:layout_height="wrap_content"/>
+        </LinearLayout>
+
+        <!-- SEGNALAZIONE SPAM -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:background="@drawable/card_settings_bg"
+            android:padding="16dp"
+            android:layout_marginBottom="12dp">
+
+            <TextView android:text="🚫  SEGNALAZIONE SPAM" android:textStyle="bold" android:textSize="13sp" android:textColor="#c8a96e" android:letterSpacing="0.1" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginBottom="8dp"/>
+            <TextView android:text="Quando leggi un messaggio ARIA, puoi segnare il numero come 'Spam' o 'Attendibile'.\n\nLe segnalazioni vengono inviate al nostro database. Quando più utenti segnalano lo stesso numero, diventa un numero confermato come spam per tutta la comunità StoppAI.\n\nA differenza di altri servizi, le segnalazioni provengono da utenti verificati, non anonimi." android:textSize="14sp" android:textColor="#333333" android:lineSpacingExtra="4dp" android:layout_width="match_parent" android:layout_height="wrap_content"/>
+        </LinearLayout>
+
+        <!-- GESTIONE SEGRETERIA -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:background="@drawable/card_settings_bg"
+            android:padding="16dp"
+            android:layout_marginBottom="12dp">
+
+            <TextView android:text="⚙️  GESTIONE SEGRETERIA" android:textStyle="bold" android:textSize="13sp" android:textColor="#c8a96e" android:letterSpacing="0.1" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginBottom="8dp"/>
+            <TextView android:text="Nelle Impostazioni → Gestisci segreteria ARIA puoi:\n\n• Verificare le deviazioni attive — controlla che ARIA sia configurata correttamente sul tuo operatore\n• Attivare le deviazioni singolarmente o tutte insieme — passo-passo, con conferma visiva\n• Disattivare tutte le deviazioni — ripristina la segreteria del tuo operatore\n\nSe cambi operatore o SIM, devi riconfigurare le deviazioni." android:textSize="14sp" android:textColor="#333333" android:lineSpacingExtra="4dp" android:layout_width="match_parent" android:layout_height="wrap_content"/>
+        </LinearLayout>
+
+        <!-- SEPARATORE PIANI -->
+        <View android:layout_width="match_parent" android:layout_height="2dp" android:background="#c8a96e" android:layout_marginVertical="16dp" />
+
+        <!-- TABELLA PIANI -->
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Piani e prezzi"
+            android:textSize="22sp"
+            android:textStyle="bold"
+            android:textColor="#1a1a2e"
             android:gravity="center"
-            android:layout_marginBottom="24dp"
-            android:layout_marginTop="16dp"/>
+            android:layout_marginBottom="4dp" />
 
-        <TextView android:text="Cos'è StoppAI" android:textStyle="bold" android:textSize="18sp" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginBottom="4dp"/>
-        <TextView android:text="StoppAI non blocca nessuno. Filtra. Chi conosci passa sempre. Chi non conosci viene accolto da un agente che ascolta e ti avvisa con una notifica." android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginBottom="16dp"/>
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Scegli il livello di protezione che fa per te."
+            android:textSize="13sp"
+            android:textColor="#888888"
+            android:gravity="center"
+            android:layout_marginBottom="16dp" />
 
-        <TextView android:text="🛡️ Protezione Base" android:textStyle="bold" android:textSize="18sp" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginBottom="4dp"/>
-        <TextView android:text="Cosa fa: blocca le chiamate di chi non è in rubrica. Il tuo telefono non squilla.\nCome si attiva: tocca lo switch verde nella Home.\nCosa succede: chi ti conosce squilla sempre. Gli altri vengono deviati alla segreteria." android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginBottom="16dp"/>
+        <!-- CARD FREE -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:background="@drawable/card_settings_bg"
+            android:padding="16dp"
+            android:layout_marginBottom="10dp">
 
-        <TextView android:text="🔒 Protezione Totale" android:textStyle="bold" android:textSize="18sp" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginBottom="4dp"/>
-        <TextView android:text="Cosa fa: silenzio assoluto per tutti, anche i tuoi contatti. Utile durante riunioni importanti.\nCome si attiva: tocca lo switch Protezione Totale nella Home.\nDurata: 60 minuti, poi torna automaticamente a Protezione Base." android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginBottom="16dp"/>
+            <TextView android:text="FREE" android:textStyle="bold" android:textSize="18sp" android:textColor="#888888" android:gravity="center" android:layout_width="match_parent" android:layout_height="wrap_content"/>
+            <TextView android:text="€0" android:textSize="28sp" android:textStyle="bold" android:textColor="#888888" android:gravity="center" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginBottom="8dp"/>
+            <TextView android:text="✓ Protezione base\n✓ Storico chiamate\n✓ SMS standard (30/mese)\n✓ ARIA 3 inoltri/mese\n✓ 14 giorni prova SHIELD\n✗ Player audio\n✗ Chat supporto" android:textSize="13sp" android:textColor="#666666" android:lineSpacingExtra="4dp" android:layout_width="match_parent" android:layout_height="wrap_content"/>
+        </LinearLayout>
 
-        <TextView android:text="📞 Segreteria" android:textStyle="bold" android:textSize="18sp" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginBottom="4dp"/>
-        <TextView android:text="Cosa fa: le chiamate sconosciute vengono deviate alla segreteria ARIA che risponde al posto tuo.\nCome si attiva: durante il setup iniziale o dalle Impostazioni, tocca Attiva segreteria ARIA. StoppAI disattiva la segreteria del tuo operatore e imposta automaticamente le deviazioni verso ARIA.\nImportante: il prefisso +39 è obbligatorio per tutti gli operatori." android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginBottom="16dp"/>
+        <!-- CARD PRO -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:padding="16dp"
+            android:layout_marginBottom="10dp"
+            android:background="@drawable/card_settings_bg">
 
-        <TextView android:text="📋 Registro" android:textStyle="bold" android:textSize="18sp" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginBottom="4dp"/>
-        <TextView android:text="Qui trovi tutte le chiamate gestite da StoppAI. Per ogni chiamata puoi: richiamare, aggiungere in rubrica, segnare come spam o ignorare." android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginBottom="16dp"/>
+            <TextView android:text="PRO" android:textStyle="bold" android:textSize="18sp" android:textColor="#1976D2" android:gravity="center" android:layout_width="match_parent" android:layout_height="wrap_content"/>
+            <TextView android:text="€2,99/mese • €18/anno" android:textSize="16sp" android:textStyle="bold" android:textColor="#1976D2" android:gravity="center" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginBottom="8dp"/>
+            <TextView android:text="✓ Tutto di FREE +\n✓ Protezione totale\n✓ ARIA illimitato\n✓ 8 voci preset\n✓ SMS personalizzabile illimitato\n✓ Player audio (10/mese)\n✓ Mini CRM completo\n✓ Chat supporto" android:textSize="13sp" android:textColor="#666666" android:lineSpacingExtra="4dp" android:layout_width="match_parent" android:layout_height="wrap_content"/>
 
-        <TextView android:text="💬 Chi sei?" android:textStyle="bold" android:textSize="18sp" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginBottom="4dp"/>
-        <TextView android:text="Se vuoi sapere chi ti ha chiamato puoi inviare un SMS automatico con scritto Chi sei? Lo trovi nel registro toccando il numero della chiamata." android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginBottom="16dp"/>
+            <Button
+                android:id="@+id/btn_upgrade_pro"
+                android:layout_width="match_parent"
+                android:layout_height="44dp"
+                android:text="Passa a PRO"
+                android:textColor="#FFFFFF"
+                android:backgroundTint="#1976D2"
+                android:layout_marginTop="12dp" />
+        </LinearLayout>
+
+        <!-- CARD SHIELD -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:padding="16dp"
+            android:layout_marginBottom="10dp"
+            android:background="@drawable/card_settings_bg">
+
+            <TextView android:text="SHIELD" android:textStyle="bold" android:textSize="18sp" android:textColor="#c8a96e" android:gravity="center" android:layout_width="match_parent" android:layout_height="wrap_content"/>
+            <TextView android:text="€4,99/mese • €29/anno" android:textSize="16sp" android:textStyle="bold" android:textColor="#c8a96e" android:gravity="center" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginBottom="8dp"/>
+            <TextView android:text="✓ Tutto di PRO +\n✓ Messaggio personale registrato\n✓ Filtro numeri esteri\n✓ White list prefissi\n✓ Player audio illimitato\n✓ Protezione completa" android:textSize="13sp" android:textColor="#666666" android:lineSpacingExtra="4dp" android:layout_width="match_parent" android:layout_height="wrap_content"/>
+
+            <Button
+                android:id="@+id/btn_upgrade_shield"
+                android:layout_width="match_parent"
+                android:layout_height="44dp"
+                android:text="Passa a SHIELD"
+                android:textColor="#1a1a2e"
+                android:backgroundTint="#c8a96e"
+                android:layout_marginTop="12dp" />
+        </LinearLayout>
+
+        <!-- BADGE PIANO ATTUALE -->
+        <TextView
+            android:id="@+id/txt_info_piano_attuale"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Il tuo piano attuale: —"
+            android:textSize="14sp"
+            android:textStyle="bold"
+            android:textColor="#333333"
+            android:gravity="center"
+            android:layout_marginTop="8dp"
+            android:layout_marginBottom="24dp" />
 
     </LinearLayout>
 </ScrollView>
