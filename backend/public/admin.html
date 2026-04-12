@@ -410,10 +410,11 @@ async function toggleMyTodo(id){
   await fetch(API+'/personal-todos/'+id+'/toggle',{method:'POST',credentials:'include'});
   loadMyTodo();
 }
-async function deleteMyTodo(id){
-  if(!confirm('Eliminare questa attività?'))return;
-  await fetch(API+'/personal-todos/'+id,{method:'DELETE',credentials:'include'});
-  loadMyTodo();
+function deleteMyTodo(id){
+  showModal({icon:'🗑️',title:'Eliminare attivita\'?',message:'L\'operazione e\' definitiva.',type:'danger',onConfirm:async()=>{
+    await fetch(API+'/personal-todos/'+id,{method:'DELETE',credentials:'include'});
+    loadMyTodo();
+  }});
 }
 
 // --- TESTER LIST ---
@@ -442,7 +443,7 @@ async function loadTesterList(){
 async function exportTestersCsv(){
   try {
     const r=await fetch(API+'/testers/export.csv',{credentials:'include'});
-    if(!r.ok){alert('Errore export: '+r.status);return}
+    if(!r.ok){showModal({icon:'❌',title:'Errore export',message:'Codice: '+r.status,type:'alert'});return}
     const blob=await r.blob();
     const url=URL.createObjectURL(blob);
     const a=document.createElement('a');
@@ -450,7 +451,7 @@ async function exportTestersCsv(){
     a.download=`stoppai-testers-accettati-${new Date().toISOString().slice(0,10)}.csv`;
     document.body.appendChild(a);a.click();a.remove();
     URL.revokeObjectURL(url);
-  }catch(e){alert('Errore: '+e.message)}
+  }catch(e){showModal({icon:'❌',title:'Errore',message:e.message,type:'alert'})}
 }
 
 // --- SCHEDA TESTER ---

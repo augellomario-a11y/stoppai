@@ -7,572 +7,415 @@
 <meta name="robots" content="noindex, nofollow">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="./css/main.css">
 <style>
-.dash-wrap { padding: 90px 0 60px; min-height: 100vh; }
-.dash-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem; flex-wrap: wrap; gap: 1rem; }
-.dash-header h1 { font-size: clamp(1.6rem, 3vw, 2.2rem); }
-.dash-header .logout-btn { padding: 0.7rem 1.4rem; font-size: 0.9rem; }
-.dash-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 1.5rem; }
-.dash-grid .full { grid-column: 1 / -1; }
-.d-card { background: var(--nero2); border: 1px solid var(--bordo); border-radius: 10px; padding: 1.8rem; }
-.d-card h2 { font-size: 1.05rem; color: var(--oro); margin-bottom: 1rem; text-transform: uppercase; letter-spacing: 0.05em; }
-.d-card h2 .ico { margin-right: 0.5rem; font-size: 1.2em; }
-.d-card p { font-size: 0.95rem; color: var(--grigio2); }
-.d-card .soon { background: rgba(200,169,110,0.08); border: 1px dashed rgba(200,169,110,0.4); color: var(--oro); padding: 1rem 1.2rem; border-radius: 6px; font-size: 0.88rem; text-align: center; }
+:root{--bg:#0a0a0f;--nero2:#12121a;--nero3:#16161f;--oro:#c8a96e;--oro2:#b8944e;--verde:#6bcf7f;--rosso:#ff6b6b;--grigio:#888;--grigio2:#bbb;--bianco:#f5f3ee;--bordo:#1e1e2e}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--bianco);overflow:hidden;height:100vh}
 
-/* Stato test badge */
-.stato-badge { display: inline-flex; align-items: center; gap: 0.5rem; padding: 0.5rem 1rem; border-radius: 999px; font-weight: 700; font-size: 0.85rem; text-transform: uppercase; letter-spacing: 0.05em; }
-.stato-badge.accettato { background: rgba(107,207,127,0.15); border: 1px solid var(--verde); color: var(--verde); }
-.stato-badge.in_attesa { background: rgba(200,169,110,0.15); border: 1px solid var(--oro); color: var(--oro); }
-.stato-badge.rifiutato { background: rgba(255,107,107,0.15); border: 1px solid var(--rosso); color: var(--rosso); }
-.stato-badge .dot { width: 8px; height: 8px; border-radius: 50%; background: currentColor; }
+/* LAYOUT */
+.layout{display:flex;height:100vh}
+.sidebar{width:220px;background:var(--nero2);border-right:1px solid var(--bordo);display:flex;flex-direction:column;flex-shrink:0}
+.sb-logo{padding:20px 16px;border-bottom:1px solid var(--bordo);font-size:16px;font-weight:800;letter-spacing:2px}
+.sb-logo span{color:var(--oro)}
+.sb-user{padding:14px 16px;border-bottom:1px solid var(--bordo);font-size:12px;color:var(--grigio)}
+.sb-user .name{color:var(--bianco);font-weight:700;font-size:13px;margin-bottom:2px}
+.sb-user .piano{display:inline-block;background:var(--oro);color:var(--bg);padding:2px 8px;border-radius:99px;font-size:10px;font-weight:700;margin-top:4px}
+.sb-nav{flex:1;padding:8px 0;overflow-y:auto}
+.sb-item{padding:11px 16px;color:var(--grigio);font-size:13px;cursor:pointer;transition:0.15s;border-left:3px solid transparent}
+.sb-item:hover{color:var(--bianco);background:rgba(200,169,110,0.06)}
+.sb-item.active{color:var(--oro);background:rgba(200,169,110,0.1);border-left-color:var(--oro);font-weight:600}
+.sb-footer{padding:12px 16px;border-top:1px solid var(--bordo)}
+.sb-footer button{width:100%;padding:10px;background:none;border:1px solid var(--bordo);color:var(--grigio);border-radius:6px;cursor:pointer;font-family:'DM Sans';font-size:12px;font-weight:600}
+.sb-footer button:hover{border-color:var(--rosso);color:var(--rosso)}
+.main{flex:1;display:flex;flex-direction:column;overflow:hidden}
+.main-header{padding:16px 24px;border-bottom:1px solid var(--bordo);display:flex;justify-content:space-between;align-items:center}
+.main-header h2{font-size:18px;font-weight:700}
+.main-header .stato{display:inline-flex;align-items:center;gap:6px;padding:4px 12px;border-radius:99px;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:0.05em}
+.main-header .stato.accettato{background:rgba(107,207,127,0.15);color:var(--verde)}
+.main-header .stato.in_attesa{background:rgba(200,169,110,0.15);color:var(--oro)}
+.main-content{flex:1;overflow-y:auto;padding:24px}
 
-/* Profilo */
-.profile-row { display: flex; justify-content: space-between; padding: 0.7rem 0; border-bottom: 1px solid rgba(255,255,255,0.05); font-size: 0.9rem; }
-.profile-row:last-child { border-bottom: none; }
-.profile-row .label { color: var(--grigio); }
-.profile-row .val { color: var(--bianco); font-weight: 500; }
-.piano-badge { background: var(--oro); color: var(--nero); padding: 3px 10px; border-radius: 999px; font-size: 0.75rem; font-weight: 700; }
+/* CARDS */
+.d-card{background:var(--nero2);border:1px solid var(--bordo);border-radius:10px;padding:24px;margin-bottom:16px;max-width:720px}
+.d-card h3{font-size:14px;color:var(--oro);margin-bottom:12px;text-transform:uppercase;letter-spacing:0.05em}
+.d-card p{font-size:14px;color:var(--grigio2);line-height:1.6;margin-bottom:12px}
 
-/* Statistiche */
-.stats-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 0.8rem; }
-.stat-mini { background: var(--nero3); border: 1px solid var(--bordo); border-radius: 6px; padding: 0.9rem 1rem; text-align: center; }
-.stat-mini .num { font-size: 1.6rem; font-weight: 800; color: var(--oro); display: block; line-height: 1; margin-bottom: 0.3rem; }
-.stat-mini .lbl { font-size: 0.72rem; color: var(--grigio); text-transform: uppercase; letter-spacing: 0.05em; }
+/* PROFILO */
+.profile-row{display:flex;justify-content:space-between;padding:10px 0;border-bottom:1px solid rgba(255,255,255,0.05);font-size:14px}
+.profile-row:last-child{border-bottom:none}
+.profile-row .label{color:var(--grigio)}
+.profile-row .val{color:var(--bianco);font-weight:500}
+.piano-badge{background:var(--oro);color:var(--bg);padding:3px 10px;border-radius:99px;font-size:11px;font-weight:700}
 
-/* Play Store card */
-.playstore-btn { display: inline-block; padding: 0.9rem 1.6rem; background: var(--oro); color: var(--nero); text-decoration: none; border-radius: 6px; font-weight: 700; font-size: 0.92rem; margin-top: 0.8rem; }
-.playstore-btn:hover { background: var(--oro2); }
-.ps-steps { font-size: 0.88rem; color: var(--grigio2); line-height: 1.8; margin: 0.8rem 0; }
+/* STATISTICHE */
+.stats-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
+.stat-mini{background:var(--nero3);border:1px solid var(--bordo);border-radius:6px;padding:14px;text-align:center}
+.stat-mini .num{font-size:28px;font-weight:800;color:var(--oro);display:block;line-height:1;margin-bottom:4px}
+.stat-mini .lbl{font-size:11px;color:var(--grigio);text-transform:uppercase;letter-spacing:0.05em}
 
-/* Todo broadcast */
-.todo-empty { color: var(--grigio); font-size: 0.88rem; font-style: italic; text-align: center; padding: 1.5rem; }
-.todo-item-broadcast { background: var(--nero3); border: 1px solid var(--bordo); border-radius: 8px; margin-bottom: 0.8rem; overflow: hidden; transition: 0.2s; }
-.todo-item-broadcast.done { border-color: rgba(107,207,127,0.3); background: rgba(107,207,127,0.04); }
-.tib-row { display: flex; align-items: center; gap: 0.9rem; padding: 1rem 1.2rem; }
-.tib-num { background: var(--oro); color: var(--nero); width: 36px; height: 36px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 800; font-size: 0.88rem; flex-shrink: 0; font-family: 'DM Sans'; }
-.tib-check { width: 24px; height: 24px; border: 2px solid var(--grigio); border-radius: 5px; flex-shrink: 0; cursor: pointer; transition: 0.2s; display: flex; align-items: center; justify-content: center; }
-.tib-check:hover { border-color: var(--oro); }
-.todo-item-broadcast.done .tib-check { background: var(--verde); border-color: var(--verde); }
-.todo-item-broadcast.done .tib-check::after { content: "✓"; color: var(--nero); font-weight: 900; font-size: 16px; }
-.tib-txt { flex: 1; font-size: 0.92rem; color: var(--bianco); line-height: 1.5; }
-.todo-item-broadcast.done .tib-txt { color: var(--grigio); text-decoration: line-through; }
-.tib-comment-btn { background: rgba(200,169,110,0.1); border: 1px solid rgba(200,169,110,0.35); color: var(--oro); padding: 0.45rem 0.9rem; border-radius: 6px; font-size: 0.78rem; cursor: pointer; font-family: 'DM Sans'; font-weight: 600; flex-shrink: 0; transition: 0.2s; }
-.tib-comment-btn:hover { background: var(--oro); color: var(--nero); }
-.tib-comments { padding: 0.8rem 1.2rem 1.2rem; border-top: 1px dashed var(--bordo); background: rgba(0,0,0,0.15); }
-.tib-comment { background: var(--nero2); border-left: 3px solid #2a2a2a; padding: 0.6rem 0.9rem; border-radius: 0 5px 5px 0; margin-bottom: 0.5rem; font-size: 0.85rem; }
-.tib-comment.mine { border-left-color: var(--oro); background: rgba(200,169,110,0.08); }
-.tib-c-head { display: flex; justify-content: space-between; align-items: center; font-size: 0.72rem; color: var(--grigio); margin-bottom: 0.3rem; }
-.tib-c-head strong { color: var(--bianco); font-weight: 600; }
-.tib-c-del { background: none; border: none; color: var(--rosso); cursor: pointer; font-size: 0.8rem; margin-left: 0.4rem; padding: 0 4px; }
-.tib-c-body { color: var(--grigio2); line-height: 1.5; }
-.tib-c-form { display: flex; gap: 0.5rem; margin-top: 0.7rem; }
-.tib-c-form input { flex: 1; padding: 0.55rem 0.8rem; background: var(--nero); border: 1px solid #2a2a2a; color: var(--bianco); border-radius: 5px; font-family: 'DM Sans'; font-size: 0.85rem; }
-.tib-c-form input:focus { outline: none; border-color: var(--oro); }
-.tib-c-form button { padding: 0.55rem 1rem; background: var(--oro); color: var(--nero); border: none; border-radius: 5px; font-weight: 700; cursor: pointer; font-size: 0.82rem; }
+/* TODO BROADCAST */
+.todo-empty{color:var(--grigio);font-size:14px;font-style:italic;text-align:center;padding:24px}
+.todo-item-broadcast{background:var(--nero3);border:1px solid var(--bordo);border-radius:8px;margin-bottom:8px;overflow:hidden;transition:0.2s}
+.todo-item-broadcast.done{border-color:rgba(107,207,127,0.3);background:rgba(107,207,127,0.04)}
+.tib-row{display:flex;align-items:center;gap:12px;padding:12px 16px}
+.tib-num{background:var(--oro);color:var(--bg);width:36px;height:36px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:800;font-size:14px;flex-shrink:0}
+.tib-check{width:24px;height:24px;border:2px solid var(--grigio);border-radius:5px;flex-shrink:0;cursor:pointer;transition:0.2s;display:flex;align-items:center;justify-content:center}
+.tib-check:hover{border-color:var(--oro)}
+.todo-item-broadcast.done .tib-check{background:var(--verde);border-color:var(--verde)}
+.todo-item-broadcast.done .tib-check::after{content:"✓";color:var(--bg);font-weight:900;font-size:16px}
+.tib-txt{flex:1;font-size:14px;color:var(--bianco);line-height:1.5}
+.todo-item-broadcast.done .tib-txt{color:var(--grigio);text-decoration:line-through}
+.tib-comment-btn{background:rgba(200,169,110,0.1);border:1px solid rgba(200,169,110,0.35);color:var(--oro);padding:6px 12px;border-radius:6px;font-size:12px;cursor:pointer;font-family:'DM Sans';font-weight:600;flex-shrink:0;transition:0.2s}
+.tib-comment-btn:hover{background:var(--oro);color:var(--bg)}
+.tib-comments{padding:10px 16px 16px;border-top:1px dashed var(--bordo);background:rgba(0,0,0,0.15)}
+.tib-comment{background:var(--nero2);border-left:3px solid #2a2a2a;padding:8px 12px;border-radius:0 5px 5px 0;margin-bottom:6px;font-size:13px}
+.tib-comment.mine{border-left-color:var(--oro);background:rgba(200,169,110,0.08)}
+.tib-c-head{display:flex;justify-content:space-between;align-items:center;font-size:11px;color:var(--grigio);margin-bottom:4px}
+.tib-c-head strong{color:var(--bianco);font-weight:600}
+.tib-c-del{background:none;border:none;color:var(--rosso);cursor:pointer;font-size:12px;margin-left:4px;padding:0 4px}
+.tib-c-body{color:var(--grigio2);line-height:1.5}
+.tib-c-form{display:flex;gap:6px;margin-top:10px}
+.tib-c-form input{flex:1;padding:8px 10px;background:var(--bg);border:1px solid #2a2a2a;color:var(--bianco);border-radius:5px;font-family:'DM Sans';font-size:13px}
+.tib-c-form input:focus{outline:none;border-color:var(--oro)}
+.tib-c-form button{padding:8px 14px;background:var(--oro);color:var(--bg);border:none;border-radius:5px;font-weight:700;cursor:pointer;font-size:12px}
 
-/* Chat */
-.chat-box { height: 340px; overflow-y: auto; background: var(--nero3); border: 1px solid var(--bordo); border-radius: 8px; padding: 1rem; margin-bottom: 0.8rem; display: flex; flex-direction: column; gap: 0.6rem; }
-.msg { padding: 0.7rem 1rem; border-radius: 10px; max-width: 80%; font-size: 0.9rem; line-height: 1.5; word-wrap: break-word; }
-.msg.mine { align-self: flex-end; background: var(--oro); color: var(--nero); }
-.msg.admin { align-self: flex-start; background: #1a1a24; color: var(--bianco); border: 1px solid var(--bordo); }
-.msg .time { display: block; font-size: 0.7rem; opacity: 0.6; margin-top: 0.2rem; }
-.chat-input { display: flex; gap: 0.5rem; }
-.chat-input input { flex: 1; padding: 0.8rem 1rem; background: var(--nero); border: 1px solid #2a2a2a; color: var(--bianco); border-radius: 6px; font-family: 'DM Sans'; font-size: 0.92rem; }
-.chat-input input:focus { outline: none; border-color: var(--oro); }
-.chat-input button { padding: 0.8rem 1.3rem; background: var(--oro); color: var(--nero); border: none; border-radius: 6px; font-weight: 700; cursor: pointer; font-size: 0.9rem; }
-.chat-empty { color: var(--grigio); font-style: italic; text-align: center; padding: 2rem; font-size: 0.88rem; }
+/* CHAT */
+.chat-box{height:400px;overflow-y:auto;background:var(--nero3);border:1px solid var(--bordo);border-radius:8px;padding:12px;margin-bottom:10px;display:flex;flex-direction:column;gap:8px}
+.msg{padding:10px 14px;border-radius:10px;max-width:80%;font-size:14px;line-height:1.5;word-wrap:break-word}
+.msg.mine{align-self:flex-end;background:var(--oro);color:var(--bg)}
+.msg.admin{align-self:flex-start;background:#1a1a24;color:var(--bianco);border:1px solid var(--bordo)}
+.msg .time{display:block;font-size:11px;opacity:0.6;margin-top:3px}
+.chat-input{display:flex;gap:6px}
+.chat-input input{flex:1;padding:10px 14px;background:var(--bg);border:1px solid #2a2a2a;color:var(--bianco);border-radius:6px;font-family:'DM Sans';font-size:14px}
+.chat-input input:focus{outline:none;border-color:var(--oro)}
+.chat-input button{padding:10px 18px;background:var(--oro);color:var(--bg);border:none;border-radius:6px;font-weight:700;cursor:pointer;font-size:14px}
+.chat-empty{color:var(--grigio);font-style:italic;text-align:center;padding:32px;font-size:14px}
 
-/* ARIA messaggi */
-.aria-msg { background: var(--nero3); border: 1px solid var(--bordo); border-left: 3px solid var(--oro); border-radius: 6px; padding: 1rem 1.2rem; margin-bottom: 0.8rem; }
-.aria-msg:last-child { margin-bottom: 0; }
-.aria-msg .am-head { display: flex; justify-content: space-between; align-items: center; gap: 1rem; margin-bottom: 0.6rem; flex-wrap: wrap; }
-.aria-msg .am-caller { font-weight: 700; color: var(--bianco); font-size: 0.95rem; }
-.aria-msg .am-caller .num { color: var(--oro); font-weight: 600; font-family: monospace; margin-left: 0.4rem; font-size: 0.85rem; }
-.aria-msg .am-time { color: var(--grigio); font-size: 0.78rem; }
-.aria-msg .am-trasc { background: rgba(200,169,110,0.06); border: 1px solid rgba(200,169,110,0.2); border-radius: 4px; padding: 0.7rem 0.9rem; font-size: 0.9rem; line-height: 1.55; color: var(--grigio2); font-style: italic; margin: 0.6rem 0; }
-.aria-msg .am-trasc .q { color: var(--oro); font-style: normal; }
-.aria-msg audio { width: 100%; margin-top: 0.4rem; height: 38px; }
-.aria-msg .am-footer { display: flex; justify-content: space-between; align-items: center; margin-top: 0.6rem; gap: 0.8rem; flex-wrap: wrap; }
-.aria-msg .am-meta { font-size: 0.72rem; color: var(--grigio); }
-.aria-msg .am-del-btn { background: none; border: 1px solid rgba(255,107,107,0.35); color: var(--rosso); padding: 0.35rem 0.75rem; border-radius: 5px; font-size: 0.75rem; cursor: pointer; font-family: 'DM Sans'; font-weight: 600; transition: 0.2s; }
-.aria-msg .am-del-btn:hover { background: rgba(255,107,107,0.15); }
-.aria-empty { color: var(--grigio); font-style: italic; text-align: center; padding: 2rem 1rem; font-size: 0.9rem; background: var(--nero3); border: 1px dashed var(--bordo); border-radius: 6px; }
-.aria-notice { background: rgba(200,169,110,0.08); border: 1px solid rgba(200,169,110,0.3); border-radius: 6px; padding: 0.9rem 1.1rem; margin-bottom: 1.2rem; font-size: 0.82rem; line-height: 1.55; color: var(--grigio2); }
-.aria-notice strong { color: var(--oro); }
+/* ARIA */
+.aria-msg{background:var(--nero3);border:1px solid var(--bordo);border-left:3px solid var(--oro);border-radius:6px;padding:14px 16px;margin-bottom:10px}
+.aria-msg .am-head{display:flex;justify-content:space-between;align-items:center;gap:12px;margin-bottom:8px;flex-wrap:wrap}
+.aria-msg .am-caller{font-weight:700;color:var(--bianco);font-size:15px}
+.aria-msg .am-caller .num{color:var(--oro);font-weight:600;font-family:monospace;margin-left:6px;font-size:13px}
+.aria-msg .am-time{color:var(--grigio);font-size:12px}
+.aria-msg .am-trasc{background:rgba(200,169,110,0.06);border:1px solid rgba(200,169,110,0.2);border-radius:4px;padding:10px 12px;font-size:14px;line-height:1.55;color:var(--grigio2);font-style:italic;margin:8px 0}
+.aria-msg .am-trasc .q{color:var(--oro);font-style:normal}
+.aria-msg audio{width:100%;margin-top:6px;height:38px}
+.aria-msg .am-footer{display:flex;justify-content:space-between;align-items:center;margin-top:8px;gap:10px;flex-wrap:wrap}
+.aria-msg .am-meta{font-size:11px;color:var(--grigio)}
+.aria-msg .am-del-btn{background:none;border:1px solid rgba(255,107,107,0.35);color:var(--rosso);padding:5px 10px;border-radius:5px;font-size:12px;cursor:pointer;font-family:'DM Sans';font-weight:600;transition:0.2s}
+.aria-msg .am-del-btn:hover{background:rgba(255,107,107,0.15)}
+.aria-empty{color:var(--grigio);font-style:italic;text-align:center;padding:32px;font-size:14px;background:var(--nero3);border:1px dashed var(--bordo);border-radius:6px}
+.aria-notice{background:rgba(200,169,110,0.08);border:1px solid rgba(200,169,110,0.3);border-radius:6px;padding:12px 14px;margin-bottom:16px;font-size:13px;line-height:1.55;color:var(--grigio2)}
+.aria-notice strong{color:var(--oro)}
+.am-rating{margin-top:10px;padding-top:8px;border-top:1px dashed rgba(255,255,255,0.08)}
+.am-rating .lbl{font-size:12px;color:var(--grigio);margin-bottom:6px;display:block}
+.am-rating .btns{display:flex;gap:5px;flex-wrap:wrap}
+.am-rating button{background:var(--nero3);border:1px solid #2a2a2a;color:var(--grigio2);padding:6px 10px;border-radius:5px;font-size:12px;font-weight:600;cursor:pointer;font-family:'DM Sans';transition:0.2s;min-width:52px}
+.am-rating button:hover{border-color:var(--oro);color:var(--bianco)}
+.am-rating button.selected{background:var(--oro);color:var(--bg);border-color:var(--oro)}
+.am-dl-btn{background:none;border:1px solid rgba(107,207,127,0.35);color:var(--verde);padding:5px 10px;border-radius:5px;font-size:12px;cursor:pointer;font-family:'DM Sans';font-weight:600;text-decoration:none;display:inline-block;transition:0.2s}
+.am-dl-btn:hover{background:rgba(107,207,127,0.15)}
+.am-expire{font-size:11px;color:var(--rosso);font-weight:500}
 
-/* ARIA rating */
-.am-rating { margin-top: 0.8rem; padding-top: 0.7rem; border-top: 1px dashed rgba(255,255,255,0.08); }
-.am-rating .lbl { font-size: 0.75rem; color: var(--grigio); margin-bottom: 0.4rem; display: block; }
-.am-rating .btns { display: flex; gap: 0.4rem; flex-wrap: wrap; }
-.am-rating button { background: var(--nero3); border: 1px solid #2a2a2a; color: var(--grigio2); padding: 0.4rem 0.7rem; border-radius: 5px; font-size: 0.75rem; font-weight: 600; cursor: pointer; font-family: 'DM Sans'; transition: 0.2s; min-width: 52px; }
-.am-rating button:hover { border-color: var(--oro); color: var(--bianco); }
-.am-rating button.selected { background: var(--oro); color: var(--nero); border-color: var(--oro); }
-.am-dl-btn { background: none; border: 1px solid rgba(107,207,127,0.35); color: var(--verde); padding: 0.35rem 0.75rem; border-radius: 5px; font-size: 0.75rem; cursor: pointer; font-family: 'DM Sans'; font-weight: 600; text-decoration: none; display: inline-block; transition: 0.2s; }
-.am-dl-btn:hover { background: rgba(107,207,127,0.15); }
-.am-expire { font-size: 0.7rem; color: var(--rosso); font-weight: 500; }
+/* GUIDA */
+.guide-step{background:var(--nero3);border:1px solid var(--bordo);border-radius:8px;padding:16px;margin-bottom:10px}
+.guide-step .num{background:var(--oro);color:var(--bg);width:28px;height:28px;border-radius:50%;display:inline-flex;align-items:center;justify-content:center;font-weight:800;font-size:13px;margin-right:8px}
+.guide-step h4{font-size:14px;display:inline;color:var(--bianco)}
+.guide-step p{font-size:13px;color:var(--grigio2);margin-top:6px;line-height:1.5}
+.playstore-btn{display:inline-block;padding:12px 20px;background:var(--oro);color:var(--bg);text-decoration:none;border-radius:6px;font-weight:700;font-size:14px;margin-top:10px}
+.playstore-btn:hover{background:var(--oro2)}
 
-@media (max-width: 900px) {
-  .dash-grid { grid-template-columns: 1fr; }
-  .stats-grid { grid-template-columns: repeat(2, 1fr); }
-  .chat-box { height: 280px; }
-  .dash-wrap { padding: 80px 0 40px; }
+/* PLACEHOLDER */
+.soon{background:rgba(200,169,110,0.08);border:1px dashed rgba(200,169,110,0.4);color:var(--oro);padding:16px;border-radius:6px;font-size:14px;text-align:center}
+
+/* MODAL CUSTOM */
+.modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,0.7);display:flex;align-items:center;justify-content:center;z-index:9999}
+.modal-box{background:var(--nero2);border:1px solid var(--bordo);border-radius:12px;padding:28px 32px;max-width:380px;width:90%;text-align:center}
+.modal-box h4{font-size:16px;color:var(--bianco);margin-bottom:10px}
+.modal-box p{font-size:14px;color:var(--grigio2);margin-bottom:20px;line-height:1.5}
+.modal-btns{display:flex;gap:10px;justify-content:center}
+.modal-btns button{padding:10px 24px;border:none;border-radius:6px;font-family:'DM Sans';font-size:14px;font-weight:700;cursor:pointer;transition:0.15s}
+.modal-btns .btn-confirm{background:var(--oro);color:var(--bg)}
+.modal-btns .btn-confirm:hover{background:var(--oro2)}
+.modal-btns .btn-confirm.danger{background:var(--rosso);color:var(--bianco)}
+.modal-btns .btn-confirm.danger:hover{background:#cc2c2c}
+.modal-btns .btn-cancel{background:none;border:1px solid var(--bordo);color:var(--grigio)}
+.modal-btns .btn-cancel:hover{border-color:var(--grigio);color:var(--bianco)}
+
+/* RESPONSIVE */
+@media(max-width:900px){
+  .sidebar{width:60px}
+  .sb-logo,.sb-user,.sb-item span.txt{display:none}
+  .sb-item{text-align:center;padding:14px 8px;font-size:18px}
+  .sb-footer button{font-size:10px;padding:8px}
+  .main-content{padding:16px}
+  .stats-grid{grid-template-columns:repeat(2,1fr)}
+  .chat-box{height:300px}
 }
 </style>
 </head>
 <body>
 
-<nav>
-  <a href="/" class="logo">STOPP<span class="gold">AI</span></a>
-  <ul id="navMenu">
-    <li><a href="/come-funziona.html">Come funziona</a></li>
-    <li><a href="/aria.html">ARIA</a></li>
-    <li><a href="/prezzi.html">Prezzi</a></li>
-    <li><a href="/faq.html">FAQ</a></li>
-  </ul>
-  <div style="display:flex;gap:0.8rem;align-items:center">
-    <button onclick="doLogout()" class="btn btn-s nav-cta">Esci</button>
-    <button class="hamburger" onclick="toggleMenu()">☰</button>
+<div class="layout">
+  <div class="sidebar">
+    <div class="sb-logo">STOPP<span>AI</span></div>
+    <div class="sb-user">
+      <div class="name" id="sbNome">...</div>
+      <div id="sbEmail" style="margin-bottom:4px">...</div>
+      <span class="piano" id="sbPiano">FREE</span>
+    </div>
+    <div class="sb-nav">
+      <div class="sb-item active" onclick="showView('checklist')"><span class="txt">🧪 Checklist test</span></div>
+      <div class="sb-item" onclick="showView('aria')"><span class="txt">🎙️ Segreteria ARIA</span></div>
+      <div class="sb-item" onclick="showView('chat')"><span class="txt">📢 Messaggi</span></div>
+      <div class="sb-item" onclick="showView('referral')"><span class="txt">🔗 Referral</span></div>
+      <div class="sb-item" onclick="showView('stats')"><span class="txt">📊 Statistiche</span></div>
+      <div class="sb-item" onclick="showView('guida')"><span class="txt">📖 Guida</span></div>
+      <div class="sb-item" onclick="showView('profilo')" style="margin-top:auto"><span class="txt">👤 Il tuo profilo</span></div>
+    </div>
+    <div class="sb-footer">
+      <button onclick="doLogout()">Esci</button>
+    </div>
   </div>
-</nav>
 
-<div class="wrap dash-wrap">
-
-  <div class="dash-header">
-    <h1>Ciao <span class="gold" id="nomeTester">…</span> 👋</h1>
-    <div id="statoBadge"></div>
-  </div>
-
-  <div class="dash-grid">
-
-    <!-- PLAY STORE (full width) -->
-    <div class="d-card full">
-      <h2><span class="ico">📱</span> Installazione app</h2>
-      <p>Per partecipare ai test, installa StoppAI dal Play Store Internal Testing. Apri questo link <strong>dal telefono Android</strong> dove hai attiva la tua email Gmail.</p>
-      <div class="ps-steps">
-        1. Apri il link qui sotto dal telefono<br>
-        2. Clicca "Diventa tester" e accetta<br>
-        3. Clicca "Scarica da Google Play" e installa<br>
-        4. Apri l'app e segui il setup guidato
-      </div>
-      <div style="display:flex;gap:0.6rem;flex-wrap:wrap;margin-top:0.6rem">
-        <a href="https://play.google.com/apps/internaltest/4701140799325601254" target="_blank" rel="noopener" class="playstore-btn">🤖 Apri il link Play Store →</a>
-        <a href="/help-install.html" class="btn btn-s" style="padding:0.9rem 1.4rem;font-size:0.9rem">📖 Guida passo-passo</a>
-      </div>
+  <div class="main">
+    <div class="main-header">
+      <h2 id="viewTitle">Checklist test</h2>
+      <div id="statoBadge"></div>
     </div>
-
-    <!-- PROFILO -->
-    <div class="d-card">
-      <h2><span class="ico">👤</span> Il tuo profilo</h2>
-      <div id="profileRows"></div>
-      <p style="font-size:0.78rem;color:var(--grigio);margin-top:1rem;font-style:italic">I dati del profilo sono in sola lettura. Per modifiche scrivi nella chat qui sotto.</p>
-    </div>
-
-    <!-- STATISTICHE -->
-    <div class="d-card">
-      <h2><span class="ico">📊</span> Le tue statistiche</h2>
-      <div class="stats-grid">
-        <div class="stat-mini"><span class="num" id="stChiamate">—</span><span class="lbl">Chiamate totali</span></div>
-        <div class="stat-mini"><span class="num" id="stOggi">—</span><span class="lbl">Oggi</span></div>
-        <div class="stat-mini"><span class="num" id="stSpam">—</span><span class="lbl">Spam bloccati</span></div>
-        <div class="stat-mini"><span class="num" id="stSms">—</span><span class="lbl">SMS inviati</span></div>
-        <div class="stat-mini"><span class="num" id="stAria">—</span><span class="lbl">ARIA risposte</span></div>
-        <div class="stat-mini"><span class="num" id="stMsg">—</span><span class="lbl">Messaggi ricevuti</span></div>
-      </div>
-      <p id="lastSync" style="font-size:0.75rem;color:var(--grigio);text-align:center;margin-top:0.8rem">—</p>
-    </div>
-
-    <!-- TO-DO TEST — lista broadcast full width -->
-    <div class="d-card full">
-      <h2><span class="ico">🧪</span> Checklist test broadcast</h2>
-      <p style="font-size:0.85rem;margin-bottom:1rem">Questa è la lista <strong>uguale per tutti</strong> i tester. Spunta ogni voce man mano che la completi. Se hai dubbi su una voce, clicca "💬 Commenta" e scrivi la tua segnalazione citando il numero. I numeri sono stabili: anche se una voce viene cancellata, le altre mantengono il loro numero.</p>
-      <div id="todoList"></div>
-    </div>
-
-    <!-- REFERRAL -->
-    <div class="d-card">
-      <h2><span class="ico">🔗</span> Referral</h2>
-      <div class="soon">
-        <strong>A breve</strong><br>
-        <span style="font-size:0.82rem;opacity:0.85">Invita amici e guadagna premi. Il programma referral sarà disponibile nei prossimi giorni.</span>
-      </div>
-    </div>
-
-    <!-- MESSAGGI ARIA (full width) -->
-    <div class="d-card full">
-      <h2><span class="ico">🎙️</span> Messaggi della segreteria ARIA</h2>
-      <p style="font-size:0.85rem;margin-bottom:0.8rem">Qui trovi i messaggi vocali lasciati dalle chiamate sconosciute. Ogni messaggio è <strong>trascritto automaticamente</strong> in testo, puoi <strong>ascoltarlo</strong> o <strong>scaricarlo</strong>.</p>
-      <div class="aria-notice">
-        ⏱️ <strong>I messaggi restano disponibili per 24 ore</strong>, poi vengono cancellati automaticamente dai nostri server. Se vuoi conservarli, <strong>scarica il file audio</strong> prima della scadenza.<br>
-        ⭐ Per ogni messaggio <strong>valuta la fedeltà della trascrizione</strong>: i tuoi voti ci aiutano a migliorare l'intelligenza artificiale.
-      </div>
-      <div id="ariaList"></div>
-    </div>
-
-    <!-- CHAT SUPPORTO (full width) -->
-    <div class="d-card full">
-      <h2><span class="ico">💬</span> Chat con il team</h2>
-      <p style="font-size:0.85rem;margin-bottom:1rem">Scrivici per qualsiasi segnalazione, bug o domanda. Ti rispondiamo il prima possibile.</p>
-      <div class="chat-box" id="chatBox"></div>
-      <form class="chat-input" onsubmit="return inviaMsg(event)">
-        <input type="text" id="chatTxt" placeholder="Scrivi un messaggio…" maxlength="1000" required>
-        <button type="submit">Invia</button>
-      </form>
-    </div>
-
+    <div class="main-content" id="viewContent"></div>
   </div>
 </div>
 
-<footer>
-  <div class="footer-grid">
-    <div class="footer-about">
-      <div class="logo" style="font-family:'DM Sans';font-size:1.4rem;font-weight:800">STOPP<span class="gold">AI</span></div>
-      <p>Il tuo bodyguard digitale contro le chiamate indesiderate. Sviluppato in Italia da Internet Full Service.</p>
-    </div>
-    <div>
-      <h5>Prodotto</h5>
-      <ul>
-        <li><a href="/come-funziona.html">Come funziona</a></li>
-        <li><a href="/aria.html">ARIA</a></li>
-        <li><a href="/prezzi.html">Prezzi</a></li>
-        <li><a href="/faq.html">FAQ</a></li>
-      </ul>
-    </div>
-    <div>
-      <h5>Account</h5>
-      <ul>
-        <li><a href="/dashboard.html">Area personale</a></li>
-        <li><a href="/accedi.html">Accedi</a></li>
-      </ul>
-    </div>
-    <div>
-      <h5>Legale</h5>
-      <ul>
-        <li><a href="/privacy.html">Privacy Policy</a></li>
-        <li><a href="/elimina-account.html">Elimina account</a></li>
-      </ul>
-    </div>
-  </div>
-  <div class="footer-bottom">
-    <p>© 2026 Internet Full Service</p>
-  </div>
-</footer>
-
 <script>
-const API = '/api/dashboard';
-let me = null;
+const API='/api/dashboard';
+let me=null;
+let pollTimers=[];
+const views=['checklist','aria','chat','referral','stats','guida','profilo'];
+const titles={checklist:'🧪 Checklist test',aria:'🎙️ Segreteria ARIA',chat:'📢 Messaggi',referral:'🔗 Referral',stats:'📊 Statistiche',guida:'📖 Guida',profilo:'👤 Il tuo profilo'};
 
-function toggleMenu(){ document.getElementById('navMenu').classList.toggle('open'); }
+function stopPolls(){pollTimers.forEach(t=>clearInterval(t));pollTimers=[]}
 
-async function init() {
-  try {
-    const r = await fetch(API + '/me', { credentials: 'include' });
-    if (!r.ok) { window.location.href = '/accedi.html'; return; }
-    me = await r.json();
-    renderProfile();
-    loadStats();
-    loadTodos();
-    loadAria();
-    loadChat();
-    // polling per refresh automatico
-    setInterval(loadChat, 8000);    // chat ogni 8s
-    setInterval(loadAria, 15000);   // messaggi ARIA ogni 15s
-    setInterval(loadTodos, 15000);  // checklist broadcast ogni 15s
-    setInterval(loadStats, 30000);  // statistiche ogni 30s
-    setInterval(() => fetch(API + '/me', { credentials:'include' }).then(r=>r.ok?r.json():null).then(d=>{if(d){me=d;renderProfile()}}), 60000); // profilo + stato ogni 60s
-  } catch (e) {
-    window.location.href = '/accedi.html';
-  }
+function showView(v){
+  stopPolls();
+  document.querySelectorAll('.sb-item').forEach((el,i)=>{el.classList.toggle('active',views[i]===v)});
+  document.getElementById('viewTitle').textContent=titles[v]||v;
+  const c=document.getElementById('viewContent');
+  c.innerHTML='<div style="color:var(--grigio);padding:40px;text-align:center">Caricamento...</div>';
+
+  if(v==='checklist'){loadChecklist();pollTimers.push(setInterval(loadChecklist,15000))}
+  else if(v==='aria'){loadAria();pollTimers.push(setInterval(loadAria,15000))}
+  else if(v==='chat'){loadChat();pollTimers.push(setInterval(loadChat,8000))}
+  else if(v==='referral')c.innerHTML='<div class="d-card"><h3>🔗 Programma Referral</h3><div class="soon"><strong>A breve</strong><br><span style="font-size:13px;opacity:0.85">Invita amici e guadagna premi. Il programma referral sara\' disponibile nei prossimi giorni.</span></div></div>';
+  else if(v==='stats'){loadStats();pollTimers.push(setInterval(loadStats,30000))}
+  else if(v==='guida')renderGuida();
+  else if(v==='profilo')renderProfilo();
 }
 
-function renderProfile() {
-  document.getElementById('nomeTester').textContent = me.nome;
-
-  // Badge stato
-  const badge = document.getElementById('statoBadge');
-  const label = { accettato: 'Attivo', in_attesa: 'In attesa', rifiutato: 'Non accettato' }[me.stato] || me.stato;
-  badge.innerHTML = `<span class="stato-badge ${me.stato}"><span class="dot"></span>${label}</span>`;
-
-  // Righe profilo
-  const rows = document.getElementById('profileRows');
-  const dataIscr = me.data_iscrizione ? new Date(me.data_iscrizione.replace(' ', 'T')).toLocaleDateString('it-IT') : '—';
-  const dataAcc = me.data_accettazione ? new Date(me.data_accettazione.replace(' ', 'T')).toLocaleDateString('it-IT') : '—';
-  rows.innerHTML = `
-    <div class="profile-row"><span class="label">Nome</span><span class="val">${me.nome} ${me.cognome}</span></div>
-    <div class="profile-row"><span class="label">Email</span><span class="val">${me.email}</span></div>
-    <div class="profile-row"><span class="label">Telefono</span><span class="val">${me.telefono || '—'}</span></div>
-    <div class="profile-row"><span class="label">Piano attuale</span><span class="val"><span class="piano-badge">${(me.piano || 'free').toUpperCase()}</span></span></div>
-    <div class="profile-row"><span class="label">Iscritto il</span><span class="val">${dataIscr}</span></div>
-    <div class="profile-row"><span class="label">Accettato il</span><span class="val">${dataAcc}</span></div>
-  `;
+// ===== INIT =====
+async function init(){
+  try{
+    const r=await fetch(API+'/me',{credentials:'include'});
+    if(!r.ok){window.location.href='/accedi.html';return}
+    me=await r.json();
+    document.getElementById('sbNome').textContent=me.nome+' '+me.cognome;
+    document.getElementById('sbEmail').textContent=me.email;
+    document.getElementById('sbPiano').textContent=(me.piano||'free').toUpperCase();
+    const label={accettato:'Attivo',in_attesa:'In attesa',rifiutato:'Non accettato'}[me.stato]||me.stato;
+    document.getElementById('statoBadge').innerHTML='<span class="stato '+(me.stato||'')+'"><span style="width:8px;height:8px;border-radius:50%;background:currentColor;display:inline-block;margin-right:4px"></span>'+label+'</span>';
+    showView('checklist');
+    // Refresh profilo ogni 60s
+    setInterval(()=>fetch(API+'/me',{credentials:'include'}).then(r=>r.ok?r.json():null).then(d=>{if(d){me=d;document.getElementById('sbPiano').textContent=(me.piano||'free').toUpperCase()}}),60000);
+  }catch(e){window.location.href='/accedi.html'}
 }
 
-async function loadStats() {
-  try {
-    const r = await fetch(API + '/stats', { credentials: 'include' });
-    if (!r.ok) return;
-    const s = await r.json();
-    document.getElementById('stChiamate').textContent = s.chiamate_totali || 0;
-    document.getElementById('stOggi').textContent = s.chiamate_oggi || 0;
-    const spam = (s.sconosciuti_mobile_non_risposti || 0) + (s.sconosciuti_fissi_non_risposti || 0) + (s.privati_non_risposti || 0);
-    document.getElementById('stSpam').textContent = spam;
-    document.getElementById('stSms').textContent = s.sconosciuti_mobile_sms || 0;
-    const aria = (s.sconosciuti_mobile_segreteria || 0) + (s.sconosciuti_fissi_segreteria || 0) + (s.privati_segreteria || 0);
-    document.getElementById('stAria').textContent = aria;
-    const msg = (s.sconosciuti_mobile_msg_lasciato || 0) + (s.sconosciuti_fissi_msg_lasciato || 0) + (s.privati_msg_lasciato || 0);
-    document.getElementById('stMsg').textContent = msg;
-    if (s.ultimo_sync) {
-      const d = new Date(s.ultimo_sync.replace(' ', 'T'));
-      document.getElementById('lastSync').textContent = 'Ultimo aggiornamento: ' + d.toLocaleString('it-IT');
-    } else {
-      document.getElementById('lastSync').textContent = 'L\'app non ha ancora inviato statistiche.';
-    }
-  } catch (e) {}
-}
-
-async function loadTodos() {
-  // Se il tester ha una sezione commenti aperta e sta scrivendo, salta il refresh
-  const activeInput = document.activeElement;
-  if (activeInput && activeInput.id && activeInput.id.startsWith('cinput-')) return;
-  try {
-    const r = await fetch(API + '/test-items', { credentials: 'include' });
-    if (!r.ok) return;
-    const items = await r.json();
-    const list = document.getElementById('todoList');
-    if (!items.length) {
-      list.innerHTML = '<div class="todo-empty">Nessun test ancora pubblicato.<br>Il team scriverà qui le attività da svolgere.</div>';
-      return;
-    }
-    list.innerHTML = items.map(it => `
-      <div class="todo-item-broadcast ${it.fatto ? 'done' : ''}" data-id="${it.id}">
+// ===== CHECKLIST =====
+async function loadChecklist(){
+  const activeInput=document.activeElement;
+  if(activeInput&&activeInput.id&&activeInput.id.startsWith('cinput-'))return;
+  try{
+    const r=await fetch(API+'/test-items',{credentials:'include'});
+    if(!r.ok)return;
+    const items=await r.json();
+    const c=document.getElementById('viewContent');
+    if(!items.length){c.innerHTML='<div class="d-card"><div class="todo-empty">Nessun test ancora pubblicato.<br>Il team scrivera\' qui le attivita\' da svolgere.</div></div>';return}
+    c.innerHTML='<div class="d-card"><h3>Attivita\' da completare</h3><p style="font-size:13px;margin-bottom:16px">Spunta ogni voce man mano che la completi. Clicca "Commenta" per segnalazioni.</p>'+
+      items.map(it=>`
+      <div class="todo-item-broadcast ${it.fatto?'done':''}" data-id="${it.id}">
         <div class="tib-row">
           <div class="tib-num">#${it.id}</div>
           <div class="tib-check" onclick="toggleTestItem(${it.id})" title="Segna come completato"></div>
           <div class="tib-txt">${escapeHtml(it.testo)}</div>
-          <button class="tib-comment-btn" onclick="toggleComments(${it.id})">💬 ${it.my_comments > 0 ? it.my_comments : 'Commenta'}</button>
+          <button class="tib-comment-btn" onclick="toggleComments(${it.id})">💬 ${it.my_comments>0?it.my_comments:'Commenta'}</button>
         </div>
         <div class="tib-comments" id="comments-${it.id}" style="display:none"></div>
-      </div>
-    `).join('');
-  } catch (e) { console.error(e); }
+      </div>`).join('')+'</div>';
+  }catch(e){}
 }
 
-async function toggleTestItem(id) {
-  try {
-    await fetch(API + '/test-items/' + id + '/toggle', { method: 'POST', credentials: 'include' });
-    loadTodos();
-  } catch (e) {}
+async function toggleTestItem(id){
+  try{await fetch(API+'/test-items/'+id+'/toggle',{method:'POST',credentials:'include'});loadChecklist()}catch(e){}
 }
-
-async function toggleComments(id) {
-  const box = document.getElementById('comments-' + id);
-  if (!box) return;
-  if (box.style.display === 'block') {
-    box.style.display = 'none';
-    return;
-  }
-  box.style.display = 'block';
-  box.innerHTML = '<div style="color:var(--grigio);font-size:0.85rem;padding:0.5rem 0">Caricamento...</div>';
-  try {
-    const r = await fetch(API + '/test-items/' + id + '/comments', { credentials: 'include' });
-    const comments = await r.json();
-    renderComments(id, comments);
-  } catch (e) {}
+async function toggleComments(id){
+  const box=document.getElementById('comments-'+id);
+  if(!box)return;
+  if(box.style.display==='block'){box.style.display='none';return}
+  box.style.display='block';
+  box.innerHTML='<div style="color:var(--grigio);font-size:13px;padding:8px 0">Caricamento...</div>';
+  try{const r=await fetch(API+'/test-items/'+id+'/comments',{credentials:'include'});renderComments(id,await r.json())}catch(e){}
 }
-
-function renderComments(itemId, comments) {
-  const box = document.getElementById('comments-' + itemId);
-  if (!box) return;
-  const list = comments.map(c => {
-    const time = c.timestamp ? new Date(c.timestamp.replace(' ', 'T')).toLocaleString('it-IT', {hour:'2-digit',minute:'2-digit',day:'2-digit',month:'2-digit'}) : '';
-    const delBtn = c.mine ? `<button class="tib-c-del" onclick="delTestItemComment(${c.id},${itemId})">✕</button>` : '';
-    return `<div class="tib-comment ${c.mine ? 'mine' : ''}">
-      <div class="tib-c-head"><strong>${escapeHtml(c.nome)}</strong><span>${time}${delBtn}</span></div>
-      <div class="tib-c-body">${escapeHtml(c.testo)}</div>
-    </div>`;
+function renderComments(itemId,comments){
+  const box=document.getElementById('comments-'+itemId);
+  if(!box)return;
+  const list=comments.map(c=>{
+    const time=c.timestamp?new Date(c.timestamp.replace(' ','T')).toLocaleString('it-IT',{hour:'2-digit',minute:'2-digit',day:'2-digit',month:'2-digit'}):'';
+    const delBtn=c.mine?`<button class="tib-c-del" onclick="delComment(${c.id},${itemId})">✕</button>`:'';
+    return `<div class="tib-comment ${c.mine?'mine':''}"><div class="tib-c-head"><strong>${escapeHtml(c.nome)}</strong><span>${time}${delBtn}</span></div><div class="tib-c-body">${escapeHtml(c.testo)}</div></div>`;
   }).join('');
-  box.innerHTML = `
-    ${list || '<div style="color:var(--grigio);font-size:0.85rem;font-style:italic;padding:0.5rem 0">Nessun commento. Scrivi il primo qui sotto.</div>'}
-    <form class="tib-c-form" onsubmit="return addComment(event,${itemId})">
-      <input type="text" id="cinput-${itemId}" placeholder="Scrivi un commento su questa voce…" maxlength="500" required>
-      <button type="submit">Invia</button>
-    </form>
-  `;
+  box.innerHTML=`${list||'<div style="color:var(--grigio);font-size:13px;font-style:italic;padding:8px 0">Nessun commento. Scrivi il primo.</div>'}
+    <form class="tib-c-form" onsubmit="return addComment(event,${itemId})"><input type="text" id="cinput-${itemId}" placeholder="Scrivi un commento..." maxlength="500" required><button type="submit">Invia</button></form>`;
 }
-
-async function addComment(e, itemId) {
-  e.preventDefault();
-  const input = document.getElementById('cinput-' + itemId);
-  const testo = input.value.trim();
-  if (!testo) return false;
-  try {
-    await fetch(API + '/test-items/' + itemId + '/comments', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      credentials: 'include',
-      body: JSON.stringify({ testo })
-    });
-    input.value = '';
-    // ricarica solo i commenti di questo item
-    const r = await fetch(API + '/test-items/' + itemId + '/comments', { credentials: 'include' });
-    const comments = await r.json();
-    renderComments(itemId, comments);
-    loadTodos(); // aggiorna contatore my_comments
-  } catch (e) {}
+async function addComment(e,itemId){
+  e.preventDefault();const input=document.getElementById('cinput-'+itemId);const testo=input.value.trim();if(!testo)return false;
+  try{await fetch(API+'/test-items/'+itemId+'/comments',{method:'POST',headers:{'Content-Type':'application/json'},credentials:'include',body:JSON.stringify({testo})});input.value='';
+    const r=await fetch(API+'/test-items/'+itemId+'/comments',{credentials:'include'});renderComments(itemId,await r.json());loadChecklist()}catch(e){}
   return false;
 }
-
-async function delTestItemComment(commentId, itemId) {
-  try {
-    await fetch(API + '/test-items/comments/' + commentId, { method: 'DELETE', credentials: 'include' });
-    const r = await fetch(API + '/test-items/' + itemId + '/comments', { credentials: 'include' });
-    const comments = await r.json();
-    renderComments(itemId, comments);
-    loadTodos();
-  } catch (e) {}
+async function delComment(commentId,itemId){
+  try{await fetch(API+'/test-items/comments/'+commentId,{method:'DELETE',credentials:'include'});
+    const r=await fetch(API+'/test-items/'+itemId+'/comments',{credentials:'include'});renderComments(itemId,await r.json());loadChecklist()}catch(e){}
 }
 
-async function loadAria() {
-  // Se c'è un audio in riproduzione, salta il refresh per non interrompere l'ascolto
-  const playing = Array.from(document.querySelectorAll('#ariaList audio')).some(a => !a.paused && !a.ended);
-  if (playing) return;
-  try {
-    const r = await fetch(API + '/aria-messaggi', { credentials: 'include' });
-    if (!r.ok) return;
-    const msgs = await r.json();
-    const list = document.getElementById('ariaList');
-    if (!msgs.length) {
-      list.innerHTML = '<div class="aria-empty">Nessun messaggio ancora.<br>Quando un numero sconosciuto ti chiamerà, ARIA risponderà al posto tuo e il messaggio apparirà qui.</div>';
-      return;
+// ===== ARIA =====
+async function loadAria(){
+  const playing=Array.from(document.querySelectorAll('#viewContent audio')).some(a=>!a.paused&&!a.ended);
+  if(playing)return;
+  try{
+    const r=await fetch(API+'/aria-messaggi',{credentials:'include'});if(!r.ok)return;
+    const msgs=await r.json();const c=document.getElementById('viewContent');
+    if(!msgs.length){c.innerHTML='<div class="d-card"><h3>Messaggi segreteria</h3><div class="aria-empty">Nessun messaggio ancora.<br>Quando un numero sconosciuto ti chiamera\', ARIA rispondera\' e il messaggio apparira\' qui.</div></div>';return}
+    c.innerHTML='<div class="d-card"><h3>Messaggi segreteria</h3><div class="aria-notice">⏱️ <strong>I messaggi restano disponibili per 24 ore</strong>, poi vengono cancellati. Scarica il file audio prima della scadenza.<br>⭐ <strong>Valuta la fedelta\' della trascrizione</strong>: i tuoi voti ci aiutano a migliorare.</div>'+
+      msgs.map(m=>{
+        const ts=m.timestamp?new Date(m.timestamp.replace(' ','T')+'Z'):null;
+        const time=ts?ts.toLocaleString('it-IT'):'';
+        const dur=m.durata_secondi?m.durata_secondi+'s':'—';
+        const kb=m.dimensione_kb?m.dimensione_kb.toFixed(1)+' KB':'—';
+        const caller=m.caller_name?escapeHtml(m.caller_name):'Sconosciuto';
+        const spam=m.spam_score||0;
+        const spamColor=spam>=70?'#ff6b6b':spam>=30?'#ffb86c':'#6bcf7f';
+        const spamLabel=spam>=70?'🔴 Probabile call center':spam>=30?'🟠 Sospetto':'🟢 Probabilmente legittimo';
+        const spamBadge=m.trascrizione?`<span style="color:${spamColor};font-size:12px;font-weight:600">${spamLabel} (${spam}%)</span>`:'';
+        const trasc=m.trascrizione?`<div class="am-trasc"><span class="q">"</span>${escapeHtml(m.trascrizione)}<span class="q">"</span></div>`:'<div class="am-trasc" style="opacity:0.6">Trascrizione in elaborazione...</div>';
+        const audio=m.wav_filename?`<audio controls preload="none" src="${API}/aria-audio/${m.id}"></audio>`:'';
+        const download=m.wav_filename?`<a class="am-dl-btn" href="${API}/aria-download/${m.id}" download>⬇ Scarica</a>`:'';
+        let expire='';
+        if(ts){const ms=ts.getTime()+24*60*60*1000-Date.now();if(ms>0){const h=Math.floor(ms/(60*60*1000));const mm=Math.floor((ms%(60*60*1000))/(60*1000));expire=`<span class="am-expire">⏱️ tra ${h}h ${mm}m</span>`}}
+        const ratingBtns=[100,80,60,40,20].map(v=>`<button class="${m.accuracy_rating===v?'selected':''}" onclick="rateAria(${m.id},${v})">${v}%</button>`).join('');
+        const rating=m.trascrizione?`<div class="am-rating"><span class="lbl">Quanto e\' fedele questa trascrizione?</span><div class="btns">${ratingBtns}</div></div>`:'';
+        return `<div class="aria-msg"><div class="am-head"><div class="am-caller">${caller}<span class="num">${escapeHtml(m.caller_number||'—')}</span></div><div class="am-time">${time}</div></div>${spamBadge}${trasc}${audio}${rating}<div class="am-footer"><div class="am-meta">Durata: ${dur} · ${kb} ${expire?'· '+expire:''}</div><div style="display:flex;gap:6px;flex-wrap:wrap">${download}<button class="am-del-btn" onclick="deleteAriaMsg(${m.id})">🗑️ Elimina</button></div></div></div>`;
+      }).join('')+'</div>';
+  }catch(e){}
+}
+function deleteAriaMsg(id){
+  showModal('Eliminare questo messaggio?','Questa operazione e\' definitiva. Il messaggio verra\' cancellato.',async()=>{
+    try{const r=await fetch(API+'/aria-messaggi/'+id,{method:'DELETE',credentials:'include'});if(r.ok)loadAria()}catch(e){}
+  },'danger');
+}
+async function rateAria(id,rating){try{const r=await fetch(API+'/aria-messaggi/'+id+'/rating',{method:'POST',headers:{'Content-Type':'application/json'},credentials:'include',body:JSON.stringify({rating})});if(r.ok)loadAria()}catch(e){}}
+
+// ===== CHAT =====
+async function loadChat(){
+  try{
+    const r=await fetch(API+'/chat',{credentials:'include'});if(!r.ok)return;
+    const msgs=await r.json();const c=document.getElementById('viewContent');
+    const chatHtml=msgs.length?msgs.map(m=>{
+      const time=m.timestamp?new Date(m.timestamp.replace(' ','T')).toLocaleString('it-IT',{hour:'2-digit',minute:'2-digit',day:'2-digit',month:'2-digit'}):'';
+      const mine=m.mittente==='tester';
+      return `<div class="msg ${mine?'mine':'admin'}">${escapeHtml(m.testo||'')}<span class="time">${time}</span></div>`;
+    }).join(''):'<div class="chat-empty">Nessun messaggio ancora. Scrivi per iniziare.</div>';
+    // Preserva scroll position se gia' renderizzato
+    const existing=document.querySelector('.chat-box');
+    if(existing){
+      const wasBottom=existing.scrollTop+existing.clientHeight>=existing.scrollHeight-20;
+      existing.innerHTML=chatHtml;
+      if(wasBottom)existing.scrollTop=existing.scrollHeight;
+    }else{
+      c.innerHTML=`<div class="d-card"><h3>Chat con il team</h3><p style="font-size:13px;margin-bottom:12px">Scrivici per qualsiasi segnalazione, bug o domanda.</p><div class="chat-box">${chatHtml}</div><form class="chat-input" onsubmit="return inviaMsg(event)"><input type="text" id="chatTxt" placeholder="Scrivi un messaggio..." maxlength="1000" required><button type="submit">Invia</button></form></div>`;
+      const box=document.querySelector('.chat-box');if(box)box.scrollTop=box.scrollHeight;
     }
-    list.innerHTML = msgs.map(m => {
-      const ts = m.timestamp ? new Date(m.timestamp.replace(' ', 'T') + 'Z') : null;
-      const time = ts ? ts.toLocaleString('it-IT') : '';
-      const dur = m.durata_secondi ? `${m.durata_secondi}s` : '—';
-      const kb = m.dimensione_kb ? `${m.dimensione_kb.toFixed(1)} KB` : '—';
-      const caller = m.caller_name ? escapeHtml(m.caller_name) : 'Sconosciuto';
-      const spam = m.spam_score || 0;
-      const spamColor = spam >= 70 ? '#ff6b6b' : spam >= 30 ? '#ffb86c' : '#6bcf7f';
-      const spamLabel = spam >= 70 ? '🔴 Probabile call center' : spam >= 30 ? '🟠 Sospetto' : '🟢 Probabilmente legittimo';
-      const spamBadge = m.trascrizione ? `<span class="am-spam" style="color:${spamColor};font-size:0.78rem;font-weight:600">${spamLabel} (${spam}%)</span>` : '';
-      const trasc = m.trascrizione ? `<div class="am-trasc"><span class="q">“</span>${escapeHtml(m.trascrizione)}<span class="q">”</span></div>` : '<div class="am-trasc" style="opacity:0.6">Trascrizione in elaborazione…</div>';
-      const audio = m.wav_filename ? `<audio controls preload="none" src="${API}/aria-audio/${m.id}"></audio>` : '';
-      const download = m.wav_filename ? `<a class="am-dl-btn" href="${API}/aria-download/${m.id}" download>⬇ Scarica</a>` : '';
-      // tempo rimanente prima della cancellazione (24h dal timestamp)
-      let expire = '';
-      if (ts) {
-        const expiryMs = ts.getTime() + 24*60*60*1000 - Date.now();
-        if (expiryMs > 0) {
-          const h = Math.floor(expiryMs / (60*60*1000));
-          const mm = Math.floor((expiryMs % (60*60*1000)) / (60*1000));
-          expire = `<span class="am-expire">⏱️ Cancellato tra ${h}h ${mm}m</span>`;
-        }
-      }
-      // Rating UI
-      const ratingBtns = [100,80,60,40,20].map(v =>
-        `<button class="${m.accuracy_rating===v?'selected':''}" onclick="rateAria(${m.id},${v})">${v}%</button>`
-      ).join('');
-      const rating = m.trascrizione ? `
-        <div class="am-rating">
-          <span class="lbl">Quanto è fedele questa trascrizione al messaggio originale?</span>
-          <div class="btns">${ratingBtns}</div>
+  }catch(e){}
+}
+async function inviaMsg(e){
+  e.preventDefault();const input=document.getElementById('chatTxt');const testo=input.value.trim();if(!testo)return false;
+  input.disabled=true;
+  try{const r=await fetch(API+'/chat',{method:'POST',headers:{'Content-Type':'application/json'},credentials:'include',body:JSON.stringify({testo})});if(r.ok){input.value='';loadChat()}}catch(e){}
+  input.disabled=false;input.focus();return false;
+}
+
+// ===== STATISTICHE =====
+async function loadStats(){
+  try{
+    const r=await fetch(API+'/stats',{credentials:'include'});if(!r.ok)return;
+    const s=await r.json();
+    const spam=(s.sconosciuti_mobile_non_risposti||0)+(s.sconosciuti_fissi_non_risposti||0)+(s.privati_non_risposti||0);
+    const aria=(s.sconosciuti_mobile_segreteria||0)+(s.sconosciuti_fissi_segreteria||0)+(s.privati_segreteria||0);
+    const msg=(s.sconosciuti_mobile_msg_lasciato||0)+(s.sconosciuti_fissi_msg_lasciato||0)+(s.privati_msg_lasciato||0);
+    const sync=s.ultimo_sync?'Ultimo aggiornamento: '+new Date(s.ultimo_sync.replace(' ','T')).toLocaleString('it-IT'):'L\'app non ha ancora inviato statistiche.';
+    document.getElementById('viewContent').innerHTML=`
+      <div class="d-card"><h3>Le tue statistiche</h3>
+        <div class="stats-grid">
+          <div class="stat-mini"><span class="num">${s.chiamate_totali||0}</span><span class="lbl">Chiamate totali</span></div>
+          <div class="stat-mini"><span class="num">${s.chiamate_oggi||0}</span><span class="lbl">Oggi</span></div>
+          <div class="stat-mini"><span class="num">${spam}</span><span class="lbl">Spam silenziati</span></div>
+          <div class="stat-mini"><span class="num">${s.sconosciuti_mobile_sms||0}</span><span class="lbl">SMS inviati</span></div>
+          <div class="stat-mini"><span class="num">${aria}</span><span class="lbl">ARIA risposte</span></div>
+          <div class="stat-mini"><span class="num">${msg}</span><span class="lbl">Messaggi ricevuti</span></div>
         </div>
-      ` : '';
-      return `
-        <div class="aria-msg">
-          <div class="am-head">
-            <div class="am-caller">${caller}<span class="num">${escapeHtml(m.caller_number || '—')}</span></div>
-            <div class="am-time">${time}</div>
-          </div>
-          ${spamBadge}
-          ${trasc}
-          ${audio}
-          ${rating}
-          <div class="am-footer">
-            <div class="am-meta">Durata: ${dur} · Dimensione: ${kb} ${expire?'· '+expire:''}</div>
-            <div style="display:flex;gap:0.5rem;flex-wrap:wrap">
-              ${download}
-              <button class="am-del-btn" onclick="deleteAriaMsg(${m.id})">🗑️ Elimina</button>
-            </div>
-          </div>
-        </div>
-      `;
-    }).join('');
-  } catch (e) {}
+        <p style="font-size:12px;color:var(--grigio);text-align:center;margin-top:12px">${sync}</p>
+      </div>`;
+  }catch(e){}
 }
 
-async function deleteAriaMsg(id) {
-  if (!confirm('Eliminare questo messaggio ARIA? L\'operazione è definitiva.')) return;
-  try {
-    const r = await fetch(API + '/aria-messaggi/' + id, { method: 'DELETE', credentials: 'include' });
-    if (r.ok) loadAria();
-  } catch (e) {}
+// ===== GUIDA =====
+function renderGuida(){
+  document.getElementById('viewContent').innerHTML=`
+    <div class="d-card"><h3>Guida all'installazione</h3>
+      <p>Per partecipare ai test, installa StoppAI dal Play Store Internal Testing.</p>
+      <div class="guide-step"><span class="num">1</span><h4>Apri il link dal telefono</h4><p>Usa il telefono Android dove hai attiva la tua email Gmail.</p></div>
+      <div class="guide-step"><span class="num">2</span><h4>Diventa tester</h4><p>Clicca "Diventa tester" e accetta l'invito.</p></div>
+      <div class="guide-step"><span class="num">3</span><h4>Scarica da Google Play</h4><p>Clicca "Scarica da Google Play" e installa l'app.</p></div>
+      <div class="guide-step"><span class="num">4</span><h4>Segui il setup</h4><p>Apri l'app e concedi i permessi richiesti per la protezione.</p></div>
+      <a href="https://play.google.com/apps/internaltest/4701140799325601254" target="_blank" rel="noopener" class="playstore-btn">🤖 Apri il link Play Store →</a>
+    </div>`;
 }
 
-async function rateAria(id, rating) {
-  try {
-    const r = await fetch(API + '/aria-messaggi/' + id + '/rating', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      credentials: 'include',
-      body: JSON.stringify({ rating })
-    });
-    if (r.ok) loadAria();
-  } catch (e) {}
+// ===== PROFILO =====
+function renderProfilo(){
+  const dataIscr=me.data_iscrizione?new Date(me.data_iscrizione.replace(' ','T')).toLocaleDateString('it-IT'):'—';
+  const dataAcc=me.data_accettazione?new Date(me.data_accettazione.replace(' ','T')).toLocaleDateString('it-IT'):'—';
+  document.getElementById('viewContent').innerHTML=`
+    <div class="d-card"><h3>Il tuo profilo</h3>
+      <div class="profile-row"><span class="label">Nome</span><span class="val">${escapeHtml(me.nome)} ${escapeHtml(me.cognome)}</span></div>
+      <div class="profile-row"><span class="label">Email</span><span class="val">${escapeHtml(me.email)}</span></div>
+      <div class="profile-row"><span class="label">Telefono</span><span class="val">${escapeHtml(me.telefono||'—')}</span></div>
+      <div class="profile-row"><span class="label">Piano attuale</span><span class="val"><span class="piano-badge">${(me.piano||'free').toUpperCase()}</span></span></div>
+      <div class="profile-row"><span class="label">Iscritto il</span><span class="val">${dataIscr}</span></div>
+      <div class="profile-row"><span class="label">Accettato il</span><span class="val">${dataAcc}</span></div>
+      <p style="font-size:12px;color:var(--grigio);margin-top:16px;font-style:italic">I dati del profilo sono in sola lettura. Per modifiche scrivi nei Messaggi.</p>
+    </div>`;
 }
 
-async function loadChat() {
-  try {
-    const r = await fetch(API + '/chat', { credentials: 'include' });
-    if (!r.ok) return;
-    const msgs = await r.json();
-    const box = document.getElementById('chatBox');
-    const wasAtBottom = box.scrollTop + box.clientHeight >= box.scrollHeight - 20;
-    if (!msgs.length) {
-      box.innerHTML = '<div class="chat-empty">Nessun messaggio ancora. Scrivi per iniziare la conversazione.</div>';
-      return;
-    }
-    box.innerHTML = msgs.map(m => {
-      const time = m.timestamp ? new Date(m.timestamp.replace(' ', 'T')).toLocaleString('it-IT', {hour:'2-digit',minute:'2-digit',day:'2-digit',month:'2-digit'}) : '';
-      const mine = m.mittente === 'tester';
-      return `<div class="msg ${mine ? 'mine' : 'admin'}">${escapeHtml(m.testo || '')}<span class="time">${time}</span></div>`;
-    }).join('');
-    if (wasAtBottom) box.scrollTop = box.scrollHeight;
-  } catch (e) {}
-}
+// ===== UTILS =====
+async function doLogout(){try{await fetch(API+'/logout',{method:'POST',credentials:'include'})}catch(e){}window.location.href='/'}
 
-async function inviaMsg(e) {
-  e.preventDefault();
-  const input = document.getElementById('chatTxt');
-  const testo = input.value.trim();
-  if (!testo) return false;
-  input.disabled = true;
-  try {
-    const r = await fetch(API + '/chat', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      credentials: 'include',
-      body: JSON.stringify({ testo })
-    });
-    if (r.ok) {
-      input.value = '';
-      loadChat();
-    }
-  } catch (e) {}
-  input.disabled = false;
-  input.focus();
-  return false;
+function showModal(titolo,testo,onConfirm,tipo){
+  const overlay=document.createElement('div');overlay.className='modal-overlay';
+  overlay.innerHTML=`<div class="modal-box"><h4>${titolo}</h4><p>${testo}</p><div class="modal-btns"><button class="btn-cancel" onclick="this.closest('.modal-overlay').remove()">Annulla</button><button class="btn-confirm ${tipo||''}" id="modalConfirmBtn">Conferma</button></div></div>`;
+  document.body.appendChild(overlay);
+  overlay.addEventListener('click',e=>{if(e.target===overlay)overlay.remove()});
+  document.getElementById('modalConfirmBtn').onclick=()=>{overlay.remove();if(onConfirm)onConfirm()};
 }
-
-async function doLogout() {
-  try { await fetch(API + '/logout', { method: 'POST', credentials: 'include' }); } catch (e) {}
-  window.location.href = '/';
-}
-
-function escapeHtml(s) {
-  return String(s || '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
-}
+function escapeHtml(s){return String(s||'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]))}
 
 init();
 </script>
